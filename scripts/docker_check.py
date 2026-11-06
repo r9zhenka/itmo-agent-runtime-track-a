@@ -15,11 +15,19 @@ from runtime.docker_engine import Docker
 from runtime.sandbox_manager import SandboxManager
 
 
+# Keep diagnostics on the Docker log stream, outside the tmpfs being filled.
+TEMP_DISK_COMMAND = "dd if=/dev/zero of=/tmp/fill bs=1048576 count=80"
+
+
 def command_failed(result):
     """An isolation check must observe a command failure, not a broken executor."""
     code = result.get("exit_code")
     return (type(code) is int and code != 0
             and (result.get("error") or {}).get("kind") == "command")
+
+
+def temporary_disk_full(result):
+    return command_failed(result) and "No space left on device" in result.get("stderr", "")
 
 
 def main():
@@ -41,10 +49,13 @@ def main():
         result = manager.exec("rw", uuid.uuid4().hex, "RunCommand", {"command": command}, timeout)
         return result
 
-    def require(name, condition):
-        results.append({"check": name, "pass": bool(condition), "backend": "docker"})
+    def require(name, condition, detail=None):
+        record = {"check": name, "pass": bool(condition), "backend": "docker"}
+        if detail is not None:
+            record["detail"] = detail
+        results.append(record)
         if not condition:
-            raise AssertionError(name)
+            raise AssertionError(name + (": " + json.dumps(detail) if detail is not None else ""))
         print("PASS: " + name, flush=True)
 
     try:
@@ -61,8 +72,8 @@ def main():
         require("no server secrets", execute("python -c 'import os; assert not any(k in os.environ for k in (\"LLM_API_KEY\",\"INTERNAL_TOKEN\",\"CLIENT_TOKEN\"))'")["exit_code"] == 0)
         resource = execute("python -c 'from pathlib import Path; print(Path(\"/sys/fs/cgroup/memory.max\").read_text().strip()); print(Path(\"/sys/fs/cgroup/pids.max\").read_text().strip()); print(Path(\"/sys/fs/cgroup/cpu.max\").read_text().strip())'")
         require("cgroup v2 resource settings", resource["exit_code"] == 0 and resource["stdout"].splitlines()[:2] == ["268435456", "64"] and resource["stdout"].splitlines()[2] == "100000 100000")
-        disk = execute("dd if=/dev/zero of=/tmp/fill bs=1048576 count=80 2>/tmp/dd-error; status=$?; cat /tmp/dd-error; exit $status")
-        require("bounded temporary disk", command_failed(disk) and "No space left on device" in disk["stdout"])
+        disk = execute(TEMP_DISK_COMMAND)
+        require("bounded temporary disk", temporary_disk_full(disk), detail=disk)
         require("operation timeout", execute("sleep 10", timeout=0.5)["error"]["kind"] == "timeout")
         result = execute("echo OK; echo failed >&2; exit 1")
         require("command error classification", result["exit_code"] == 1 and result["error"]["kind"] == "command" and result["stdout"] == "OK\n")

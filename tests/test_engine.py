@@ -1,15 +1,37 @@
 import json
 import struct
+import subprocess
 import unittest
 from unittest.mock import patch
 
 from runtime.common import Fault
 from runtime.docker_engine import Docker
 from runtime.llm_proxy import ModelProxy
-from scripts.docker_check import command_failed
+from scripts.docker_check import TEMP_DISK_COMMAND, command_failed, temporary_disk_full
 
 
 class EngineTests(unittest.TestCase):
+    def test_full_device_diagnostics_reach_stderr(self):
+        # /dev/full deterministically returns ENOSPC without needing a mount or Docker.
+        command = TEMP_DISK_COMMAND.replace("/tmp/fill", "/dev/full")
+        process = subprocess.run(["/bin/sh", "-c", command], capture_output=True,
+                                 text=True, timeout=3, env={"PATH": "/usr/bin:/bin", "LC_ALL": "C"})
+        result = {"exit_code": process.returncode, "stdout": process.stdout,
+                  "stderr": process.stderr,
+                  "error": {"kind": "command"} if process.returncode else None}
+        self.assertTrue(temporary_disk_full(result), result)
+        self.assertEqual(process.stdout, "")
+
+    def test_disk_check_rejects_unrelated_failures(self):
+        for result in (
+            {"exit_code": 1, "error": {"kind": "command"}, "stderr": "Permission denied"},
+            {"exit_code": None, "error": {"kind": "timeout"}, "stderr": "No space left on device"},
+            {"exit_code": 0, "error": None, "stderr": "No space left on device"},
+            {"exit_code": 1, "error": {"kind": "command"}, "stdout": "No space left on device", "stderr": ""},
+        ):
+            with self.subTest(result=result):
+                self.assertFalse(temporary_disk_full(result))
+
     def test_isolation_checks_reject_executor_errors(self):
         self.assertTrue(command_failed({"exit_code": 1, "error": {"kind": "command"}}))
         for result in ({"exit_code": 0, "error": None},
