@@ -13,7 +13,7 @@ def main():
         replacements = {
             "replace-with-a-random-token": secrets.token_urlsafe(32),
             "replace-with-a-different-random-token": secrets.token_urlsafe(32),
-            "/absolute/path/to/project-a/workspaces": "'" + str(root / "workspaces") + "'",
+            "/absolute/path/to/itmo-agent-runtime-track-a/workspaces": "'" + str(root / "workspaces") + "'",
             "SANDBOX_UID=1000": f"SANDBOX_UID={os.getuid()}",
             "SANDBOX_GID=1000": f"SANDBOX_GID={os.getgid()}",
             "INSTANCE_ID=checkpoint1": "INSTANCE_ID=cp1-" + secrets.token_hex(4),

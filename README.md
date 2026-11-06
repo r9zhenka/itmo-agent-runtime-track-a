@@ -4,8 +4,7 @@ A small Python coding-agent runtime with a native Tk desktop client, a headless 
 four HTTP services, disposable Docker sandboxes, and 15 B1–B5 benchmark tasks.
 The application and offline tests use only Python's standard library.
 
-This is a separate implementation directory. The course templates and existing
-notebooks are unchanged. Assignment: [Project A](../projects/A-agent-runtime.md).
+This is the standalone repository for Project A. Assignment: [Project A](https://github.com/deeppavlov/agentic-course-itmo/blob/main/projects/A-agent-runtime.md).
 
 ## Scope and current evidence
 
@@ -164,7 +163,7 @@ If `make` is unavailable (as in the development environment), use these direct e
 | `make baf` | `python3 -m scripts.benchmark` |
 | `make baf-smoke` | `python3 -m scripts.benchmark --smoke` |
 
-The repository's [GitHub workflow](../.github/workflows/project-a.yml) runs both
+The repository's [GitHub workflow](.github/workflows/project-a.yml) runs both
 offline and Docker jobs, including replay against the actual Compose stack. It
 has not been executed remotely as part of this implementation.
 

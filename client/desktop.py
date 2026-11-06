@@ -35,7 +35,7 @@ def launch(server, token, workspace_root):
 
     def choose():
         if not workspace_root:
-            messages.put(("log", "Run the client from project-a so it can read WORKSPACE_ROOT from .env."))
+            messages.put(("log", "Run the client from itmo-agent-runtime-track-a so it can read WORKSPACE_ROOT from .env."))
             return
         selected = filedialog.askdirectory(initialdir=workspace_root or ".")
         if selected:
