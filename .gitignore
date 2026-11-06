@@ -1,0 +1,9 @@
+.env
+__pycache__/
+*.pyc
+.venv/
+workspaces/*
+!workspaces/.gitkeep
+results/*
+!results/.gitkeep
+!results/validation.json

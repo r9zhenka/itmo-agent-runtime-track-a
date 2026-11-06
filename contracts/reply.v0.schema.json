@@ -1,0 +1,162 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "title": "RPC replies and errors v0",
+  "oneOf": [
+    {
+      "type": "object",
+      "properties": {
+        "v": {
+          "const": 0
+        },
+        "session_id": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "v",
+        "session_id"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "v": {
+          "const": 0
+        },
+        "session_id": {
+          "type": "string"
+        },
+        "run_id": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "v",
+        "session_id",
+        "run_id"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "v": {
+          "const": 0
+        },
+        "session_id": {
+          "type": "string"
+        },
+        "mode": {
+          "enum": [
+            "ro",
+            "rw"
+          ]
+        }
+      },
+      "required": [
+        "v",
+        "session_id",
+        "mode"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "v": {
+          "const": 0
+        },
+        "session_id": {
+          "type": "string"
+        },
+        "cancelled": {
+          "const": true
+        }
+      },
+      "required": [
+        "v",
+        "session_id",
+        "cancelled"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "v": {
+          "const": 0
+        },
+        "session_id": {
+          "type": "string"
+        },
+        "released": {
+          "const": true
+        }
+      },
+      "required": [
+        "v",
+        "session_id",
+        "released"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "v": {
+          "const": 0
+        },
+        "session_id": {
+          "type": "string"
+        },
+        "results": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        }
+      },
+      "required": [
+        "v",
+        "session_id",
+        "results"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "v": {
+          "const": 0
+        },
+        "error": {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "type": "string"
+            },
+            "message": {
+              "type": "string"
+            },
+            "retryable": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "kind",
+            "message",
+            "retryable"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "v",
+        "error"
+      ],
+      "additionalProperties": false
+    }
+  ]
+}

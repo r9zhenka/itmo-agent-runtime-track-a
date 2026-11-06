@@ -1,0 +1,15 @@
+{
+  "timestamp": "2026-11-05T23:39:53.240256+00:00",
+  "python": "3.14.7",
+  "command": "python3 -m scripts.validate",
+  "make_target": "test-ci",
+  "tests_run": 24,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "passed": true,
+  "executor": "test-only local fixture process executor; NOT Docker isolation",
+  "model": "synthetic-replay",
+  "live_model_evaluated": false,
+  "docker_integration_executed": false
+}

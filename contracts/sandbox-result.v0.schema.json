@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "title": "Sandbox terminal operation result v0",
+  "required": [
+    "v",
+    "type",
+    "session_id",
+    "operation_id",
+    "stdout",
+    "stderr",
+    "exit_code",
+    "error",
+    "duration_ms",
+    "truncated"
+  ],
+  "properties": {
+    "v": {
+      "const": 0
+    },
+    "type": {
+      "const": "result"
+    },
+    "session_id": {
+      "type": "string"
+    },
+    "operation_id": {
+      "type": "string"
+    },
+    "stdout": {
+      "type": "string"
+    },
+    "stderr": {
+      "type": "string"
+    },
+    "exit_code": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "error": {
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "duration_ms": {
+      "type": "number"
+    },
+    "truncated": {
+      "type": "boolean"
+    }
+  }
+}

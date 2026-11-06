@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "title": "Client event v0",
+  "required": [
+    "v",
+    "seq",
+    "session_id",
+    "trace_id",
+    "run_id",
+    "type"
+  ],
+  "properties": {
+    "v": {
+      "const": 0
+    },
+    "seq": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "session_id": {
+      "type": "string"
+    },
+    "trace_id": {
+      "type": "string"
+    },
+    "run_id": {
+      "type": "string"
+    },
+    "type": {
+      "enum": [
+        "started",
+        "model",
+        "tool_start",
+        "tool_result",
+        "result"
+      ]
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "result"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "outcome",
+          "duration_ms",
+          "tokens"
+        ],
+        "properties": {
+          "outcome": {
+            "enum": [
+              "success",
+              "error",
+              "cancelled"
+            ]
+          }
+        }
+      }
+    }
+  ]
+}
