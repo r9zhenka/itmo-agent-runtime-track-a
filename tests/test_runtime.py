@@ -18,7 +18,7 @@ class SandboxTests(unittest.TestCase):
         self.root = Path(self.tmp.name)
         (self.root / "work").mkdir()
         self.engine = FixtureProcessEngine()
-        self.manager = SandboxManager(self.engine, self.root, self.root)
+        self.manager = SandboxManager(self.engine, self.root, self.root, allow_local_rw=True)
         self.manager.provision("s", "work", "rw")
 
     def tearDown(self):
@@ -81,6 +81,80 @@ class SandboxTests(unittest.TestCase):
         self.assertFalse(self.engine.containers)
         self.manager.release("s")
         self.manager.release("s")
+
+    def test_reaper_inspection_race_preserves_deadline_classification(self):
+        def vanished(cid):
+            time.sleep(0.15)
+            raise Fault("sandbox", "Docker operation failed (HTTP 404)", 503)
+        with patch.object(self.engine, "inspect", side_effect=vanished):
+            result = self.execute("sleep 1", timeout=0.1)
+        self.assertEqual(result["error"]["kind"], "timeout")
+        self.assertFalse(self.engine.containers)
+
+    def test_cancel_and_exec_share_container_removal(self):
+        inspected, removing, finish = (threading.Event() for _ in range(3))
+        delete_lock = threading.Lock()
+        original_remove = self.engine.remove
+        results, errors = [], []
+
+        def inspect(cid):
+            inspected.set()
+            if not removing.wait(3):
+                raise Fault("sandbox", "Cancellation did not start", 503)
+            return {"Running": True}
+
+        def remove(cid):
+            if not delete_lock.acquire(blocking=False):
+                raise Fault("sandbox", "Docker operation failed (HTTP 409)", 503)
+            try:
+                removing.set()
+                if not finish.wait(3):
+                    raise Fault("sandbox", "Removal did not finish", 503)
+                original_remove(cid)
+            finally:
+                delete_lock.release()
+
+        def cancel():
+            try:
+                self.manager.cancel("s")
+            except Exception as exc:
+                errors.append(exc)
+
+        with patch.object(self.engine, "inspect", side_effect=inspect), patch.object(
+                self.engine, "remove", side_effect=remove) as deletion:
+            worker = threading.Thread(target=lambda: results.append(self.execute("sleep 10", timeout=5)))
+            canceller = threading.Thread(target=cancel)
+            worker.start()
+            try:
+                self.assertTrue(inspected.wait(3))
+                canceller.start()
+                self.assertTrue(removing.wait(3))
+                worker.join(timeout=0.2)
+            finally:
+                finish.set()
+                worker.join(timeout=3)
+                if canceller.ident is not None:
+                    canceller.join(timeout=3)
+            self.assertFalse(worker.is_alive())
+            self.assertFalse(canceller.is_alive())
+            self.assertEqual(errors, [])
+            self.assertEqual(results[0]["error"]["kind"], "cancelled", results)
+            self.assertEqual(deletion.call_count, 1)
+        self.assertFalse(self.engine.containers)
+
+    def test_failed_cleanup_is_reported_and_release_retries(self):
+        with patch.object(self.engine, "remove", side_effect=Fault("sandbox", "Docker unavailable", 503)):
+            result = self.execute("true")
+            self.assertEqual(result["error"]["kind"], "sandbox")
+            self.assertIsNotNone(self.manager.session("s")["active"])
+            with self.assertRaises(Fault):
+                self.execute("true", op="next")
+            with self.assertRaises(Fault):
+                self.manager.release("s")
+            self.assertFalse(self.manager.session("s")["released"])
+        self.manager.release("s")
+        self.assertIsNone(self.manager.session("s")["active"])
+        self.assertFalse(self.engine.containers)
 
     def test_disposable_container_configuration_and_secret_allowlist(self):
         (self.root / "work/.git").mkdir()

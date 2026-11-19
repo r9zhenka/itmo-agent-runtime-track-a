@@ -1,6 +1,7 @@
 """Tk is included in Python distributions; Linux may require python3-tk."""
 import json
 import queue
+import sys
 import threading
 import tkinter as tk
 from pathlib import Path
@@ -11,16 +12,16 @@ from runtime.common import Fault
 from .api import Client, validate_workspace
 
 
-def launch(server, token, workspace_root):
+def launch(server, token, workspace_root, remote=None):
     root = tk.Tk()
-    root.title("Project A — Checkpoint 1")
+    root.title("Project A — remote folder" if remote else "Project A — local server folder")
     root.geometry("900x650")
     root.minsize(700, 500)
     root.columnconfigure(0, weight=1)
     # Only the activity area grows/shrinks; reserve space for the message controls.
     root.rowconfigure(2, weight=1)
-    default_folder = "demo" if workspace_root and (Path(workspace_root) / "demo").is_dir() else ""
-    values = {"server": tk.StringVar(value=server), "token": tk.StringVar(value=token),
+    default_folder = "demo" if not remote and workspace_root and (Path(workspace_root) / "demo").is_dir() else ""
+    values = {"server": tk.StringVar(value=remote["ssh_host"] if remote else server), "token": tk.StringVar(value=token),
               "folder": tk.StringVar(value=default_folder), "mode": tk.StringVar(value="rw")}
     state = {"client": None, "session": None, "run": None, "cursor": 0, "watching": False, "connecting": False}
     messages = queue.Queue()
@@ -29,11 +30,19 @@ def launch(server, token, workspace_root):
     for row, label in enumerate(("server", "token", "folder")):
         ttk.Label(top, text=label.capitalize()).grid(row=row, column=0, sticky="w", pady=3)
         ttk.Entry(top, textvariable=values[label], width=80,
-                  show="*" if label == "token" else "").grid(row=row, column=1, sticky="ew", padx=6)
+                  show="*" if label == "token" else "",
+                  state="readonly" if remote and label == "server" else "normal").grid(row=row, column=1, sticky="ew", padx=6)
     top.columnconfigure(1, weight=1)
-    ttk.Label(top, text="Checkpoint 1: select a folder under WORKSPACE_ROOT on the server machine.").grid(row=3, column=0, columnspan=2, sticky="w")
+    hint = ("Choose a folder on this computer. Server: " + remote["ssh_host"] if remote
+            else "Select a folder under WORKSPACE_ROOT on the server machine.")
+    ttk.Label(top, text=hint).grid(row=3, column=0, columnspan=2, sticky="w")
 
     def choose():
+        if remote:
+            selected = filedialog.askdirectory()
+            if selected:
+                values["folder"].set(selected)
+            return
         if not workspace_root:
             messages.put(("log", "Run the client from itmo-agent-runtime-track-a so it can read WORKSPACE_ROOT from .env."))
             return
@@ -65,7 +74,7 @@ def launch(server, token, workspace_root):
     send_controls.grid(row=1, column=0, sticky="ew", pady=(6, 0))
     ttk.Label(send_controls, text="Type your request here. Ctrl+Enter to send.").pack(side="left")
 
-    def worker(fn):
+    def worker(fn, daemon=True):
         def work():
             try:
                 fn()
@@ -73,30 +82,47 @@ def launch(server, token, workspace_root):
                 messages.put(("log", str(exc)))
             finally:
                 messages.put(("idle", None))
-        threading.Thread(target=work, daemon=True).start()
+        threading.Thread(target=work, daemon=daemon).start()
 
     def connect():
         if state["watching"] or state["connecting"]:
             return
         folder, mode = values["folder"].get(), values["mode"].get()
         try:
-            validate_workspace(folder)
+            if remote:
+                if not folder or not Path(folder).is_dir():
+                    raise Fault("validation", "Choose an existing local folder")
+            else:
+                validate_workspace(folder)
         except Fault as exc:
             messages.put(("log", str(exc)))
             return
         state["connecting"] = True
-        client = Client(values["server"].get(), values["token"].get())
+        if remote:
+            from .remote import RemoteClient
+            client = RemoteClient(values["token"].get(), **remote)
+        else:
+            client = Client(values["server"].get(), values["token"].get())
         old_client, old_session = state["client"], state["session"]
 
         def work():
             try:
                 if old_session:
-                    old_client.release(old_session)
+                    try:
+                        old_client.release(old_session)
+                    except Fault as exc:
+                        if not remote:
+                            raise
+                        old_client.close()
+                        messages.put(("log", "Previous connection cleanup: " + str(exc)))
                 session = client.create(folder, mode)
-                messages.put(("connected", (client, session)))
+                if state.get("closing"):
+                    client.release(session)
+                else:
+                    messages.put(("connected", (client, session)))
             finally:
                 messages.put(("connect_done", None))
-        worker(work)
+        worker(work, daemon=False)
 
     def watch(client, session, run, cursor):
         for event in client.watch(session, run, cursor):
@@ -165,7 +191,7 @@ def launch(server, token, workspace_root):
         while not messages.empty():
             kind, data = messages.get_nowait()
             if kind == "connected":
-                state.update(client=data[0], session=data[1], cursor=0, run=None)
+                state.update(client=data[0], session=data[1], cursor=0, run=None, disconnect_reported=False)
                 display("Connected: " + data[1])
                 prompt.focus_set()
             elif kind == "connect_done":
@@ -181,17 +207,24 @@ def launch(server, token, workspace_root):
                     state["run"] = None
             elif kind == "log":
                 display(data)
+        client = state["client"]
+        if (remote and client and state["session"] and not state["connecting"]
+                and not state.get("disconnect_reported")
+                and (client.process is None or client.process.poll() is not None)):
+            state["disconnect_reported"] = True
+            display("Remote folder disconnected. Click Connect to create a new mount/session.")
         root.after(80, poll)
 
     def close():
+        state["closing"] = True
         if state["session"]:
             client, session = state["client"], state["session"]
             # Non-daemon cleanup survives closing the window.
             def release():
                 try:
                     client.release(session)
-                except Exception:
-                    pass
+                except Exception as exc:
+                    print("Session cleanup failed: " + str(exc), file=sys.stderr)
             threading.Thread(target=release).start()
         root.destroy()
 

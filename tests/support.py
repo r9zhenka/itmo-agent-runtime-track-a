@@ -50,7 +50,11 @@ class FixtureProcessEngine:
                 code = "import json,sys; from runtime.file_tool import execute; execute(sys.argv[1],json.loads(sys.argv[2]),sys.argv[3])"
                 cmd = [sys.executable, "-c", code, *cmd[2:], folder]
             elif cmd[:2] == ["/bin/sh", "-lc"]:
-                cmd = ["/bin/sh", "-c", cmd[2]]
+                # Test-only mapping for our trusted fixed B6 fixtures. Production
+                # never imports this executor and never runs generated code here.
+                worker = str(Path(__file__).resolve().parents[1] / "runtime/code_worker.py")
+                import shlex
+                cmd = ["/bin/sh", "-c", cmd[2].replace("/opt/code_worker.py", shlex.quote(worker))]
             item["stdout"], item["stderr"] = tempfile.TemporaryFile(), tempfile.TemporaryFile()
             item["process"] = subprocess.Popen(cmd, cwd=folder, start_new_session=True,
                 stdout=item["stdout"], stderr=item["stderr"],
@@ -119,7 +123,7 @@ def stack():
         work = root / "workspaces"
         work.mkdir()
         engine = FixtureProcessEngine()
-        manager = SandboxManager(engine, work, work)
+        manager = SandboxManager(engine, work, work, allow_local_rw=True)
         try:
             with server(manager) as sandbox_url, server(ModelProxy()) as model_url:
                 harness = Harness(Remote(sandbox_url, "internal"), Remote(model_url, "internal"), root / "traces")

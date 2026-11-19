@@ -2,9 +2,9 @@ import json
 import struct
 import subprocess
 import unittest
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
-from runtime.common import Fault
+from runtime.common import Fault, UnixProxyHTTPSHandler
 from runtime.docker_engine import Docker
 from runtime.llm_proxy import ModelProxy
 from scripts.docker_check import TEMP_DISK_COMMAND, command_failed, temporary_disk_full
@@ -69,4 +69,35 @@ class EngineTests(unittest.TestCase):
         self.assertEqual(result["usage"]["total_tokens"], 42)
         self.assertEqual(request.call_args.args[0], "https://model.example/v1/chat/completions")
         self.assertEqual(request.call_args.args[1]["temperature"], 0)
+        self.assertNotIn("tools", request.call_args.args[1])
         self.assertEqual(result["provider"], "live")
+
+    def test_provider_proxy_is_explicit_and_tools_are_preserved(self):
+        proxy = ModelProxy("live", "https://model.example/v1", "key", "model",
+                           proxy_socket="/run/provider.sock", timeout=90)
+        response = {"choices": [{"finish_reason": "stop", "message": {"role": "assistant", "content": "done"}}]}
+        definitions = [{"type": "function", "function": {"name": "ReadFile"}}]
+        with patch("runtime.llm_proxy.request_json", return_value=response) as request:
+            proxy.dispatch({"op": "complete", "messages": [], "tools": definitions})
+        self.assertEqual(request.call_args.args[1]["tools"], definitions)
+        self.assertEqual(request.call_args.kwargs["proxy_socket"], "/run/provider.sock")
+        self.assertEqual(request.call_args.kwargs["timeout"], 90)
+        with self.assertRaises(ValueError):
+            ModelProxy(proxy_url="http://proxy", proxy_socket="/run/proxy")
+
+    def test_unix_proxy_connect_preserves_tls_hostname_without_tcp_options(self):
+        handler = UnixProxyHTTPSHandler("/run/proxy.sock")
+        sock, context = Mock(), Mock()
+        def open_connection(factory, request, **kwargs):
+            conn = factory("unused-proxy", context=context, timeout=4)
+            conn.set_tunnel("provider.example", 443)
+            with patch.object(conn, "_tunnel") as tunnel:
+                conn.connect()
+                tunnel.assert_called_once()
+            self.assertIs(conn.sock, context.wrap_socket.return_value)
+            return "connected"
+        with patch("runtime.common.socket.socket", return_value=sock), patch.object(handler, "do_open", side_effect=open_connection):
+            self.assertEqual(handler.https_open(object()), "connected")
+        sock.connect.assert_called_once_with("/run/proxy.sock")
+        sock.setsockopt.assert_not_called()
+        context.wrap_socket.assert_called_once_with(sock, server_hostname="provider.example")

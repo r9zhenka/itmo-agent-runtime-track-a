@@ -1,16 +1,19 @@
 import unittest
 
 from baf.cases import cases, check, prepare
+from baf.code_evaluator import FunctionEvaluator
 from scripts.benchmark import run_case
 from tests.support import stack
 
 
 class BAFTests(unittest.TestCase):
-    def test_all_fifteen_through_four_http_services(self):
+    def test_all_thirty_nine_through_four_http_services(self):
         with stack() as app:
+            self.assertEqual(len(cases()), 39)
             for case in cases():
                 with self.subTest(task=case["id"]):
-                    result = run_case(app["client"], case, app["root"])
+                    result = run_case(app["client"], case, app["root"],
+                                      code_evaluator=FunctionEvaluator(engine=app["engine"]))
                     self.assertTrue(result["pass"], result["reason"])
                     self.assertEqual(result["model"]["provider"], "synthetic-replay")
                     self.assertEqual(result["tokens"], 0)

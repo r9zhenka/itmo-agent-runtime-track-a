@@ -42,7 +42,8 @@ def main():
     engine = Docker()
     engine.ping()
     instance = "check-" + uuid.uuid4().hex
-    manager = SandboxManager(engine, root, root, uid=os.getuid(), gid=os.getgid(), instance=instance)
+    manager = SandboxManager(engine, root, root, uid=os.getuid(), gid=os.getgid(), instance=instance,
+                             allow_local_rw=True)
     results = []
 
     def execute(command, timeout=5):
@@ -77,16 +78,40 @@ def main():
         require("operation timeout", execute("sleep 10", timeout=0.5)["error"]["kind"] == "timeout")
         result = execute("echo OK; echo failed >&2; exit 1")
         require("command error classification", result["exit_code"] == 1 and result["error"]["kind"] == "command" and result["stdout"] == "OK\n")
-        workers = []
-        worker = threading.Thread(target=lambda: workers.append(execute("(sleep 2; echo leaked > leaked.txt) & wait", timeout=10)))
+        workers, worker_errors = [], []
+
+        def cancellable_command():
+            try:
+                workers.append(execute(
+                    "(echo ready > cancel-ready; "
+                    "while [ ! -e release-child ]; do sleep 0.05; done; "
+                    "echo leaked > leaked.txt) & wait", timeout=30))
+            except Exception as exc:
+                worker_errors.append(repr(exc))
+
+        worker = threading.Thread(target=cancellable_command)
         worker.start()
-        deadline = time.monotonic() + 5
-        while not manager.session("rw")["active"] and time.monotonic() < deadline:
+        deadline = time.monotonic() + 10
+        while not (folder / "cancel-ready").exists() and worker.is_alive() and time.monotonic() < deadline:
             time.sleep(0.02)
-        manager.cancel("rw")
+        ready = (folder / "cancel-ready").exists()
+        cancel_error = None
+        try:
+            manager.cancel("rw")
+        except Exception as exc:
+            cancel_error = repr(exc)
         worker.join(timeout=15)
+        # A surviving child can now write its marker; no race against a fixed sleep
+        # between container startup and cancellation on a busy CI runner.
+        (folder / "release-child").touch()
         time.sleep(2.1)
-        require("cancel kills process tree", not worker.is_alive() and bool(workers) and workers[0]["error"]["kind"] == "cancelled" and not (folder / "leaked.txt").exists())
+        detail = {"child_ready": ready, "worker_alive": worker.is_alive(),
+                  "results": workers, "worker_errors": worker_errors,
+                  "cancel_error": cancel_error, "leaked": (folder / "leaked.txt").exists()}
+        require("cancel kills process tree",
+                ready and not detail["worker_alive"] and not worker_errors and cancel_error is None
+                and bool(workers) and (workers[0].get("error") or {}).get("kind") == "cancelled"
+                and not detail["leaked"], detail=detail)
         manager.release("rw")
         manager.provision("ro", name, "ro")
         result = manager.exec("ro", "write", "WriteFile", {"path": "forbidden.txt", "content": "no"}, 5)

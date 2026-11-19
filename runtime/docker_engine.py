@@ -3,6 +3,7 @@ import http.client
 import json
 import socket
 import struct
+import time
 from urllib.parse import quote
 
 from .common import Fault
@@ -52,11 +53,20 @@ class Docker:
         return self.request("GET", f"/containers/{cid}/json")["State"]
 
     def remove(self, cid):
-        try:
-            self.request("DELETE", f"/containers/{cid}?force=true&v=true")
-        except Fault as exc:
-            if "HTTP 404" not in exc.message:
-                raise
+        deadline = time.monotonic() + 2
+        while True:
+            try:
+                self.request("DELETE", f"/containers/{cid}?force=true&v=true")
+                return
+            except Fault as exc:
+                if "HTTP 404" in exc.message:
+                    return
+                # Another control-plane process (watchdog/manager) may already be
+                # deleting this container. Confirm completion instead of reporting
+                # success while removal is merely in progress.
+                if "HTTP 409" not in exc.message or time.monotonic() >= deadline:
+                    raise
+                time.sleep(0.05)
 
     def logs(self, cid):
         raw = self.request("GET", f"/containers/{cid}/logs?stdout=true&stderr=true", raw=True)

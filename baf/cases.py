@@ -1,4 +1,4 @@
-"""Course B1–B5 task specifications, expanded into reproducible local fixtures.
+"""Course B1–B8 task specifications, expanded into reproducible local fixtures.
 
 Replay scripts are synthetic fixtures, NOT recorded successful LLM evaluations.
 Checkers only inspect bytes/data; they never execute generated code on the host.
@@ -10,6 +10,14 @@ import json
 import re
 import shlex
 from pathlib import Path
+
+from .code_cases import cases as code_cases
+from .reasoning_cases import cases as reasoning_cases
+from .reasoning_checks import check as check_reasoning
+from .synthesis_cases import cases as synthesis_cases
+from .synthesis_checks import check as check_synthesis
+from .additional_cases import cases as additional_cases
+from .additional_checks import check as check_additional
 
 
 def command(code):
@@ -104,7 +112,7 @@ class TotalTests(unittest.TestCase):
          "replay": [{"name": "RunCommand", "arguments": {"command": "sh build.sh"}},
                     write("answer.txt", "no: exit 1, missing dependency\n")],
          "check": "build"},
-    ]
+    ] + code_cases() + reasoning_cases() + synthesis_cases() + additional_cases()
 
 
 def prompt(case):
@@ -120,8 +128,18 @@ def prepare(case, workdir):
         target.write_bytes(value.encode() if isinstance(value, str) else value)
 
 
-def check(case, workdir, events):
+def check(case, workdir, events, code_evaluator=None):
     """Return a verdict; missing/corrupt output is a failure, not a runner crash."""
+    if case.get("check") == "additional":
+        return check_additional(case, workdir, events, code_evaluator)
+    if case.get("check") == "synthesis":
+        return check_synthesis(case, workdir)
+    if case.get("check") == "reasoning":
+        return check_reasoning(case, workdir)
+    if case.get("check") == "python_function":
+        if code_evaluator is None:
+            return {"pass": False, "reason": "B6 requires an isolated Python-function evaluator"}
+        return code_evaluator.check(case["id"], workdir)
     root = Path(workdir).resolve()
 
     def read(name):

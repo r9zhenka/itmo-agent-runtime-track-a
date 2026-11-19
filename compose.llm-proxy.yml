@@ -1,0 +1,13 @@
+# Optional: SSH-forwarded HTTP proxy socket, mounted ONLY into the LLM service.
+services:
+  llm-proxy:
+    environment:
+      LLM_PROXY_SOCKET: /run/provider-proxy.sock
+      LLM_HTTP_PROXY: ""
+    volumes:
+      - type: bind
+        source: ${LLM_PROXY_SOCKET_HOST:?Set LLM_PROXY_SOCKET_HOST to the existing SSH socket}
+        target: /run/provider-proxy.sock
+        read_only: true
+        bind:
+          create_host_path: false

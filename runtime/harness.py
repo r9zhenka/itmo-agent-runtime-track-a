@@ -233,6 +233,7 @@ class Harness:
 if __name__ == "__main__":
     token = os.environ["INTERNAL_TOKEN"]
     serve(Harness(Remote(os.getenv("SANDBOX_URL", "http://sandbox-manager:8000"), token),
-                  Remote(os.getenv("LLM_URL", "http://llm-proxy:8000"), token, timeout=30),
+                  Remote(os.getenv("LLM_URL", "http://llm-proxy:8000"), token, timeout=125),
                   os.getenv("TRACE_DIR", "/traces"),
-                  int(os.getenv("MAX_STEPS", "16"))), token)
+                  int(os.getenv("MAX_STEPS", "16")),
+                  float(os.getenv("RUN_TIMEOUT", "600"))), token)

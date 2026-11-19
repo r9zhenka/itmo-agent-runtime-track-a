@@ -7,12 +7,13 @@ from pathlib import Path
 from .common import Fault, serve
 from .contracts import SANDBOX, TOOLS, validate, validate_request
 from .docker_engine import Docker
+from .mount_lease import check_lease, lease_name
 
 
 class SandboxManager:
     """A session owns /work; each command receives a fresh disposable container."""
     def __init__(self, engine, local_root, host_root, image="project-a-sandbox:cp1",
-                 uid=1000, gid=1000, instance="checkpoint1"):
+                 uid=1000, gid=1000, instance="checkpoint1", allow_local_rw=False):
         self.engine = engine
         self.local_root = Path(local_root).resolve()
         self.host_root = Path(host_root)
@@ -21,6 +22,7 @@ class SandboxManager:
         if uid <= 0 or gid <= 0:
             raise ValueError("Sandbox UID and GID must be non-root positive IDs")
         self.image, self.uid, self.gid, self.instance = image, uid, gid, instance
+        self.allow_local_rw = allow_local_rw
         self.sessions = {}
         self.lock = threading.RLock()
 
@@ -40,6 +42,9 @@ class SandboxManager:
             return self.sessions[sid]
 
     def provision(self, session_id, workspace, mode):
+        check_lease(self.local_root, workspace, mode)
+        if mode == "rw" and lease_name(workspace) is None and not self.allow_local_rw:
+            raise Fault("validation", "Local read-write bind mounts require explicit ALLOW_LOCAL_RW=1 for trusted development; use a quota-controlled remote folder", 403)
         relative = Path(workspace)
         path = self.local_root / relative
         if relative.is_absolute() or ".." in relative.parts or not relative.parts:
@@ -65,18 +70,20 @@ class SandboxManager:
             self.sessions[session_id] = {
                 "signature": signature, "path": path, "source": str(self.host_root / relative),
                 "mode": mode, "cancel": threading.Event(), "released": False,
+                "remote_workspace": lease_name(workspace),
                 "active": None, "operations": {}, "exec_lock": threading.Lock(),
+                "cleanup_lock": threading.Lock(),
             }
         return {"v": 0, "session_id": session_id, "mode": mode}
 
-    def config(self, session, sid, opid, tool, arguments):
+    def config(self, session, sid, opid, tool, arguments, deadline=None):
         if tool == "RunCommand":
             cmd = ["/bin/sh", "-lc", arguments["command"]]
         else:
             cmd = ["python", "/opt/file_tool.py", tool, json.dumps(arguments)]
         mounts = [{"Type": "bind", "Source": session["source"],
                    "Target": "/work", "ReadOnly": session["mode"] == "ro"}]
-        if (session["path"] / ".git").exists():
+        if not session["remote_workspace"] and (session["path"] / ".git").exists():
             if (session["path"] / ".git").is_symlink():
                 raise Fault("validation", "A symlink .git directory is unsupported")
             mounts.append({"Type": "bind", "Source": session["source"] + "/.git",
@@ -87,17 +94,33 @@ class SandboxManager:
             "Env": ["PATH=/usr/local/bin:/usr/bin:/bin", "HOME=/tmp", "LANG=C.UTF-8",
                     "PYTHONDONTWRITEBYTECODE=1", "PYTHONUNBUFFERED=1"],
             "Labels": {"project-a.instance": self.instance, "project-a.session": sid,
-                       "project-a.operation": opid},
+                       "project-a.operation": opid,
+                       "project-a.workspace": session["remote_workspace"] or "local",
+                       "project-a.mode": session["mode"], "project-a.guard": "v1",
+                       "project-a.deadline": str(deadline if deadline is not None else time.time() + 120)},
             "HostConfig": {
                 "NetworkMode": "none", "ReadonlyRootfs": True,
                 "CapDrop": ["ALL"], "SecurityOpt": ["no-new-privileges:true"],
                 "Memory": 268435456, "MemorySwap": 268435456,
                 "NanoCpus": 1_000_000_000, "PidsLimit": 64,
+                "Ulimits": [{"Name": "fsize", "Soft": 128 * 1024 * 1024, "Hard": 128 * 1024 * 1024},
+                            {"Name": "nofile", "Soft": 256, "Hard": 256}],
                 "Tmpfs": {"/tmp": "rw,nosuid,nodev,noexec,size=64m,mode=1777"},
                 "Mounts": mounts, "Init": True,
                 "LogConfig": {"Type": "json-file", "Config": {"max-size": "1m", "max-file": "1"}},
             },
         }
+
+    def _remove_container(self, session, cid):
+        # cancel() and exec() may both request cleanup. Only one DELETE may run;
+        # Docker can return HTTP 409 while another removal is in progress.
+        with session["cleanup_lock"]:
+            with self.lock:
+                if session["active"] != cid:
+                    return
+            self.engine.remove(cid)  # Includes detached child processes.
+            with self.lock:
+                session["active"] = None
 
     def exec(self, session_id, operation_id, tool, arguments, timeout_s):
         validate(arguments, TOOLS[tool], "arguments")
@@ -111,6 +134,8 @@ class SandboxManager:
                   "exit_code": None, "error": None, "truncated": False}
 
         def check_status():
+            if session["remote_workspace"]:
+                check_lease(self.local_root, session["remote_workspace"], session["mode"])
             if session["cancel"].is_set():
                 raise Fault("cancelled", "Session cancelled", 409)
             if time.monotonic() - started >= timeout_s:
@@ -126,8 +151,12 @@ class SandboxManager:
                 raise Fault("busy", "Operation capacity reached; create a new session", 429)
             if session["cancel"].is_set() or session["released"]:
                 raise Fault("cancelled", "Session has been cancelled or released", 409)
+            if session["active"] is not None:
+                raise Fault("sandbox", "Previous container cleanup failed; release the session", 503)
             try:
-                config = self.config(session, session_id, operation_id, tool, arguments)
+                check_status()
+                config = self.config(session, session_id, operation_id, tool, arguments,
+                                     deadline=time.time() + max(0, timeout_s - (time.monotonic() - started)))
                 cid = self.engine.create(config)
                 # Cancellation and publishing the active container are atomic.
                 with self.lock:
@@ -150,16 +179,21 @@ class SandboxManager:
                         break
                     session["cancel"].wait(0.05)
             except Fault as exc:
+                # The independent reaper may remove a container between status
+                # checks and Docker inspection. Preserve the deadline/lease cause
+                # instead of turning a successful cleanup into an opaque 404.
+                try:
+                    check_status()
+                except Fault as status_error:
+                    exc = status_error
                 result["error"] = (Fault("cancelled", "Session cancelled", 409)
                                    if session["cancel"].is_set() else exc).as_dict()["error"]
             finally:
                 if cid:
                     try:
-                        self.engine.remove(cid)  # Removes the complete process tree, including detached children.
+                        self._remove_container(session, cid)
                     except Fault:
                         result["error"] = {"kind": "sandbox", "message": "Container cleanup failed", "retryable": False}
-                with self.lock:
-                    session["active"] = None
             result["duration_ms"] = round((time.monotonic() - started) * 1000, 3)
             session["operations"][operation_id] = (signature, result)
             return result
@@ -183,7 +217,7 @@ class SandboxManager:
             session["cancel"].set()
             active = session["active"]
         if active:
-            self.engine.remove(active)
+            self._remove_container(session, active)
         return {"v": 0, "session_id": session_id, "cancelled": True}
 
     def release(self, session_id):
@@ -193,6 +227,9 @@ class SandboxManager:
         if not session["exec_lock"].acquire(timeout=25):
             raise Fault("busy", "Cleanup still in progress; retry release", 503, True)
         try:
+            # An in-flight create may have published a container after cancel().
+            if session["active"] is not None:
+                self._remove_container(session, session["active"])
             with self.lock:
                 session["released"] = True
         finally:
@@ -212,7 +249,8 @@ def main():
     app = SandboxManager(engine, "/workspaces", os.environ["WORKSPACE_ROOT"],
                          os.getenv("SANDBOX_IMAGE", "project-a-sandbox:cp1"),
                          int(os.getenv("SANDBOX_UID", "1000")),
-                         int(os.getenv("SANDBOX_GID", "1000")), instance)
+                         int(os.getenv("SANDBOX_GID", "1000")), instance,
+                         allow_local_rw=os.getenv("ALLOW_LOCAL_RW", "0") == "1")
     serve(app, os.environ["INTERNAL_TOKEN"])
 
 

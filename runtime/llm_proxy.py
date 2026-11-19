@@ -6,13 +6,30 @@ from .common import Fault, request_json, serve
 
 
 class ModelProxy:
-    def __init__(self, mode="replay", url="", key="", model="", extra=None):
+    def __init__(self, mode="replay", url="", key="", model="", extra=None,
+                 proxy_url="", proxy_socket="", timeout=90):
         if mode not in ("replay", "live"):
             raise ValueError("LLM_MODE must be replay or live")
         if mode == "live" and (not url.startswith("https://") or not key or not model):
             raise ValueError("Live mode requires an HTTPS LLM_URL, LLM_API_KEY and LLM_MODEL")
         self.mode, self.url, self.key, self.model = mode, url, key, model
+        if proxy_url and not proxy_url.startswith(("http://", "https://")):
+            raise ValueError("LLM_HTTP_PROXY must be an HTTP(S) proxy URL")
+        if proxy_url and proxy_socket:
+            raise ValueError("Configure only one LLM proxy transport")
+        if not 1 <= timeout <= 120:
+            raise ValueError("LLM_TIMEOUT must be between 1 and 120 seconds")
+        self.proxy_url, self.proxy_socket, self.timeout = proxy_url, proxy_socket, timeout
         self.extra = extra or {}
+        if not isinstance(self.extra, dict):
+            raise ValueError("LLM_EXTRA_JSON must be an object")
+        if any(key in self.extra and (type(self.extra[key]) is not int or self.extra[key] != 1)
+               for key in ("n", "best_of")):
+            raise ValueError("Only one completion per provider request is allowed")
+        if type(self.extra.get("max_tokens", 2048)) is not int or not 1 <= self.extra.get("max_tokens", 2048) <= 4096:
+            raise ValueError("max_tokens must be an integer between 1 and 4096")
+        if "max_completion_tokens" in self.extra:
+            raise ValueError("Use max_tokens to keep the provider output budget explicit")
         if set(self.extra) & {"model", "messages", "tools", "stream"}:
             raise ValueError("LLM_EXTRA_JSON cannot override model, messages, tools or stream")
 
@@ -25,9 +42,14 @@ class ModelProxy:
         if self.mode == "replay":
             return self.replay(body["messages"])
         try:
+            payload = {**self.extra, "model": self.model, "messages": body["messages"], "stream": False}
+            payload.setdefault("max_tokens", 2048)
+            # Some OpenAI-compatible providers reject tools=[] (HTTP 400).
+            if body["tools"]:
+                payload["tools"] = body["tools"]
             response = request_json(self.url.rstrip("/") + "/chat/completions",
-                {**self.extra, "model": self.model, "messages": body["messages"],
-                 "tools": body["tools"], "stream": False}, self.key, timeout=20)
+                payload, self.key, timeout=self.timeout,
+                proxy_url=self.proxy_url, proxy_socket=self.proxy_socket)
             source = response["choices"][0]
             if source.get("finish_reason") not in ("stop", "tool_calls"):
                 raise ValueError("Incomplete model response")
@@ -68,4 +90,6 @@ class ModelProxy:
 if __name__ == "__main__":
     serve(ModelProxy(os.getenv("LLM_MODE", "replay"), os.getenv("LLM_PROVIDER_URL", ""),
                      os.getenv("LLM_API_KEY", ""), os.getenv("LLM_MODEL", ""),
-                     json.loads(os.getenv("LLM_EXTRA_JSON") or "{}")), os.environ["INTERNAL_TOKEN"])
+                     json.loads(os.getenv("LLM_EXTRA_JSON") or "{}"),
+                     os.getenv("LLM_HTTP_PROXY", ""), os.getenv("LLM_PROXY_SOCKET", ""),
+                     float(os.getenv("LLM_TIMEOUT", "90"))), os.environ["INTERNAL_TOKEN"])

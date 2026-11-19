@@ -30,6 +30,18 @@ services:
     cap_drop: [ALL]
     security_opt: [no-new-privileges:true]
 
+  sandbox-watchdog:
+    <<: *service
+    command: [python, -m, runtime.sandbox_watchdog]
+    user: "0:0"
+    restart: unless-stopped
+    environment:
+      INTERNAL_TOKEN: ${INTERNAL_TOKEN:?Run make init}
+      INSTANCE_ID: ${INSTANCE_ID:-checkpoint1}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ${WORKSPACE_ROOT:?Run make init}:/workspaces:ro
+
   sandbox-manager:
     <<: *service
     command: [python, -m, runtime.sandbox_manager]
@@ -40,10 +52,13 @@ services:
       SANDBOX_UID: ${SANDBOX_UID:-1000}
       SANDBOX_GID: ${SANDBOX_GID:-1000}
       INSTANCE_ID: ${INSTANCE_ID:-checkpoint1}
+      ALLOW_LOCAL_RW: ${ALLOW_LOCAL_RW:-0}
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ${WORKSPACE_ROOT:?Run make init}:/workspaces:ro
     depends_on:
+      sandbox-watchdog:
+        condition: service_healthy
       sandbox-image:
         condition: service_completed_successfully
 
@@ -57,6 +72,8 @@ services:
       LLM_API_KEY: ${LLM_API_KEY:-}
       LLM_MODEL: ${LLM_MODEL:-}
       LLM_EXTRA_JSON: ${LLM_EXTRA_JSON:-}
+      LLM_HTTP_PROXY: ${LLM_HTTP_PROXY:-}
+      LLM_TIMEOUT: ${LLM_TIMEOUT:-90}
     networks: [internal, model-egress]
 
   harness:
@@ -65,6 +82,7 @@ services:
     environment:
       INTERNAL_TOKEN: ${INTERNAL_TOKEN:?Run make init}
       MAX_STEPS: ${MAX_STEPS:-16}
+      RUN_TIMEOUT: ${RUN_TIMEOUT:-600}
     volumes: [traces:/traces]
     depends_on:
       sandbox-manager:

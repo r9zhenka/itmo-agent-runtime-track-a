@@ -1,4 +1,5 @@
 import hmac
+import http.client
 import json
 import os
 import socket
@@ -22,14 +23,51 @@ class Fault(Exception):
                                   "retryable": self.retryable}}
 
 
-def request_json(url, body=None, token="", timeout=40):
+class UnixProxyHTTPSHandler(urllib.request.HTTPSHandler):
+    """HTTP CONNECT through an SSH-forwarded Unix socket; TLS remains end-to-end."""
+    def __init__(self, path):
+        super().__init__()
+        self.path = path
+
+    def https_open(self, req):
+        path = self.path
+        class Connection(http.client.HTTPSConnection):
+            def connect(self):
+                if not self._tunnel_host:
+                    raise ValueError("Unix provider proxy requires HTTPS CONNECT")
+                sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+                try:
+                    sock.settimeout(self.timeout)
+                    sock.connect(path)
+                    self.sock = sock
+                    self._tunnel()
+                    self.sock = self._context.wrap_socket(sock, server_hostname=self._tunnel_host)
+                except BaseException:
+                    sock.close()
+                    raise
+        return self.do_open(Connection, req, context=self._context)
+
+
+class RejectRedirects(urllib.request.HTTPRedirectHandler):
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        # Fixed RPC endpoints must never forward bearer credentials to a new URL.
+        return None
+
+
+def request_json(url, body=None, token="", timeout=40, proxy_url="", proxy_socket=""):
     data = None if body is None else json.dumps(body).encode()
     headers = {"Content-Type": "application/json"}
     if token:
         headers["Authorization"] = "Bearer " + token
     req = urllib.request.Request(url, data=data, headers=headers)
-    # Internal service requests must not inherit a workstation HTTP proxy.
-    opener = urllib.request.build_opener(urllib.request.ProxyHandler({}))
+    # Explicit opt-in for the provider only. Internal calls never inherit proxies.
+    if proxy_url and proxy_socket:
+        raise ValueError("Choose one provider proxy transport")
+    proxies = {"https": proxy_url or "http://localhost"} if proxy_url or proxy_socket else {}
+    handlers = [urllib.request.ProxyHandler(proxies), RejectRedirects()]
+    if proxy_socket:
+        handlers.append(UnixProxyHTTPSHandler(proxy_socket))
+    opener = urllib.request.build_opener(*handlers)
     try:
         with opener.open(req, timeout=timeout) as response:
             raw = response.read(MAX_BODY + 1)

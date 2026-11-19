@@ -13,7 +13,19 @@ def main(argv=None):
     parser.add_argument("--server", default=os.getenv("SERVER_URL", "http://127.0.0.1:" + config.get("GATEWAY_PORT", "18080")))
     parser.add_argument("--token", default=os.getenv("CLIENT_TOKEN", config.get("CLIENT_TOKEN", "")))
     sub = parser.add_subparsers(dest="action", required=True)
-    sub.add_parser("gui")
+    gui = sub.add_parser("gui")
+    mount = sub.add_parser("mount", help="Mount a local folder on another Linux machine over SSH; keep running")
+    mount.add_argument("--folder", required=True)
+    mount.add_argument("--mode", choices=["ro", "rw"], default="rw")
+    mount.add_argument("--text", help="Run one message, wait for its result, then release and unmount")
+    for remote_parser in (gui, mount):
+        remote_parser.add_argument("--ssh-host", required=remote_parser is mount,
+                                   help="SSH config alias or user@host (key authentication)")
+        remote_parser.add_argument("--server-repo", required=remote_parser is mount,
+                                   help="Absolute repository path on the Docker host")
+        remote_parser.add_argument("--ssh-config", help="Optional OpenSSH client configuration file")
+        remote_parser.add_argument("--ssh-port", type=int, default=22)
+        remote_parser.add_argument("--gateway-port", type=int, default=18080)
     connect = sub.add_parser("connect")
     connect.add_argument("--workspace", required=True, help="Folder relative to server WORKSPACE_ROOT")
     connect.add_argument("--mode", choices=["ro", "rw"], default="rw")
@@ -39,7 +51,38 @@ def main(argv=None):
     try:
         if args.action == "gui":
             from .desktop import launch
-            launch(args.server, args.token, config.get("WORKSPACE_ROOT", ""))
+            remote = None
+            if args.ssh_host:
+                if not args.server_repo:
+                    raise ValueError("--server-repo is required with --ssh-host")
+                remote = {"ssh_host": args.ssh_host, "server_repo": args.server_repo,
+                          "ssh_port": args.ssh_port, "gateway_port": args.gateway_port, "ssh_config": args.ssh_config}
+            launch(args.server, args.token, config.get("WORKSPACE_ROOT", ""), remote=remote)
+        elif args.action == "mount":
+            import time
+            from .remote import RemoteClient
+            client = RemoteClient(args.token, args.ssh_host, args.server_repo,
+                                  args.ssh_port, args.gateway_port, args.ssh_config)
+            try:
+                sid = client.create(args.folder, args.mode)
+                print(json.dumps({"session_id": sid, "server": client.server,
+                                  "workspace": client.workspace, "mode": args.mode}), flush=True)
+                if args.text:
+                    run = client.send(sid, args.text)
+                    for event in client.watch(sid, run):
+                        print(json.dumps(event), flush=True)
+                        if event["type"] == "result" and event["outcome"] != "success":
+                            return 1
+                else:
+                    while True:
+                        client.ensure_connected()
+                        time.sleep(0.2)
+            except KeyboardInterrupt:
+                pass
+            finally:
+                client.close()
+            if client.last_error:
+                raise Fault("transport", client.last_error, 503)
         elif args.action == "connect":
             print(json.dumps({"session_id": client.create(args.workspace, args.mode, args.request_id)}))
         elif args.action == "send":
