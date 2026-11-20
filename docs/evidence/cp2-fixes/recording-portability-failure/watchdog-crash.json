@@ -1,0 +1,45 @@
+{
+  "passed": true,
+  "environment": {
+    "python": "3.12.3",
+    "system": "Linux",
+    "kernel": "6.8.0-139-generic",
+    "architecture": "x86_64",
+    "timestamp_utc": "2026-11-20T11:13:42.635091+00:00"
+  },
+  "checks": [
+    {
+      "scenario": "manager container SIGKILL",
+      "passed": true,
+      "controller": "9450fb459e341db8045d1ab4421cfd9f5dfbeb676fab569480cb02f68af613e4",
+      "watchdog": "c443eaeab43dc9fc28aa46b880052e74bedc3daec6c0566545bc6df752f6e78f",
+      "session_id": "watchdog-3b9c8a2aa0d54e1fb8abeb9d7a72c06c",
+      "execution_container": "fff061992f43be40c17dd2a4349323856dca8951c301d6459f0cc353fdba38c6",
+      "immutable_deadline": 1795173230.5757256,
+      "controller_killed": true,
+      "removed": true,
+      "watchdog_deadline_log": true,
+      "observed_after_deadline_seconds": 0.25,
+      "watchdog_survived": true,
+      "leaked": false
+    },
+    {
+      "scenario": "harness container SIGKILL",
+      "passed": true,
+      "controller": "4a05851397a76d05de6aa7733078cb5150a6d4d76ea6ad611a79500942448005",
+      "watchdog": "c443eaeab43dc9fc28aa46b880052e74bedc3daec6c0566545bc6df752f6e78f",
+      "run_id": "b290e31b54534f80bff93adb79ebb770",
+      "session_id": "fe766cfdd3cc4fbd897c80dc70d6590f",
+      "execution_container": "f8dbf3d29b887b219b394adb09257499ac8cef704e5bb2bc95253adac9d38735",
+      "immutable_deadline": 1795173267.8999815,
+      "controller_killed": true,
+      "removed": true,
+      "watchdog_deadline_log": false,
+      "observed_after_deadline_seconds": 0.278,
+      "watchdog_survived": true,
+      "leaked": false
+    }
+  ],
+  "backend": "real isolated Compose controllers + independent production watchdog",
+  "model_calls": 0
+}

@@ -1,0 +1,14 @@
+{
+  "passed": false,
+  "environment": {
+    "python": "3.12.3",
+    "system": "Linux",
+    "kernel": "6.8.0-139-generic",
+    "architecture": "x86_64",
+    "timestamp_utc": "2026-11-20T11:09:36.114653+00:00"
+  },
+  "checks": [],
+  "backend": "real isolated Compose controllers + independent production watchdog",
+  "model_calls": 0,
+  "error": "AssertionError: Native manager exec exited before the fixture became ready"
+}

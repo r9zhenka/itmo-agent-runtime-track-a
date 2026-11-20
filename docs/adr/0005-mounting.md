@@ -14,11 +14,14 @@ SSHFS proposal in this ADR was not implemented.
 
 The Python client serves one folder over a restricted WebDAV subset on loopback.
 OpenSSH forwards it to server loopback and forwards the gateway back to the client.
-A host-side Python helper runs rclone 1.68.2 with FUSE outside Compose, mounts below
-`WORKSPACE_ROOT`, creates a session and maintains an expiring lease. Docker binds
+A host-side SSH helper starts an independent `runtime.mount_guard` process. The
+guard runs rclone 1.68.2 with FUSE outside Compose, mounts below `WORKSPACE_ROOT`
+and maintains an expiring lease; the helper owns the gateway session. Docker binds
 that host mount at `/work`. The manager need not receive FUSE privileges or see
 new submounts through its private metadata bind; the Docker daemon resolves the
-source on its own host. The mount helper runs as the trusted SSH user.
+source on its own host. Both processes run as the trusted SSH user. A private
+control pipe ties the guard's lifetime to the helper: helper SIGKILL produces EOF,
+which revokes the lease and initiates unmount without requiring helper cleanup code.
 
 The rclone version and Linux archive hashes are pinned by the installer. Python
 runtime/tests still use only the standard library. Exporter path handling uses
@@ -43,10 +46,18 @@ networkless sandboxes only see filesystem operations. SSH authenticates and encr
 both channels. The SSH user is trusted and this is not a multi-user hosting design.
 Append/random writes, directory rename, Unix permission changes and Git access are
 outside this prototype's supported filesystem subset. There is no automatic
-resume of a lost mount and no automatic replay of failed writes. Concurrent local
-editing is only detected during upload, not protected by a distributed lock.
+resume of a lost mount and no automatic replay of failed writes. The exporter
+reserves the selected folder and rejects overlapping parent/child exports using
+per-user kernel locks. PUT/MOVE/DELETE recheck source/destination versions and
+honour supported ETag preconditions. This is optimistic conflict detection,
+not atomic exclusion of a local editor; a final check-to-mutation race remains.
 
-Host SIGKILL/crash may leave stale mount resources requiring manual cleanup; leases
-prevent their reuse by the manager. No performance advantage is claimed. See
-[setup, lifecycle, tests and limitations](../remote-mount.md). Full two-machine
-results and latency measurements must be collected on equipped hosts.
+Helper SIGKILL cleanup is delegated to the independent guard. SIGKILL of the guard
+itself, FUSE/host failure or unsuccessful unmount can still require manual cleanup;
+leases prevent reuse by the manager. The new guard-crash acceptance must be judged
+by its own run evidence, not by the earlier ordinary-disconnect test.
+
+Two-machine acceptance and ten-repeat filesystem measurements have been collected;
+small-file batches expose a substantial round-trip cost. No performance advantage
+or full POSIX equivalence is claimed. See [measurements](../cp2-report.md#measured-performance),
+[setup and limitations](../remote-mount.md), and [lifecycle diagrams](../cp2-architecture.md).

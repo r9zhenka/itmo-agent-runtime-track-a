@@ -1,0 +1,68 @@
+{
+  "test": "data-only captured-context and portable-ls audit",
+  "passed": true,
+  "original_frames_verified": 46,
+  "frames_replayed_with_changed_metadata": 46,
+  "ls_blocks_changed": 9,
+  "raw_recordings_byte_identical": true,
+  "candidate_code_executed": false,
+  "network_used": false,
+  "quality_evaluation": false,
+  "normalizer": "project-a-ls-long-v1",
+  "tasks": [
+    {
+      "task": "B1.1",
+      "frames": 4,
+      "recording_sha256": "9305b9c346f1ed9d804e368244b23fb991707ff723d53412ac79974353b0e4b1",
+      "events_sha256": "e6421b578bb35a6bf9c0d1450352fb3ebd2624386939b5f15fbd8113fa2b5a00"
+    },
+    {
+      "task": "B2.1",
+      "frames": 6,
+      "recording_sha256": "c9ddeb561fe003c51dadb52bc5307f8fad83c787f590f853ced728db79093d4e",
+      "events_sha256": "e6421b578bb35a6bf9c0d1450352fb3ebd2624386939b5f15fbd8113fa2b5a00"
+    },
+    {
+      "task": "B3.1",
+      "frames": 4,
+      "recording_sha256": "049da7187a9665b94df70e0fa15c9d1794ef875fd578855dcbf7f1be37b227b3",
+      "events_sha256": "e6421b578bb35a6bf9c0d1450352fb3ebd2624386939b5f15fbd8113fa2b5a00"
+    },
+    {
+      "task": "B4.1",
+      "frames": 6,
+      "recording_sha256": "7f0d5e3bbe69ab58a4a4b9c9dddb3d209d127f961a41cc418f2758dc477ae53c",
+      "events_sha256": "e6421b578bb35a6bf9c0d1450352fb3ebd2624386939b5f15fbd8113fa2b5a00"
+    },
+    {
+      "task": "B5.1",
+      "frames": 5,
+      "recording_sha256": "24c95214190dc853256ed307eb2b32d2bc7b31120e8d846d85700509e24f6cb8",
+      "events_sha256": "e6421b578bb35a6bf9c0d1450352fb3ebd2624386939b5f15fbd8113fa2b5a00"
+    },
+    {
+      "task": "B6.1",
+      "frames": 6,
+      "recording_sha256": "76c4bc368e6347153547b9059d56ecd08398256af858f0c41dce5118e5604ea9",
+      "events_sha256": "e6421b578bb35a6bf9c0d1450352fb3ebd2624386939b5f15fbd8113fa2b5a00"
+    },
+    {
+      "task": "B7.1",
+      "frames": 4,
+      "recording_sha256": "9ff0dc44b1c6344c9f4684a09cda4a2694d77baff79b4269e6dd725ac2e38e9b",
+      "events_sha256": "e6421b578bb35a6bf9c0d1450352fb3ebd2624386939b5f15fbd8113fa2b5a00"
+    },
+    {
+      "task": "B8.1",
+      "frames": 5,
+      "recording_sha256": "10287a7bfb1e3f9cae55c171c00458e5cb462fd9a3d706f616fe150bcd7ead50",
+      "events_sha256": "e6421b578bb35a6bf9c0d1450352fb3ebd2624386939b5f15fbd8113fa2b5a00"
+    },
+    {
+      "task": "B9.1",
+      "frames": 6,
+      "recording_sha256": "ebc7c2844c44b65bbc3e90452ea55a78dfb675225a336fc766de5c19d34b5dad",
+      "events_sha256": "e6421b578bb35a6bf9c0d1450352fb3ebd2624386939b5f15fbd8113fa2b5a00"
+    }
+  ]
+}

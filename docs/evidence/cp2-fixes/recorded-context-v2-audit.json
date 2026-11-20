@@ -1,0 +1,11 @@
+{
+  "passed": true,
+  "normalizer": "project-a-observation-v2",
+  "frames_verified": 46,
+  "ls_blocks_changed": 9,
+  "enumeration_blocks_changed": 2,
+  "raw_recordings_byte_identical": true,
+  "candidate_code_executed": false,
+  "network_used": false,
+  "quality_evaluation": false
+}

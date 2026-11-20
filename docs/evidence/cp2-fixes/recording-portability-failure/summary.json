@@ -1,0 +1,86 @@
+{
+  "passed": false,
+  "environment": {
+    "python": "3.12.3",
+    "system": "Linux",
+    "kernel": "6.8.0-139-generic",
+    "architecture": "x86_64",
+    "timestamp_utc": "2026-11-20T11:03:23.189361+00:00"
+  },
+  "model": "synthetic-replay",
+  "network": "Loopback/SSH and Docker bridges only; all images and tools must be prepared beforehand",
+  "steps": [
+    {
+      "name": "start-isolated-replay-stack",
+      "passed": true,
+      "duration_seconds": 37.411
+    },
+    {
+      "name": "offline-unit-cli-http",
+      "passed": true,
+      "duration_seconds": 148.998
+    },
+    {
+      "name": "docker-isolation",
+      "passed": true,
+      "duration_seconds": 23.865
+    },
+    {
+      "name": "isolated-code-grader",
+      "passed": true,
+      "duration_seconds": 142.414
+    },
+    {
+      "name": "adversarial-hardening",
+      "passed": true,
+      "duration_seconds": 18.264
+    },
+    {
+      "name": "full-synthetic-baf",
+      "passed": true,
+      "duration_seconds": 227.139
+    },
+    {
+      "name": "real-webdav",
+      "passed": true,
+      "duration_seconds": 2.874
+    },
+    {
+      "name": "mount-helper-sigkill",
+      "passed": true,
+      "duration_seconds": 1.086
+    },
+    {
+      "name": "ssh-fuse-docker",
+      "passed": true,
+      "duration_seconds": 11.671
+    },
+    {
+      "name": "deployed-controller-crashes",
+      "passed": true,
+      "duration_seconds": 52.587
+    },
+    {
+      "name": "recording-artifact-audit",
+      "passed": true,
+      "duration_seconds": 0.099
+    },
+    {
+      "name": "recording-context-audit",
+      "passed": true,
+      "duration_seconds": 0.13
+    },
+    {
+      "name": "start-recorded-proxy",
+      "passed": true,
+      "duration_seconds": 7.539
+    },
+    {
+      "name": "recorded-model-smoke",
+      "passed": false,
+      "duration_seconds": 56.25
+    }
+  ],
+  "error": "recorded-model-smoke failed",
+  "cleanup_passed": true
+}

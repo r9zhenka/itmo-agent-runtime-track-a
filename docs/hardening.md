@@ -93,22 +93,42 @@ state is still in memory and is not recovered as an ongoing conversation.
 # Offline regressions (loopback HTTP sockets, no Docker or LLM):
 python3 -m unittest tests.test_hardening tests.test_runtime tests.test_remote_mount -v
 
-# Actual resource exhaustion and crash recovery, after building the sandbox image:
+# Actual resource exhaustion and export quotas, after building the sandbox image:
 python3 -m scripts.hardening_check
+
+# Full isolated stack, including actual controller-crash and mount-crash checks:
+make check-all CHECK_ARGS=--existing-sshd
 ```
 
-The real check uses disposable directories and only its own labelled containers.
+The resource check uses disposable directories and only its own labelled containers.
 It runs CPU load, RAM exhaustion, a bounded process-spawn storm, a per-file write
-limit probe, external-symlink/canary and network/secret checks, aggregate HTTP export
-quota checks, and kills isolated test manager/harness processes while commands run.
-It never kills the user's Compose services. CPU is tightened to 0.25 CPU for the
-probe so throttling is observable on a one-vCPU machine; the file-size probe is
-tightened to 1 MiB to avoid unnecessary host allocation. The normal production
-profile is asserted separately by the Docker configuration tests. RAM/PID probes
-use the production limits. The independent watchdog is invoked by the surviving
-test process during the crash checks, using the same implementation as the service.
+limit probe, external-symlink/canary and network/secret checks, and aggregate HTTP
+export quota checks. CPU is tightened to 0.25 CPU for the probe so throttling is
+observable on a one-vCPU machine; the file-size probe is tightened to 1 MiB to avoid
+unnecessary host allocation. The production profile is asserted separately by the
+Docker configuration tests. RAM/PID probes use the production limits.
 
-Raw verdicts go to `results/hardening.json`. A successful unit test is not evidence
-that the Docker kernel limits or independent crash cleanup actually ran; only the
-real acceptance command provides that evidence. No model-quality claim follows
-from these infrastructure probes.
+`scripts.check_watchdog_crash`, invoked by `check_all`, kills the actual manager
+and harness containers in the disposable acceptance stack. It verifies the
+checkout marker, Compose project/working-directory labels, instance, service IDs
+and replay mode before any destructive action. The manager-loss case requires the
+surviving watchdog's own `sandbox_reaped` log for the exact command container and
+its deadline. The test never calls `reap_once` itself. The harness-loss case accepts
+cleanup by the surviving manager or watchdog and does not invent which actor won.
+Only the test's verified service IDs are restarted afterwards. It refuses ordinary
+user Compose projects. Raw output is `results/watchdog-crash.json`.
+
+`scripts.check_mount_crash` separately SIGKILLs a disposable real SSH helper and
+checks that its independent mount guard removes rclone, the FUSE mount and lease.
+It does not kill a user's active mount. Exporter parent/child overlap locks and
+ETag/version rechecks are covered in `tests.test_workspace_conflicts`. They do not
+remove the final race window against an external local editor or provide full
+POSIX semantics. See [mount lifecycle](mount-lifecycle.md).
+
+Resource verdicts go to `results/hardening.json`; a unit test is not evidence that
+kernel limits or deployed crash cleanup ran. The old historical ten-check report
+included manual invocation of the reaper after worker crashes; it is retained as
+historical evidence, not relabelled as a deployed independent-watchdog test. The
+replacement resource script has eight checks, with the real crash tests separate.
+Current acceptance status and artifact locations are in [the fixes report](cp2-fixes.md).
+No model-quality claim follows from any infrastructure probe.

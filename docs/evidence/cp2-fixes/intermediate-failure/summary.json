@@ -1,0 +1,66 @@
+{
+  "passed": false,
+  "environment": {
+    "python": "3.12.3",
+    "system": "Linux",
+    "kernel": "6.8.0-139-generic",
+    "architecture": "x86_64",
+    "timestamp_utc": "2026-11-20T10:58:04.882493+00:00"
+  },
+  "model": "synthetic-replay",
+  "network": "Loopback/SSH and Docker bridges only; all images and tools must be prepared beforehand",
+  "steps": [
+    {
+      "name": "start-isolated-replay-stack",
+      "passed": true,
+      "duration_seconds": 26.345
+    },
+    {
+      "name": "offline-unit-cli-http",
+      "passed": true,
+      "duration_seconds": 110.238
+    },
+    {
+      "name": "docker-isolation",
+      "passed": true,
+      "duration_seconds": 10.752
+    },
+    {
+      "name": "isolated-code-grader",
+      "passed": true,
+      "duration_seconds": 59.068
+    },
+    {
+      "name": "adversarial-hardening",
+      "passed": true,
+      "duration_seconds": 10.168
+    },
+    {
+      "name": "full-synthetic-baf",
+      "passed": true,
+      "duration_seconds": 447.639
+    },
+    {
+      "name": "real-webdav",
+      "passed": true,
+      "duration_seconds": 2.738
+    },
+    {
+      "name": "mount-helper-sigkill",
+      "passed": true,
+      "duration_seconds": 1.367
+    },
+    {
+      "name": "ssh-fuse-docker",
+      "passed": true,
+      "duration_seconds": 20.826
+    },
+    {
+      "name": "deployed-controller-crashes",
+      "passed": false,
+      "duration_seconds": 5.195
+    }
+  ],
+  "error": "deployed-controller-crashes failed",
+  "cleanup_passed": true
+}

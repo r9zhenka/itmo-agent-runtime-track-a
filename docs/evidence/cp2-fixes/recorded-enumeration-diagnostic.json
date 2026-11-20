@@ -1,0 +1,80 @@
+[
+  {
+    "task": "B2.1",
+    "tool": "RunCommand",
+    "arguments": {
+      "command": "ls -la /work"
+    },
+    "exit_code": 0,
+    "expected_exit": 0,
+    "stdout_diff": [],
+    "stderr": "",
+    "expected_stderr": ""
+  },
+  {
+    "task": "B2.1",
+    "tool": "RunCommand",
+    "arguments": {
+      "command": "cd /work && grep -rn \"def parse_date\\|parse_date =\" --include=* -l . 2>/dev/null | head -50"
+    },
+    "exit_code": 0,
+    "expected_exit": 0,
+    "stdout_diff": [],
+    "stderr": "",
+    "expected_stderr": ""
+  },
+  {
+    "task": "B2.1",
+    "tool": "RunCommand",
+    "arguments": {
+      "command": "cd /work && find . -type f | sort && echo '---' && grep -rn \"parse_date\" . && echo '---' && cat README.md"
+    },
+    "exit_code": 0,
+    "expected_exit": 0,
+    "stdout_diff": [
+      "--- capture",
+      "+++ docker-bind",
+      "@@ -3,7 +3,7 @@",
+      " ./src/main.py",
+      " ---",
+      " ./README.md:1:parse_date is useful.",
+      "+./src/main.py:1:from dates import parse_date",
+      " ./src/dates.py:1:def parse_date(text):",
+      "-./src/main.py:1:from dates import parse_date",
+      " ---",
+      " parse_date is useful."
+    ],
+    "stderr": "",
+    "expected_stderr": ""
+  },
+  {
+    "task": "B2.1",
+    "real_docker_portable_context_matches": true
+  },
+  {
+    "task": "B9.1",
+    "tool": "RunCommand",
+    "arguments": {
+      "command": "ls -la /work && find /work -maxdepth 2 -type f | head -50"
+    },
+    "exit_code": 0,
+    "expected_exit": 0,
+    "stdout_diff": [
+      "--- capture",
+      "+++ docker-bind",
+      "@@ -3,5 +3,5 @@",
+      " [\"d\", \"directory\", \"..\"]",
+      " [\"-\", \"68\", \"facts.json\"]",
+      " [\"-\", \"218\", \"style.md\"]",
+      "+/work/style.md",
+      " /work/facts.json",
+      "-/work/style.md"
+    ],
+    "stderr": "",
+    "expected_stderr": ""
+  },
+  {
+    "task": "B9.1",
+    "real_docker_portable_context_matches": true
+  }
+]

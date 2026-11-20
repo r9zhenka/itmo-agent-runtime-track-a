@@ -162,16 +162,22 @@ limited to bundled BAF prompts. Add `--ssh-port` or `--gateway-port` for custom 
   A failed/incomplete upload leaves the old file untouched. A local change detected
   during upload returns HTTP 409. This is not distributed locking: a local edit
   immediately after the final check can still race. Avoid simultaneously editing
-  the same file. The exporter rejects a second export of the exact same folder;
-  overlapping parent/child exports are not globally locked.
+  the same file. Exporter processes of the same OS user reject overlapping
+  parent/child exports in either direction using descriptor/inode registry locks;
+  disjoint siblings remain available. PUT/MOVE/DELETE honor ETag preconditions
+  and recheck relevant file versions before mutation. These checks do not provide
+  global distributed locks or POSIX transactions against an external local editor.
 - RO is enforced in the exporter, rclone and Docker bind mount. Mount credentials
   are per-export, sent over SSH stdin and passed to rclone through its environment;
   they do not enter command arguments, workspace metadata or sandbox variables.
 
 ## Disconnect and cleanup
 
-The host helper probes the client every second with a 3-second request timeout and
-renews a 10-second lease. The manager checks that lease before starting and while
+A separate host `runtime.mount_guard` process owns rclone/FUSE, probes the client
+every second with a 3-second request timeout and renews a 10-second lease. The SSH
+helper owns the gateway session and a control pipe to that guard. EOF on the pipe,
+including helper SIGKILL, tells the surviving guard to revoke the lease, stop
+rclone, unmount and remove only empty metadata/mountpoint paths. The manager checks that lease before starting and while
 polling commands; an independent watchdog checks active command labels and leases
 every 250 ms. Both use the privileged Docker control plane. Missing/revoked/expired leases produce a terminal `transport`
 error and container cleanup; operations are not retried automatically. Normal
@@ -185,13 +191,14 @@ originals remain on the client. JSONL session metadata remains under the existin
 trace retention policy, without file contents. `.remote-control/` is reserved for
 public lease metadata and cannot be selected as a workspace.
 
-A host crash or SIGKILL of the helper is not a clean release. Lease expiry prevents
-new commands and stops running commands through the manager or independent
-watchdog. Recorded command deadlines survive manager/harness process loss, but
-timely cleanup is not guaranteed if Docker or both control-plane services are
-unavailable. Session state is not durable and operations are never automatically
-reexecuted after transport failure. An orphaned FUSE process/mount may
-require manual cleanup. Inspect using:
+A helper SIGKILL is handled by the independent mount guard; this does not make
+the gateway session durable or guarantee a final client event after SSH loss.
+A host crash, guard SIGKILL or failure of its unmount operation can still require
+manual FUSE recovery. Lease expiry prevents new commands and stops running
+commands through the manager or independent watchdog. Recorded command deadlines
+survive manager/harness process loss, but timely cleanup is not guaranteed if
+Docker or both control-plane services are unavailable. Operations are never
+automatically reexecuted after transport failure. Inspect an orphan using:
 
 ```bash
 python3 -m scripts.inspect_remote remote-REPLACE_WITH_ID
@@ -235,9 +242,12 @@ visibility, RO rejection, release and disconnect cleanup. The user also confirme
 the GUI path and output appearing in the client folder. This verifies that setup,
 not arbitrary hosts or unsupported filesystem operations.
 
-The final Ubuntu `make check-all` also passed: 169 offline tests, real Docker
+The historical Ubuntu `make check-all` also passed: 169 offline tests, real Docker
 isolation/grading, 10 hardening checks, 39/39 real-Docker replay tasks and nine
-SSH/FUSE checks. The final Fedora offline suite passed 169 tests. Mounted-filesystem
+SSH/FUSE checks. The historical Fedora offline suite passed 169 tests. Those
+artifacts precede the separate mount guard and new export-conflict fixes. A later
+real Ubuntu helper-SIGKILL probe passed three checks; current full acceptance is
+tracked separately in [the fixes report](cp2-fixes.md#validation-status). Mounted-filesystem
 and sandbox measurements completed with ten repeats per metric, including client
 verification of the final remote write and cleanup. See
 [measured tables and limitations](cp2-report.md#measured-performance) and

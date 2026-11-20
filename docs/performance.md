@@ -1,6 +1,11 @@
 # Infrastructure measurement and complete acceptance
 
-These commands do not call an LLM. They preserve raw samples and report median,
+The infrastructure measurements and prepared-host acceptance commands do not call
+a live LLM. Historical measurement artifacts remain tied to their recorded source
+revision; later lifecycle fixes have not silently replaced those samples. See the
+[fixes and current validation report](cp2-fixes.md).
+
+Measurements preserve raw samples and report median,
 minimum, maximum and nearest-rank p95 (`sorted[ceil(0.95*n)-1]`). Use at least ten
 repeats; at n=10, nearest-rank p95 is the maximum sample. Reports include OS/kernel,
 architecture and Python metadata. Report actual host/VM resources and conditions
@@ -115,9 +120,19 @@ are explicitly cleared and replay mode is checked against the running service.
 Images must already exist: startup uses `--no-build --pull never`.
 
 It runs offline unit/CLI/HTTP tests, actual Docker isolation, the separate code
-grader, adversarial hardening tests, every registered BAF once using replay, real
-rclone WebDAV and SSH/FUSE/Docker acceptance. The BAF result file must contain each
-registered task exactly once with synthetic provenance and passing verdicts.
+grader, adversarial hardening tests, every registered BAF once using synthetic
+replay, real rclone WebDAV and SSH/FUSE/Docker acceptance, helper-SIGKILL cleanup,
+and actual controller-crash checks in the disposable stack. The BAF result file
+must contain each registered task exactly once with synthetic provenance and
+passing verdicts. The manager-crash check requires a removal event from the actual
+surviving watchdog, not a manual invocation of its reaper.
+
+The suite also audits all nine bundled actual-provider smoke recordings, recreates
+only its own proxy in `LLM_MODE=recorded`, and runs the nine tasks through the real
+runtime. It requires `recorded-replay` provenance, zero live provider calls and
+no quality claim. Changed fixture, prompt, tools or substantive tool output causes
+playback to fail rather than silently accepting a different conversation. The
+[fixes report](cp2-fixes.md) tracks completion of the new recordings and acceptance.
 The temporary Compose stack is torn down with its volumes; the user's live stack
 is not restarted. Logs, raw reports and `summary.json` go to `results/check-all/`.
 

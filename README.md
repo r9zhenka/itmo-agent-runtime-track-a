@@ -22,12 +22,19 @@ and SSH/FUSE checks are separate. See the [Checkpoint 2 report](docs/cp2-report.
 
 The Fedora client → Ubuntu VM mount acceptance completed with **nine passing
 checks** in `results/remote-mount.json`; the user also confirmed the GUI path and
-client-visible output. The final **Ubuntu `make check-all` passed**: 169
+client-visible output. The **historical Ubuntu `make check-all` passed**: 169
 offline tests, Docker isolation/grading, 10 hardening checks, **39/39 real-Docker
-replay tasks**, and nine SSH/FUSE checks. The final Fedora offline suite passed
+replay tasks**, and nine SSH/FUSE checks. That historical Fedora offline suite passed
 169 tests, including checker and client-recovery regressions. Filesystem and sandbox measurements completed with ten repeats per
 metric; [tables and limitations](docs/cp2-report.md#measured-performance) and
 [raw evidence](docs/evidence/cp2/README.md) are retained.
+
+Subsequent review fixes add token-owned sessions, bounded closed-session retention,
+cleanup-confirmed cancellation, operation progress, helper-crash cleanup, stricter
+export conflicts and safe provider errors. The [fixes and validation map](docs/cp2-fixes.md)
+separates those changes from historical evidence and tracks the new acceptance.
+The previously green GitHub run applies to commit `64ea82a`; these later changes
+have not yet been pushed or validated by a new GitHub run.
 
 The first live pair completed **39 tasks × 3 repeats**: **114/117 (97.4%)**
 after audited observation-checker corrections (original verdicts: 109/117).
@@ -43,11 +50,16 @@ remain available through an explicit trusted-development opt-in.
 
 ## Architecture
 
+The [detailed checkpoint-2 diagrams](docs/cp2-architecture.md) show machine and
+container boundaries, protocols, secrets, the agent loop and cleanup lifecycle.
+Use the [annotated real traces](docs/cp2-trace-walkthrough.md) and
+[checkpoint-2 questions and answers](docs/checkpoint-2-answers.md) alongside them.
+
 ```mermaid
 flowchart LR
     C[Desktop / CLI] -->|Bearer token + JSON / SSE| G[Gateway]
     G --> H[Custom harness]
-    H --> P[LLM proxy: replay or live provider]
+    H --> P[LLM proxy: live / synthetic / recorded]
     H --> S[Sandbox manager]
     S --> D[Disposable Docker command container]
     X[Independent watchdog] -->|Deadline / lease cleanup| D
@@ -170,7 +182,7 @@ make test-docker  # REAL Docker checks; first build the images with Compose
 make test-b6-docker # REAL Docker grading: correct/incorrect code, timeout, isolation
 make baf-smoke   # Running Compose stack: nine simple tasks, B1.1–B9.1
 make baf         # Running Compose stack: all 39 tasks, one repeat
-make test-hardening # Real limits, export quotas and process-loss cleanup
+make test-hardening # Real limits, export quotas and cleanup primitives
 make check-all   # Prepared Docker + SSH/FUSE host; isolated replay acceptance
 make measure-sandbox # Docker startup/exec/resource measurements
 ```
@@ -180,7 +192,11 @@ under `tests/` and is never a production fallback. Resource configuration assert
 in that suite are not evidence that Docker enforces those limits. `test-docker`
 exercises real mounts, non-root execution, read-only root and workdir, `.git`
 protection, network namespace, cgroup settings, temporary disk, cancellation and
-cleanup. `test-hardening` adds adversarial limits, quota and process-loss probes.
+cleanup. `test-hardening` adds adversarial limits and quota probes. The complete
+`check-all` suite additionally kills controllers in its own disposable Compose
+stack and observes the independent watchdog, without invoking its reaper in the
+test process. It also checks remote-helper crash cleanup and runs recorded-model
+smoke playback after the synthetic replay suite.
 `check-all` creates a separate temporary replay stack; it does not restart the
 user's live stack or call a paid model. Existing-sshd development hosts can use
 `make check-all CHECK_ARGS=--existing-sshd`. See [hardening](docs/hardening.md) and
@@ -215,8 +231,9 @@ If `make` is unavailable, use these direct equivalents:
 
 The repository's [GitHub workflow](.github/workflows/project-a.yml) runs both
 offline tests and the complete prepared-host acceptance suite, including replay
-against actual Compose. The presence of the workflow is not evidence that a
-specific GitHub run passed.
+against actual Compose. [Run 44693131644](https://github.com/r9zhenka/itmo-agent-runtime-track-a/actions/runs/44693131644)
+passed for `64ea82a`; it does not validate subsequent working-tree changes. See
+[current validation scope](docs/cp2-fixes.md#validation-status).
 
 ```bash
 python3 -m scripts.benchmark --task B5.3 --pair custom+replay
@@ -317,6 +334,14 @@ Metadata-only session traces are in the `traces` named volume. The event stream
 contains actual tool output; persistent traces omit prompts, file contents and
 tool output. Both carry session, run/trace and operation IDs, durations and outcomes;
 model events include token counts and provider/model identity.
+
+Ordinary live mode does not persist complete provider bodies. Opt-in
+`LLM_MODE=live-record` records actual responses only for the nine exact, fresh
+BAF smoke fixtures; `LLM_MODE=recorded` plays them back without provider calls.
+Playback validates fixture/context hashes and uses `provider=recorded-replay`,
+zero newly consumed tokens and `quality_evaluation=false`; captured usage remains
+separate. These recordings test reproducibility, not a new quality measurement.
+See [recorded smoke and its limits](docs/cp2-fixes.md#recorded-smoke).
 
 ```bash
 docker compose exec harness python -c 'from pathlib import Path; print("\n".join(p.name for p in Path("/traces").glob("*.jsonl")))'

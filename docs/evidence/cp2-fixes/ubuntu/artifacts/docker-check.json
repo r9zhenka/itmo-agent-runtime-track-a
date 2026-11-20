@@ -1,0 +1,108 @@
+[
+  {
+    "check": "bidirectional bind mount",
+    "pass": true,
+    "backend": "docker"
+  },
+  {
+    "check": "non-root user",
+    "pass": true,
+    "backend": "docker"
+  },
+  {
+    "check": "read-only root filesystem",
+    "pass": true,
+    "backend": "docker"
+  },
+  {
+    "check": "protected .git",
+    "pass": true,
+    "backend": "docker"
+  },
+  {
+    "check": "network namespace has only loopback",
+    "pass": true,
+    "backend": "docker"
+  },
+  {
+    "check": "no server secrets",
+    "pass": true,
+    "backend": "docker"
+  },
+  {
+    "check": "cgroup v2 resource settings",
+    "pass": true,
+    "backend": "docker"
+  },
+  {
+    "check": "bounded temporary disk",
+    "pass": true,
+    "backend": "docker",
+    "detail": {
+      "v": 0,
+      "type": "result",
+      "session_id": "rw",
+      "operation_id": "b15222c2df3e4ec1a72ee627a0cdf0bd",
+      "stdout": "",
+      "stderr": "dd: error writing '/tmp/fill': No space left on device\n65+0 records in\n64+0 records out\n67108864 bytes (67 MB, 64 MiB) copied, 0.0464568 s, 1.4 GB/s\n",
+      "exit_code": 1,
+      "error": {
+        "kind": "command",
+        "message": "Nonzero exit code",
+        "retryable": false
+      },
+      "truncated": false,
+      "duration_ms": 482.365
+    }
+  },
+  {
+    "check": "operation timeout",
+    "pass": true,
+    "backend": "docker"
+  },
+  {
+    "check": "command error classification",
+    "pass": true,
+    "backend": "docker"
+  },
+  {
+    "check": "cancel kills process tree",
+    "pass": true,
+    "backend": "docker",
+    "detail": {
+      "child_ready": true,
+      "worker_alive": false,
+      "results": [
+        {
+          "v": 0,
+          "type": "result",
+          "session_id": "rw",
+          "operation_id": "45c0aab5e72042199a2ec16094ac555d",
+          "stdout": "",
+          "stderr": "",
+          "exit_code": null,
+          "error": {
+            "kind": "cancelled",
+            "message": "Session cancelled",
+            "retryable": false
+          },
+          "truncated": false,
+          "duration_ms": 465.755
+        }
+      ],
+      "worker_errors": [],
+      "cancel_error": null,
+      "leaked": false
+    }
+  },
+  {
+    "check": "read-only workspace",
+    "pass": true,
+    "backend": "docker"
+  },
+  {
+    "check": "no leftover containers",
+    "pass": true,
+    "backend": "docker"
+  }
+]

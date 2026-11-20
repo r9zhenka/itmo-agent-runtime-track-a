@@ -1,9 +1,9 @@
 {
-  "timestamp": "2026-11-20T00:23:47.143980+00:00",
+  "timestamp": "2026-11-20T11:20:57.529539+00:00",
   "python": "3.14.10",
   "command": "python3 -m scripts.validate",
   "make_target": "test-ci",
-  "tests_run": 169,
+  "tests_run": 225,
   "failures": 0,
   "errors": 0,
   "skipped": 0,

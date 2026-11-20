@@ -1,0 +1,38 @@
+{
+  "timestamp_utc": "2026-11-20T11:42:55.681897+00:00",
+  "source_revision": "b117d62",
+  "services": [
+    {
+      "Service": "gateway",
+      "State": "running",
+      "Health": "healthy"
+    },
+    {
+      "Service": "harness",
+      "State": "running",
+      "Health": "healthy"
+    },
+    {
+      "Service": "llm-proxy",
+      "State": "running",
+      "Health": "healthy"
+    },
+    {
+      "Service": "sandbox-manager",
+      "State": "running",
+      "Health": "healthy"
+    },
+    {
+      "Service": "sandbox-watchdog",
+      "State": "running",
+      "Health": "healthy"
+    }
+  ],
+  "llm": {
+    "mode": "live",
+    "recorded_context_sha256": "35ffc3e56af218f4cf5428a133ecc39da3100c87a550db28ccbe7151592d7913"
+  },
+  "disposable_stack_leftovers": [],
+  "active_execution_containers": 0,
+  "passed": true
+}
