@@ -125,11 +125,21 @@ def restore_service(engine, cid, timeout=20):
     raise AssertionError("Disposable controller did not recover its healthcheck")
 
 
+def fixture_directory(root, kind):
+    folder = Path(tempfile.mkdtemp(prefix="watchdog-" + kind + "-", dir=root))
+    # The manager is UID 0 with ALL capabilities dropped: it cannot traverse
+    # another UID's mkdtemp(0700), even though the sandbox itself owns the files.
+    # Match normal BAF fixtures; no credential or user data is placed here.
+    folder.chmod(0o755)
+    return folder
+
+
 def crash_case(engine, checkout, project, config, services, kind):
     root = checkout / "workspaces"
-    folder = Path(tempfile.mkdtemp(prefix="watchdog-" + kind + "-", dir=root))
+    folder = fixture_directory(root, kind)
     marker = folder / "crash-ready"
     sid, worker, command_id = None, None, None
+    diagnostic = None
     killed = services["sandbox-manager" if kind == "manager" else "harness"]
     watchdog = services["sandbox-watchdog"]
     watchdog_started = engine.inspect(watchdog)["StartedAt"]
@@ -142,8 +152,9 @@ def crash_case(engine, checkout, project, config, services, kind):
                       + rpc_source("exec", session_id=sid, operation_id="probe", tool="RunCommand",
                                    arguments={"command": "python stats.py data.csv"}, timeout_s=6))
             (folder / "stats.py").write_text(PROBE)
+            diagnostic = tempfile.TemporaryFile()
             worker = subprocess.Popen(service_command(checkout, project, "gateway", source),
-                                      stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                                      stdout=diagnostic, stderr=subprocess.STDOUT)
         else:
             case = next(case for case in cases() if case["id"] == "B5.1")
             folder.rmdir()  # prepare() creates a fresh fixture and refuses reuse.
@@ -155,7 +166,10 @@ def crash_case(engine, checkout, project, config, services, kind):
         end = time.monotonic() + 12
         while not marker.exists() and time.monotonic() < end:
             if worker is not None and worker.poll() is not None:
-                raise AssertionError("Native manager exec exited before the fixture became ready")
+                diagnostic.seek(0)
+                output = diagnostic.read(4096).decode("utf-8", errors="replace")
+                raise AssertionError("Native manager exec exited before the fixture became ready "
+                                     f"(exit {worker.returncode}): {output}")
             time.sleep(0.05)
         rows = execution_containers(engine, project, sid)
         if not marker.is_file() or len(rows) != 1:
@@ -196,6 +210,8 @@ def crash_case(engine, checkout, project, config, services, kind):
             except subprocess.TimeoutExpired:
                 worker.terminate()
                 worker.wait(timeout=5)
+        if diagnostic is not None:
+            diagnostic.close()
         # Retain only test fixtures in this disposable checkout, for diagnosis.
 
 

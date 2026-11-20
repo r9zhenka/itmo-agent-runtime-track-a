@@ -5,7 +5,7 @@ import tempfile
 import unittest
 from unittest.mock import patch
 
-from scripts.check_watchdog_crash import PROBE, SERVICES, owned_services, reaped_by_watchdog, rpc_source, wait_removed
+from scripts.check_watchdog_crash import PROBE, SERVICES, owned_services, reaped_by_watchdog, rpc_source, wait_removed, fixture_directory
 
 
 class FakeDocker:
@@ -104,6 +104,12 @@ class WatchdogAcceptanceTests(unittest.TestCase):
         self.assertTrue(result["removed"])
         self.assertTrue(result["watchdog_deadline_log"])
         self.assertTrue(all(method == "GET" for method, _ in self.engine.requests))
+
+    def test_fixture_is_traversable_by_capability_dropped_manager(self):
+        folder = fixture_directory(self.root / "workspaces", "manager")
+        self.assertEqual(folder.parent, self.root / "workspaces")
+        self.assertEqual(folder.stat().st_mode & 0o777, 0o755)
+        self.assertFalse(list(folder.iterdir()))
 
     def test_probe_is_valid_python_and_has_a_bounded_descendant(self):
         # Parse/compile only. The probe is executed solely inside capped Docker.
