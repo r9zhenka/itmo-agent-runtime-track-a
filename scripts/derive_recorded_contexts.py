@@ -6,6 +6,7 @@ are SHA256-bound into the sidecars. No model code, Docker or network is executed
 import argparse
 import hashlib
 import json
+import os
 from pathlib import Path
 
 from baf.cases import cases, prompt
@@ -69,6 +70,8 @@ def main():
     parser.add_argument('--captures', required=True)
     parser.add_argument('--events', required=True)
     parser.add_argument('--check', action='store_true', help='Verify existing sidecars instead of writing')
+    parser.add_argument('--replace-sidecars', action='store_true',
+                        help='Replace derived sidecars after verifying all original contexts; raw recordings stay untouched')
     args = parser.parse_args()
     prepared = derive(args.directory, args.captures, args.events)
     paths = {task: Path(args.directory) / (task + '.context.json') for task in prepared}
@@ -77,12 +80,14 @@ def main():
             if json.loads(path.read_text()) != prepared[task]:
                 raise ValueError('Sidecar differs from verified source evidence: ' + task)
     else:
-        if any(path.exists() for path in paths.values()):
+        if not args.replace_sidecars and any(path.exists() for path in paths.values()):
             raise ValueError('Sidecars already exist; use --check to verify without overwriting')
         for task, path in paths.items():
-            with path.open('x') as file:
+            temporary = path.with_suffix('.pending')
+            with temporary.open('x') as file:
                 json.dump(prepared[task], file, indent=2)
                 file.write('\n')
+            os.replace(temporary, path)
     print(json.dumps({'tasks': len(prepared), 'original_contexts_verified': sum(len(v['contexts']) for v in prepared.values()),
                       'normalizer': NORMALIZER, 'raw_recordings_modified': False, 'checked': args.check}))
 

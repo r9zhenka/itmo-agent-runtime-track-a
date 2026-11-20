@@ -62,3 +62,55 @@ class PortableContextTests(unittest.TestCase):
         self.assertNotEqual(portable_context_digest(original, []), portable_context_digest(other, []))
         self.assertNotEqual(portable_context_digest(original, []),
                             portable_context_digest(context(BIND, 'ls -la /work && echo injected'), []))
+
+
+class FixtureEnumerationTests(unittest.TestCase):
+    def scoped(self, task, output, command):
+        from baf.cases import cases, prompt
+        messages = context(output, command)
+        messages[1]['content'] = prompt(next(case for case in cases() if case['id'] == task))
+        return portable_context_digest(messages, [])
+
+    def test_only_exact_search_task_command_sorts_three_matching_records(self):
+        from runtime.recorded_context import SEARCH_COMMAND
+        prefix = './README.md\n./src/dates.py\n./src/main.py\n---\n'
+        records = ['./README.md:1:parse_date is useful.\n', './src/dates.py:1:def parse_date(text):\n',
+                   './src/main.py:1:from dates import parse_date\n']
+        suffix = '---\nparse_date is useful.\n'
+        first = prefix + ''.join(records) + suffix
+        reordered = prefix + ''.join(reversed(records)) + suffix
+        self.assertEqual(self.scoped('B2.1', first, SEARCH_COMMAND), self.scoped('B2.1', reordered, SEARCH_COMMAND))
+        for command in (SEARCH_COMMAND + ' ', 'grep -rn "parse_date" .', 'echo ' + repr(SEARCH_COMMAND)):
+            self.assertNotEqual(self.scoped('B2.1', first, command), self.scoped('B2.1', reordered, command))
+        self.assertNotEqual(self.scoped('B9.1', first, SEARCH_COMMAND), self.scoped('B9.1', reordered, SEARCH_COMMAND))
+
+    def test_search_content_paths_numbers_multiplicity_and_surroundings_stay_significant(self):
+        from runtime.recorded_context import SEARCH_COMMAND
+        text = ('./README.md\n./src/dates.py\n./src/main.py\n---\n'
+                './README.md:1:parse_date is useful.\n./src/dates.py:1:def parse_date(text):\n'
+                './src/main.py:1:from dates import parse_date\n---\nparse_date is useful.\n')
+        expected = self.scoped('B2.1', text, SEARCH_COMMAND)
+        variants = [text.replace('def parse_date(text):', 'def parse_date(other):'),
+                    text.replace('dates.py:1:', 'dates.py:2:'), text.replace('dates.py:1:', 'other.py:1:'),
+                    text.replace('./src/main.py:1:from dates import parse_date\n', ''),
+                    text.replace('./src/main.py:1:from dates import parse_date\n', './src/dates.py:1:def parse_date(text):\n'),
+                    text.replace('---\n', 'invalid separator\n', 1), text + 'changed trailing content\n']
+        for output in variants:
+            self.assertNotEqual(expected, self.scoped('B2.1', output, SEARCH_COMMAND))
+
+    def test_only_complete_two_file_find_block_sorts_for_exact_task_command(self):
+        from runtime.recorded_context import FIND_COMMAND
+        # Replace the one-file ls fixture with the actual two-file B9 listing shape.
+        listing = FUSE.replace('-rw------- 1 1000 1000 124 Nov 20 10:52 spec.md\n',
+                               '-rw------- 1 1000 1000 68 Nov 20 10:52 facts.json\n'
+                               '-rw------- 1 1000 1000 218 Nov 20 10:52 style.md\n')
+        first = listing + '/work/facts.json\n/work/style.md\n'
+        other = listing + '/work/style.md\n/work/facts.json\n'
+        self.assertEqual(self.scoped('B9.1', first, FIND_COMMAND), self.scoped('B9.1', other, FIND_COMMAND))
+        for command in (FIND_COMMAND + ' ', 'find /work -type f', 'echo ' + repr(FIND_COMMAND)):
+            self.assertNotEqual(self.scoped('B9.1', first, command), self.scoped('B9.1', other, command))
+        for output in (listing + '/work/facts.json\n', other + '/work/extra.txt\n',
+                       listing + '/work/facts.json\n/work/facts.json\n',
+                       other.replace('/work/style.md', '/work/other.md')):
+            self.assertNotEqual(self.scoped('B9.1', first, FIND_COMMAND), self.scoped('B9.1', output, FIND_COMMAND))
+        self.assertNotEqual(self.scoped('B2.1', first, FIND_COMMAND), self.scoped('B2.1', other, FIND_COMMAND))
