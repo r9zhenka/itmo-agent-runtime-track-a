@@ -13,14 +13,16 @@ MAX_BODY = 1_048_576
 
 
 class Fault(Exception):
-    def __init__(self, kind, message, status=400, retryable=False):
+    def __init__(self, kind, message, status=400, retryable=False, details=None):
         super().__init__(message)
         self.kind, self.message, self.status = kind, message, status
         self.retryable = retryable
+        self.details = details
 
     def as_dict(self):
         return {"v": 0, "error": {"kind": self.kind, "message": self.message,
-                                  "retryable": self.retryable}}
+                                  "retryable": self.retryable,
+                                  **({"details": self.details} if self.details is not None else {})}}
 
 
 class UnixProxyHTTPSHandler(urllib.request.HTTPSHandler):
@@ -79,7 +81,7 @@ def request_json(url, body=None, token="", timeout=40, proxy_url="", proxy_socke
             err = json.loads(exc.read(MAX_BODY))["error"]
             if not isinstance(err, dict) or not isinstance(err.get("kind"), str) or not isinstance(err.get("message"), str):
                 raise ValueError("Unexpected error format")
-            raise Fault(err["kind"], err["message"], exc.code, err.get("retryable", False))
+            raise Fault(err["kind"], err["message"], exc.code, err.get("retryable", False), err.get("details"))
         except (ValueError, KeyError, TypeError):
             raise Fault("transport", f"HTTP {exc.code}: server returned an unexpected error format; check the server address and port",
                         exc.code, exc.code >= 500) from None
@@ -98,14 +100,41 @@ class Remote:
                             self.token, self.timeout)
 
 
+    def execute(self, *, on_event=None, **args):
+        """Consume the manager's resumable operation event stream; never retry start.
+
+        A failed start response can hide execution, so callers retain their operation
+        ID for explicit reconciliation. Read-only event fetches can be repeated.
+        """
+        import time
+        accepted = self("start", **args)
+        cursor = accepted["after"]
+        deadline = time.monotonic() + args["timeout_s"] + 40
+        while time.monotonic() < deadline:
+            for event in self("events", session_id=args["session_id"], after=cursor)["events"]:
+                if event["seq"] <= cursor:
+                    continue
+                cursor = event["seq"]
+                if event["operation_id"] != args["operation_id"]:
+                    continue
+                if on_event:
+                    on_event(event)
+                if event["type"] == "result":
+                    return event["result"]
+        raise Fault("transport", "Sandbox event stream did not produce a terminal result; reconcile the operation ID", 504)
+
+
 class Server(ThreadingHTTPServer):
     daemon_threads = True
     allow_reuse_address = True
 
 
 def make_server(app, token, host="0.0.0.0", port=8000):
-    if not token:
-        raise ValueError("A nonempty authentication token is required")
+    identities = token if isinstance(token, dict) else {"default": token}
+    if (not identities or any(not isinstance(name, str) or not name or
+            not isinstance(secret, str) or not secret for name, secret in identities.items())
+            or len(set(identities.values())) != len(identities)):
+        raise ValueError("Authentication requires distinct nonempty tokens and identity names")
 
     class Handler(BaseHTTPRequestHandler):
         protocol_version = "HTTP/1.1"
@@ -126,8 +155,14 @@ def make_server(app, token, host="0.0.0.0", port=8000):
             self.wfile.write(raw)
 
         def authenticate(self):
-            if not hmac.compare_digest(self.headers.get("Authorization", ""), "Bearer " + token):
+            supplied = self.headers.get("Authorization", "").encode("utf-8")
+            principal = None
+            for name, secret in identities.items():
+                if hmac.compare_digest(supplied, ("Bearer " + secret).encode("utf-8")):
+                    principal = name
+            if principal is None:
                 raise Fault("auth", "Invalid bearer token", 401)
+            return principal
 
         def do_GET(self):
             try:
@@ -135,7 +170,7 @@ def make_server(app, token, host="0.0.0.0", port=8000):
                 if path.path == "/health":
                     self.send_json(app.health())
                     return
-                self.authenticate()
+                principal = self.authenticate()
                 if path.path != "/v0/events" or not hasattr(app, "events"):
                     raise Fault("validation", "Unknown endpoint", 404)
                 query = parse_qs(path.query)
@@ -147,7 +182,8 @@ def make_server(app, token, host="0.0.0.0", port=8000):
                 except ValueError:
                     raise Fault("validation", "Invalid event cursor") from None
                 # A finite SSE response; reconnect with the last event ID.
-                events = app.events(sid, after)
+                events = (app.events_authenticated(sid, after, principal)
+                          if hasattr(app, "events_authenticated") else app.events(sid, after))
                 self.send_response(200)
                 self.send_header("Content-Type", "text/event-stream")
                 self.send_header("Cache-Control", "no-cache")
@@ -166,7 +202,7 @@ def make_server(app, token, host="0.0.0.0", port=8000):
 
         def do_POST(self):
             try:
-                self.authenticate()
+                principal = self.authenticate()
                 if self.path != "/v0":
                     raise Fault("validation", "Unknown endpoint", 404)
                 try:
@@ -181,7 +217,8 @@ def make_server(app, token, host="0.0.0.0", port=8000):
                     raise Fault("validation", "Invalid JSON") from None
                 if not isinstance(body, dict) or type(body.get("v")) is not int or body["v"] != 0:
                     raise Fault("validation", "Expected protocol v=0")
-                self.send_json(app.dispatch(body))
+                self.send_json(app.dispatch_authenticated(body, principal)
+                               if hasattr(app, "dispatch_authenticated") else app.dispatch(body))
             except Fault as exc:
                 self.close_connection = True
                 self.send_json(exc.as_dict(), exc.status)

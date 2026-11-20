@@ -1,0 +1,255 @@
+{
+  "format": "project-a-provider-recording-v1",
+  "source": "actual-provider-responses",
+  "task": "B8.1",
+  "fixture_sha256": "3efc08780d64bd09832c8984b946b7e5e438a116fbafaba3e17cc3733214429e",
+  "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+  "complete": true,
+  "created_at": "2026-11-20T10:54:29.634368+00:00",
+  "frames": [
+    {
+      "context_sha256": "e08fd58fafa60064bd851f16433a8f3d7e04daafece49c5444a4caf0bf3bbf36",
+      "provider_response": {
+        "id": "chatcmpl-b72d3a8206252c0c",
+        "created": 1795172073,
+        "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+        "object": "chat.completion",
+        "system_fingerprint": "vllm-0.32.0-tp8-150f5af4",
+        "choices": [
+          {
+            "finish_reason": "tool_calls",
+            "index": 0,
+            "message": {
+              "content": "I'll start by inspecting the workspace to find the task.\n\n",
+              "role": "assistant",
+              "tool_calls": [
+                {
+                  "function": {
+                    "arguments": "{\"command\": \"ls -la /work\"}",
+                    "name": "RunCommand"
+                  },
+                  "id": "chatcmpl-tool-944129f146d6b5f0",
+                  "type": "function"
+                },
+                {
+                  "function": {
+                    "arguments": "{\"path\": \"task.md\"}",
+                    "name": "ReadFile"
+                  },
+                  "id": "chatcmpl-tool-9581c1648d6f0dc2",
+                  "type": "function"
+                }
+              ],
+              "provider_specific_fields": {
+                "reasoning": null,
+                "refusal": null
+              }
+            },
+            "provider_specific_fields": {
+              "routed_experts": null,
+              "stop_reason": null,
+              "token_ids": null
+            }
+          }
+        ],
+        "usage": {
+          "completion_tokens": 83,
+          "prompt_tokens": 605,
+          "total_tokens": 688,
+          "completion_tokens_details": {
+            "reasoning_tokens": 0
+          }
+        }
+      }
+    },
+    {
+      "context_sha256": "22cbe6a91f3cf7f87a7f97b9cae47c36d971505f58f2ad766f9fc8fa81fd89bd",
+      "provider_response": {
+        "id": "chatcmpl-bd10dcdca60fdd1c",
+        "created": 1795172080,
+        "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+        "object": "chat.completion",
+        "system_fingerprint": "vllm-0.32.0-tp8-150f5af4",
+        "choices": [
+          {
+            "finish_reason": "tool_calls",
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "tool_calls": [
+                {
+                  "function": {
+                    "arguments": "{\"path\": \"request.json\"}",
+                    "name": "ReadFile"
+                  },
+                  "id": "chatcmpl-tool-b994d66dcb1fbce9",
+                  "type": "function"
+                },
+                {
+                  "function": {
+                    "arguments": "{\"command\": \"ls -la /work/sales && for f in /work/sales/*; do echo \\\"=== $f ===\\\"; head -5 \\\"$f\\\"; wc -l \\\"$f\\\"; done\"}",
+                    "name": "RunCommand"
+                  },
+                  "id": "chatcmpl-tool-83585769bcbe8e34",
+                  "type": "function"
+                }
+              ],
+              "provider_specific_fields": {
+                "reasoning": null,
+                "refusal": null
+              },
+              "content": null
+            },
+            "provider_specific_fields": {
+              "routed_experts": null,
+              "stop_reason": null,
+              "token_ids": null
+            }
+          }
+        ],
+        "usage": {
+          "completion_tokens": 107,
+          "prompt_tokens": 1195,
+          "total_tokens": 1302,
+          "completion_tokens_details": {
+            "reasoning_tokens": 0
+          }
+        }
+      }
+    },
+    {
+      "context_sha256": "dd96042232153d6e14be60af46b23e5fcddbc0a887d5dc9df3dd25a1d29f626d",
+      "provider_response": {
+        "id": "chatcmpl-bbfdf3150996d10e",
+        "created": 1795172098,
+        "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+        "object": "chat.completion",
+        "system_fingerprint": "vllm-0.32.0-tp8-150f5af4",
+        "choices": [
+          {
+            "finish_reason": "tool_calls",
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "tool_calls": [
+                {
+                  "function": {
+                    "arguments": "{\"command\": \"cd /work && for f in sales/*.csv; do echo \\\"=== $f ===\\\"; cat -A \\\"$f\\\"; done\"}",
+                    "name": "RunCommand"
+                  },
+                  "id": "chatcmpl-tool-876c38b86c2f6ede",
+                  "type": "function"
+                }
+              ],
+              "reasoning_content": "Let me view full files to be safe.",
+              "provider_specific_fields": {
+                "reasoning": "Let me view full files to be safe.",
+                "refusal": null
+              },
+              "content": null
+            },
+            "provider_specific_fields": {
+              "routed_experts": null,
+              "stop_reason": null,
+              "token_ids": null
+            }
+          }
+        ],
+        "usage": {
+          "completion_tokens": 75,
+          "prompt_tokens": 2016,
+          "total_tokens": 2091,
+          "completion_tokens_details": {
+            "reasoning_tokens": 9
+          }
+        }
+      }
+    },
+    {
+      "context_sha256": "82dedf152ee66393b7647ad4d0a99f0e3019b2eed435009d588fc3a08f58a274",
+      "provider_response": {
+        "id": "chatcmpl-88a9b2f4e789d632",
+        "created": 1795172109,
+        "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+        "object": "chat.completion",
+        "system_fingerprint": "vllm-0.32.0-tp8-150f5af4",
+        "choices": [
+          {
+            "finish_reason": "tool_calls",
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "tool_calls": [
+                {
+                  "function": {
+                    "arguments": "{\"command\": \"cd /work && python3 - <<'PY'\\nimport csv, json, datetime\\nreq=json.load(open('request.json'))\\nstart=datetime.date.fromisoformat(req['start']); end=datetime.date.fromisoformat(req['end'])\\nsources=[]; total=0\\nfor path in sorted(req['files']):\\n    s=0; n=0\\n    with open(path, newline='') as f:\\n        r=csv.DictReader(f)\\n        assert r.fieldnames==['date','amount'], r.fieldnames\\n        for row in r:\\n            d=datetime.date.fromisoformat(row['date'])\\n            if start <= d < end:\\n                from decimal import Decimal\\n                k=int((Decimal(row['amount'])*100).to_integral_exact())\\n                s+=k; n+=1\\n    sources.append({'file':path,'total_kopecks':s,'row_count':n})\\n    total+=s\\nout={'quarter':req['quarter'],'currency':'RUB','total_kopecks':total,'sources':sources}\\njson.dump(out, open('answer.json','w'), indent=2)\\nprint(json.dumps(out, indent=2))\\nPY\\ncat answer.json\"}",
+                    "name": "RunCommand"
+                  },
+                  "id": "chatcmpl-tool-85448f39698073f7",
+                  "type": "function"
+                }
+              ],
+              "reasoning_content": "Compute exact with Python Decimal.\n\nExpected:\neast: 1234.56 - 34.56 = 1200.00 -> 120000 kopecks, 2 rows\nnorth: 100.10 + 200.20 = 300.30 -> 30030, 2 rows\nonline: 0 rows, 0\nsouth: 0.10 + 0.20 = 0.30 -> 30, 2 rows\nwest: 20.00 + 80.00 = 100.00 -> 10000, 2 rows\nTotal = 120000+30030+30+10000 = 160060.\n\nWrite script to verify and produce JSON.",
+              "provider_specific_fields": {
+                "reasoning": "Compute exact with Python Decimal.\n\nExpected:\neast: 1234.56 - 34.56 = 1200.00 -> 120000 kopecks, 2 rows\nnorth: 100.10 + 200.20 = 300.30 -> 30030, 2 rows\nonline: 0 rows, 0\nsouth: 0.10 + 0.20 = 0.30 -> 30, 2 rows\nwest: 20.00 + 80.00 = 100.00 -> 10000, 2 rows\nTotal = 120000+30030+30+10000 = 160060.\n\nWrite script to verify and produce JSON.",
+                "refusal": null
+              },
+              "content": null
+            },
+            "provider_specific_fields": {
+              "routed_experts": null,
+              "stop_reason": null,
+              "token_ids": null
+            }
+          }
+        ],
+        "usage": {
+          "completion_tokens": 444,
+          "prompt_tokens": 2416,
+          "total_tokens": 2860,
+          "completion_tokens_details": {
+            "reasoning_tokens": 149
+          }
+        }
+      }
+    },
+    {
+      "context_sha256": "f64b9546434b42514547baf4b92be3afe79fa6c737563c0be9c7bd75e3e27229",
+      "provider_response": {
+        "id": "chatcmpl-91cd4e9bbf5520bb",
+        "created": 1795172140,
+        "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+        "object": "chat.completion",
+        "system_fingerprint": "vllm-0.32.0-tp8-150f5af4",
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "message": {
+              "content": "Done. Created `/work/answer.json`.\n\n**Approach:** Read `request.json` (quarter `2026-Q1`, period 2026-01-01 inclusive → 2026-04-01 exclusive, five CSV files) and processed each listed file with a Python script using `Decimal` for exact kopeck arithmetic, including negative (refund) rows and without deduplication. Out-of-period rows were excluded, but every file appears in `sources` (sorted by path), including `online.csv` with 0 rows.\n\n**Result:** total = 160,060 kopecks (1,600.60 RUB)\n- east: 123,456 − 3,456 = 120,000 kopecks, 2 rows\n- north: 10,010 + 20,020 = 30,030 kopecks, 2 rows\n- online: 0 kopecks, 0 rows (all dates outside the quarter)\n- south: 10 + 20 = 30 kopecks, 2 rows (2026-04-01 excluded)\n- west: 2,000 + 8,000 = 10,000 kopecks, 2 rows\n\nThe file contains exactly the required fields: `quarter`, `currency`, `total_kopecks`, `sources` (each with `file`, `total_kopecks`, `row_count`).",
+              "role": "assistant",
+              "reasoning_content": "Verify with an independent manual calc: east 123456-3456=120000; north 10010+20020=30030; south 10+20=30; west 2000+8000=10000. Total 160060. Sorted paths already alphabetical: east, north, online, south, west. Good.\n\nValidate answer.json fields exactly.",
+              "provider_specific_fields": {
+                "reasoning": "Verify with an independent manual calc: east 123456-3456=120000; north 10010+20020=30030; south 10+20=30; west 2000+8000=10000. Total 160060. Sorted paths already alphabetical: east, north, online, south, west. Good.\n\nValidate answer.json fields exactly.",
+                "refusal": null
+              }
+            },
+            "provider_specific_fields": {
+              "routed_experts": null,
+              "stop_reason": null,
+              "token_ids": null
+            }
+          }
+        ],
+        "usage": {
+          "completion_tokens": 368,
+          "prompt_tokens": 3457,
+          "total_tokens": 3825,
+          "completion_tokens_details": {
+            "reasoning_tokens": 77
+          }
+        }
+      }
+    }
+  ]
+}

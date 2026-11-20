@@ -5,6 +5,7 @@ control messages go to stdout. Workspace contents never enter the control channe
 """
 import json
 import os
+import select
 import shutil
 import signal
 import subprocess
@@ -90,7 +91,7 @@ class MountedFolder:
                    RCLONE_WEBDAV_BEARER_TOKEN=self.token)
         self.process = subprocess.Popen(mount_command(self.path, self.mode, self.uid, self.gid),
                                         env=env, stdin=subprocess.DEVNULL,
-                                        stdout=subprocess.DEVNULL, stderr=sys.stderr)
+                                        stdout=subprocess.DEVNULL, stderr=sys.stderr, close_fds=True)
         deadline = time.monotonic() + 15
         while time.monotonic() < deadline:
             if self.process.poll() is not None:
@@ -153,6 +154,71 @@ class MountedFolder:
         self.created = False
 
 
+class GuardedMount:
+    """The SSH helper owns a pipe; a separate process owns the FUSE resources."""
+    def __init__(self, root, mode, url, token, uid, gid):
+        self.config = {"root": str(root), "mode": mode, "url": url, "token": token, "uid": uid, "gid": gid}
+        self.process = None
+        self.workspace = None
+
+    def response(self, timeout):
+        if not select.select([self.process.stdout], [], [], timeout)[0]:
+            raise RuntimeError("Mount guard did not respond in time")
+        line = self.process.stdout.readline(16384)
+        if not line:
+            raise RuntimeError("Mount guard exited")
+        event = json.loads(line)
+        if event.get("state") == "error":
+            raise RuntimeError("Mount guard could not complete mount or cleanup")
+        return event
+
+    def start(self):
+        self.process = subprocess.Popen([sys.executable, "-u", "-m", "runtime.mount_guard"],
+                                        stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+                                        text=True, bufsize=1, close_fds=True, start_new_session=True)
+        self.process.stdin.write(json.dumps(self.config) + "\n")
+        self.process.stdin.flush()
+        event = self.response(35)
+        if event.get("state") != "ready":
+            raise RuntimeError("Invalid mount guard response")
+        self.workspace = event["workspace"]
+
+    def renew(self):
+        # The guard renews the lease itself while this control pipe stays open.
+        if self.process.poll() is not None:
+            raise RuntimeError("Remote filesystem mount guard stopped")
+
+    def revoke(self):
+        if self.process is not None and self.process.poll() is None:
+            self.process.stdin.write("revoke\n")
+            self.process.stdin.flush()
+            if self.response(5).get("state") != "revoked":
+                raise RuntimeError("Mount guard did not revoke the lease")
+
+    def close(self):
+        if self.process is None:
+            return
+        process = self.process
+        try:
+            # EOF, including SIGKILL of this helper, requests cleanup in the guard.
+            process.stdin.close()
+            try:
+                process.wait(timeout=35)
+            except subprocess.TimeoutExpired:
+                process.terminate()
+                try:
+                    process.wait(timeout=35)
+                except subprocess.TimeoutExpired:
+                    process.kill()
+                    process.wait(timeout=3)
+                raise RuntimeError("Mount guard cleanup timed out; inspect mountpoints")
+            if process.returncode:
+                raise RuntimeError("Mount guard cleanup failed; inspect mountpoints")
+        finally:
+            process.stdout.close()
+            self.process = None
+
+
 def emit(value):
     try:
         print(json.dumps(value), flush=True)
@@ -183,7 +249,7 @@ def main():
         health = request_json(gateway + "/health", timeout=5)
         if health.get("service") != "gateway":
             raise RuntimeError("The server gateway is not available")
-        mount = MountedFolder(config["WORKSPACE_ROOT"], mode,
+        mount = GuardedMount(config["WORKSPACE_ROOT"], mode,
                               f"http://127.0.0.1:{port}/", body["mount_token"], uid, gid)
         mount.start()
         sid = rpc("create", request_id=mount.workspace, workspace=mount.workspace, mode=mode)["session_id"]

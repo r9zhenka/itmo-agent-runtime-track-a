@@ -36,6 +36,15 @@ def copy_source(source, target):
         shutil.copy2(source / name, target / name)
 
 
+    # Fixed, public benchmark evidence only; never copy arbitrary docs or .env.
+    evidence = source / "docs/evidence/cp2-fixes"
+    for name in ("provider-record-smoke.jsonl", "provider-record-events.json"):
+        if (evidence / name).is_file():
+            destination = target / "recording-evidence"
+            destination.mkdir(exist_ok=True)
+            shutil.copyfile(evidence / name, destination / name)
+
+
 def replay_environment(root, port, project):
     env = dict(os.environ)
     for key in list(env):
@@ -46,6 +55,7 @@ def replay_environment(root, port, project):
                ALLOW_LOCAL_RW="1", GATEWAY_PORT=str(port), GATEWAY_BIND="127.0.0.1",
                WORKSPACE_ROOT=str(root / "workspaces"), INSTANCE_ID=project,
                CLIENT_TOKEN=secrets.token_urlsafe(32), INTERNAL_TOKEN=secrets.token_urlsafe(32),
+               CLIENT_IDENTITIES_JSON="",
                SANDBOX_UID=str(os.getuid()), SANDBOX_GID=str(os.getgid()),
                PYTHONDONTWRITEBYTECODE="1")
     return env
@@ -116,8 +126,9 @@ def commands(python, rclone):
         ("docker-isolation", [python, "-m", "scripts.docker_check"]),
         ("isolated-code-grader", [python, "-m", "scripts.check_b6"]),
         ("adversarial-hardening", [python, "-m", "scripts.hardening_check"]),
-        ("full-synthetic-baf", [python, "-m", "scripts.benchmark", "--repeats", "1", "--pair", "custom+replay"]),
+        ("full-synthetic-baf", [python, "-m", "scripts.benchmark", "--repeats", "1", "--parallel", "3", "--pair", "custom+replay"]),
         ("real-webdav", [python, "-m", "scripts.check_webdav", "--rclone", rclone]),
+        ("mount-helper-sigkill", [python, "-m", "scripts.check_mount_crash"]),
     ]
 
 
@@ -156,6 +167,7 @@ def main():
     with tempfile.TemporaryDirectory(prefix=".project-a-check-", dir=Path.home()) as tmp:
         checkout = Path(tmp)
         copy_source(root, checkout)
+        (checkout / ".acceptance-stack.json").write_text(json.dumps({"project": project, "instance": project}))
         port = free_port()
         env = replay_environment(checkout, port, project)
         subprocess.run([sys.executable, "-m", "scripts.init"], cwd=checkout, env=env, check=True)
@@ -196,6 +208,23 @@ def main():
             else:
                 # check_ssh_mount now takes its gateway port from this stack's environment.
                 run("ssh-fuse-docker", [sys.executable, "-m", "scripts.check_ssh_mount", "--gateway-port", str(port)])
+            run("deployed-controller-crashes", [sys.executable, "-m", "scripts.check_watchdog_crash", "--project", project])
+            run("recording-artifact-audit", [sys.executable, "-m", "scripts.check_recordings",
+                "--directory", "baf/recordings", "--output", "results/recorded-audit.json"])
+            run("recording-context-audit", [sys.executable, "-m", "scripts.derive_recorded_contexts",
+                "--directory", "baf/recordings", "--captures", "recording-evidence/provider-record-smoke.jsonl",
+                "--events", "recording-evidence/provider-record-events.json", "--check"])
+            env["LLM_MODE"] = "recorded"
+            run("start-recorded-proxy", compose + ["up", "--no-build", "--pull", "never", "-d", "--wait",
+                "--no-deps", "--force-recreate", "llm-proxy"])
+            run("recorded-model-smoke", [sys.executable, "-m", "scripts.benchmark", "--smoke", "--repeats", "1", "--parallel", "3",
+                "--pair", "custom+recorded-smoke", "--output", "results/recorded-smoke.jsonl"])
+            recorded = [json.loads(line) for line in (checkout / "results/recorded-smoke.jsonl").read_text().splitlines()]
+            expected = {case["id"] for case in cases() if case["id"].endswith(".1")}
+            if (len(recorded) != len(expected) or {row.get("task") for row in recorded} != expected
+                    or any(not row.get("pass") or row.get("model", {}).get("provider") != "recorded-replay"
+                           or row.get("quality_evaluation") for row in recorded)):
+                raise RuntimeError("Recorded smoke coverage or provenance failed")
             report["passed"] = True
         except Exception as exc:
             report["error"] = str(exc)

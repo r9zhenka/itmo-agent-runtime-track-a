@@ -1,0 +1,24 @@
+{
+  "normalizer": "project-a-ls-long-v1",
+  "task": "B7.1",
+  "recording_sha256": "9ff0dc44b1c6344c9f4684a09cda4a2694d77baff79b4269e6dd725ac2e38e9b",
+  "events_sha256": "e6421b578bb35a6bf9c0d1450352fb3ebd2624386939b5f15fbd8113fa2b5a00",
+  "contexts": [
+    {
+      "original_sha256": "cd2ea1da3f31570557c2c395f69400f0655e81ae05a5a0590504006343aebc41",
+      "portable_sha256": "cd2ea1da3f31570557c2c395f69400f0655e81ae05a5a0590504006343aebc41"
+    },
+    {
+      "original_sha256": "af9cd47d9ca95d75ebeca6d0c13103fc70d27fb1c3fa153716336a080371d3fe",
+      "portable_sha256": "3a7ffdedb4b90ad5025e523df1afd28daaa407c8322d02b0044ed2e711f3b0d9"
+    },
+    {
+      "original_sha256": "618a4cb08376a704ff2b20ebbe2acf413f04b6a976f6ddf4c595b6b1279538e4",
+      "portable_sha256": "a40f2130d3f01ec05e3437eb1dfd35a62b90a64250bbcca152da28c35e501526"
+    },
+    {
+      "original_sha256": "08793b26360abace75b7b0ed603ecaf61d2f191ec81b5e44216e7532e645e925",
+      "portable_sha256": "672c8571b3ac0ad0e480b33ef36297f395947f0b9c9f6733866a71e36b09f5ef"
+    }
+  ]
+}

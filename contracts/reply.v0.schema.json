@@ -28,6 +28,158 @@
         "session_id": {
           "type": "string"
         },
+        "operation_id": {
+          "type": "string"
+        },
+        "accepted": {
+          "const": true
+        },
+        "after": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "required": [
+        "v",
+        "session_id",
+        "operation_id",
+        "accepted",
+        "after"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "v": {
+          "const": 0
+        },
+        "events": {
+          "type": "array",
+          "items": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
+            "type": "object",
+            "title": "Sandbox operation event v0",
+            "required": [
+              "v",
+              "seq",
+              "session_id",
+              "operation_id",
+              "type"
+            ],
+            "properties": {
+              "v": {
+                "const": 0
+              },
+              "seq": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "session_id": {
+                "type": "string"
+              },
+              "operation_id": {
+                "type": "string"
+              },
+              "type": {
+                "enum": [
+                  "started",
+                  "running",
+                  "result"
+                ]
+              }
+            },
+            "allOf": [
+              {
+                "if": {
+                  "properties": {
+                    "type": {
+                      "const": "result"
+                    }
+                  }
+                },
+                "then": {
+                  "required": [
+                    "result"
+                  ],
+                  "properties": {
+                    "result": {
+                      "$schema": "https://json-schema.org/draft/2020-12/schema",
+                      "type": "object",
+                      "title": "Sandbox terminal operation result v0",
+                      "required": [
+                        "v",
+                        "type",
+                        "session_id",
+                        "operation_id",
+                        "stdout",
+                        "stderr",
+                        "exit_code",
+                        "error",
+                        "duration_ms",
+                        "truncated"
+                      ],
+                      "properties": {
+                        "v": {
+                          "const": 0
+                        },
+                        "type": {
+                          "const": "result"
+                        },
+                        "session_id": {
+                          "type": "string"
+                        },
+                        "operation_id": {
+                          "type": "string"
+                        },
+                        "stdout": {
+                          "type": "string"
+                        },
+                        "stderr": {
+                          "type": "string"
+                        },
+                        "exit_code": {
+                          "type": [
+                            "integer",
+                            "null"
+                          ]
+                        },
+                        "error": {
+                          "type": [
+                            "object",
+                            "null"
+                          ]
+                        },
+                        "duration_ms": {
+                          "type": "number"
+                        },
+                        "truncated": {
+                          "type": "boolean"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      },
+      "required": [
+        "v",
+        "events"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "v": {
+          "const": 0
+        },
+        "session_id": {
+          "type": "string"
+        },
         "run_id": {
           "type": "string"
         }
@@ -142,6 +294,9 @@
             },
             "retryable": {
               "type": "boolean"
+            },
+            "details": {
+              "type": "object"
             }
           },
           "required": [

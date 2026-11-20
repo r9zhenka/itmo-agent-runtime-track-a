@@ -32,6 +32,7 @@
         "started",
         "model",
         "tool_start",
+        "tool_progress",
         "tool_result",
         "result"
       ]

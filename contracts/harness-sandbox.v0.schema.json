@@ -285,6 +285,208 @@
         "session_id"
       ],
       "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "v": {
+          "const": 0,
+          "type": "integer"
+        },
+        "op": {
+          "const": "start"
+        },
+        "session_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "pattern": "^[a-zA-Z0-9_-]+$"
+        },
+        "operation_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "pattern": "^[a-zA-Z0-9_-]+$"
+        },
+        "tool": {
+          "const": "RunCommand"
+        },
+        "arguments": {
+          "type": "object",
+          "properties": {
+            "command": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 16000
+            }
+          },
+          "required": [
+            "command"
+          ],
+          "additionalProperties": false
+        },
+        "timeout_s": {
+          "type": "number",
+          "minimum": 0.1,
+          "maximum": 120
+        }
+      },
+      "required": [
+        "v",
+        "op",
+        "session_id",
+        "operation_id",
+        "tool",
+        "arguments",
+        "timeout_s"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "v": {
+          "const": 0,
+          "type": "integer"
+        },
+        "op": {
+          "const": "start"
+        },
+        "session_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "pattern": "^[a-zA-Z0-9_-]+$"
+        },
+        "operation_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "pattern": "^[a-zA-Z0-9_-]+$"
+        },
+        "tool": {
+          "const": "ReadFile"
+        },
+        "arguments": {
+          "type": "object",
+          "properties": {
+            "path": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 4096
+            }
+          },
+          "required": [
+            "path"
+          ],
+          "additionalProperties": false
+        },
+        "timeout_s": {
+          "type": "number",
+          "minimum": 0.1,
+          "maximum": 120
+        }
+      },
+      "required": [
+        "v",
+        "op",
+        "session_id",
+        "operation_id",
+        "tool",
+        "arguments",
+        "timeout_s"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "v": {
+          "const": 0,
+          "type": "integer"
+        },
+        "op": {
+          "const": "start"
+        },
+        "session_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "pattern": "^[a-zA-Z0-9_-]+$"
+        },
+        "operation_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "pattern": "^[a-zA-Z0-9_-]+$"
+        },
+        "tool": {
+          "const": "WriteFile"
+        },
+        "arguments": {
+          "type": "object",
+          "properties": {
+            "path": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 4096
+            },
+            "content": {
+              "type": "string",
+              "maxLength": 65536
+            }
+          },
+          "required": [
+            "path",
+            "content"
+          ],
+          "additionalProperties": false
+        },
+        "timeout_s": {
+          "type": "number",
+          "minimum": 0.1,
+          "maximum": 120
+        }
+      },
+      "required": [
+        "v",
+        "op",
+        "session_id",
+        "operation_id",
+        "tool",
+        "arguments",
+        "timeout_s"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "v": {
+          "const": 0,
+          "type": "integer"
+        },
+        "op": {
+          "const": "events"
+        },
+        "session_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "pattern": "^[a-zA-Z0-9_-]+$"
+        },
+        "after": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "required": [
+        "v",
+        "op",
+        "session_id",
+        "after"
+      ],
+      "additionalProperties": false
     }
   ]
 }

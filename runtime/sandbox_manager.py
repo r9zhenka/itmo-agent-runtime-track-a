@@ -33,7 +33,8 @@ class SandboxManager:
     def dispatch(self, body):
         op = validate_request(body, SANDBOX)
         args = {key: value for key, value in body.items() if key not in ("v", "op")}
-        return getattr(self, op)(**args)
+        result = getattr(self, op)(**args)
+        return {"v": 0, "events": result} if op == "events" else result
 
     def session(self, sid):
         with self.lock:
@@ -61,20 +62,103 @@ class SandboxManager:
                 if current["signature"] != signature or current["released"]:
                     raise Fault("validation", "Session ID already used", 409)
                 return {"v": 0, "session_id": session_id, "mode": mode}
-            if len(self.sessions) >= 512:
-                raise Fault("busy", "Session capacity reached; restart after releasing sessions", 429)
+            closed = [sid for sid, state in self.sessions.items() if state["released"]]
+            for old_sid in closed[:max(0, len(closed) - 128)]:
+                del self.sessions[old_sid]
+            if sum(not state["released"] for state in self.sessions.values()) >= 512:
+                raise Fault("busy", "Active session capacity reached; release a session", 429)
             for existing in self.sessions.values():
                 other = existing["path"]
                 if not existing["released"] and (path.is_relative_to(other) or other.is_relative_to(path)):
                     raise Fault("busy", "Workspace overlaps an active session", 409)
             self.sessions[session_id] = {
-                "signature": signature, "path": path, "source": str(self.host_root / relative),
+                "sid": session_id, "signature": signature, "path": path, "source": str(self.host_root / relative),
                 "mode": mode, "cancel": threading.Event(), "released": False,
                 "remote_workspace": lease_name(workspace),
                 "active": None, "operations": {}, "exec_lock": threading.Lock(),
-                "cleanup_lock": threading.Lock(),
+                "cleanup_lock": threading.Lock(), "pending": None,
+                "events": [], "event_condition": threading.Condition(self.lock),
+                "cursors": {},
             }
         return {"v": 0, "session_id": session_id, "mode": mode}
+
+    def emit(self, session, operation_id, kind, **payload):
+        with self.lock:
+            event = {"v": 0, "seq": len(session["events"]) + 1,
+                     "session_id": session["sid"], "operation_id": operation_id,
+                     "type": kind, **payload}
+            session["events"].append(event)
+            session["event_condition"].notify_all()
+
+    def events(self, session_id, after):
+        session = self.session(session_id)
+        with session["event_condition"]:
+            if type(after) is not int or not 0 <= after <= len(session["events"]):
+                raise Fault("validation", "Invalid sandbox event cursor")
+            if after == len(session["events"]):
+                session["event_condition"].wait(0.5)
+            return session["events"][after:after + 4]
+
+    def start(self, session_id, operation_id, tool, arguments, timeout_s):
+        """Accept one operation; events carry progress and exactly one terminal result.
+
+        Same-ID retries return the same cursor without reexecuting side effects.
+        A distinct operation is rejected while this session has an active operation.
+        """
+        validate(arguments, TOOLS[tool], "arguments")
+        session = self.session(session_id)
+        signature = json.dumps([tool, arguments, timeout_s], sort_keys=True)
+        with self.lock:
+            existing = session["operations"].get(operation_id)
+            pending = session["pending"]
+            if existing is not None:
+                if existing[0] != signature:
+                    raise Fault("validation", "Operation ID reused with different arguments", 409)
+            elif pending is not None:
+                if pending["id"] != operation_id:
+                    raise Fault("busy", "An operation is already running", 409, True)
+                if pending["signature"] != signature:
+                    raise Fault("validation", "Operation ID reused with different arguments", 409)
+            else:
+                if session["cancel"].is_set() or session["released"]:
+                    raise Fault("cancelled", "Session has been cancelled or released", 409)
+                if session["exec_lock"].locked():
+                    raise Fault("busy", "An operation is already running", 409, True)
+                if len(session["operations"]) >= 256:
+                    raise Fault("busy", "Operation capacity reached; create a new session", 429)
+                pending = {"id": operation_id, "signature": signature}
+                session["pending"] = pending
+                session["cursors"][operation_id] = len(session["events"])
+
+                def work():
+                    try:
+                        self.exec(session_id, operation_id, tool, arguments, timeout_s, _reservation=pending)
+                    except Exception as exc:
+                        fault = exc if isinstance(exc, Fault) else Fault("sandbox", "Operation worker failed", 500)
+                        with self.lock:
+                            if operation_id not in session["operations"]:
+                                result = {"v": 0, "type": "result", "session_id": session_id,
+                                          "operation_id": operation_id, "stdout": "", "stderr": "",
+                                          "exit_code": None, "error": fault.as_dict()["error"],
+                                          "duration_ms": 0, "truncated": False}
+                                session["operations"][operation_id] = (signature, result)
+                                self.emit(session, operation_id, "result", result=result)
+                    finally:
+                        with self.lock:
+                            if session["pending"] is pending:
+                                session["pending"] = None
+                thread = threading.Thread(target=work, daemon=True)
+                pending["thread"] = thread
+                try:
+                    thread.start()
+                except Exception:
+                    # No worker was launched: undo acceptance state so release
+                    # remains possible and a same-ID retry can safely start once.
+                    session["pending"] = None
+                    del session["cursors"][operation_id]
+                    raise Fault("sandbox", "Cannot start sandbox operation worker", 503, True) from None
+            return {"v": 0, "session_id": session_id, "operation_id": operation_id,
+                    "accepted": True, "after": session["cursors"].get(operation_id, 0)}
 
     def config(self, session, sid, opid, tool, arguments, deadline=None):
         if tool == "RunCommand":
@@ -122,13 +206,17 @@ class SandboxManager:
             with self.lock:
                 session["active"] = None
 
-    def exec(self, session_id, operation_id, tool, arguments, timeout_s):
+    def exec(self, session_id, operation_id, tool, arguments, timeout_s, _reservation=None):
         validate(arguments, TOOLS[tool], "arguments")
         session = self.session(session_id)
         signature = json.dumps([tool, arguments, timeout_s], sort_keys=True)
-        if not session["exec_lock"].acquire(blocking=False):
-            raise Fault("busy", "An operation is already running; retry the same ID", 409, True)
+        with self.lock:
+            if session["pending"] is not None and session["pending"] is not _reservation:
+                raise Fault("busy", "An operation is already running; retry the same ID", 409, True)
+            if not session["exec_lock"].acquire(blocking=False):
+                raise Fault("busy", "An operation is already running; retry the same ID", 409, True)
         started, cid = time.monotonic(), None
+        publish_terminal = False
         result = {"v": 0, "type": "result", "session_id": session_id,
                   "operation_id": operation_id, "stdout": "", "stderr": "",
                   "exit_code": None, "error": None, "truncated": False}
@@ -153,6 +241,9 @@ class SandboxManager:
                 raise Fault("cancelled", "Session has been cancelled or released", 409)
             if session["active"] is not None:
                 raise Fault("sandbox", "Previous container cleanup failed; release the session", 503)
+            with self.lock:
+                session["cursors"].setdefault(operation_id, len(session["events"]))
+            self.emit(session, operation_id, "started", tool=tool)
             try:
                 check_status()
                 config = self.config(session, session_id, operation_id, tool, arguments,
@@ -163,6 +254,7 @@ class SandboxManager:
                     session["active"] = cid
                     check_status()
                     self.engine.start(cid)
+                self.emit(session, operation_id, "running", tool=tool)
                 while True:
                     check_status()
                     state = self.engine.inspect(cid)
@@ -195,10 +287,17 @@ class SandboxManager:
                     except Fault:
                         result["error"] = {"kind": "sandbox", "message": "Container cleanup failed", "retryable": False}
             result["duration_ms"] = round((time.monotonic() - started) * 1000, 3)
-            session["operations"][operation_id] = (signature, result)
+            with self.lock:
+                session["operations"][operation_id] = (signature, result)
+                publish_terminal = True
             return result
         finally:
-            session["exec_lock"].release()
+            with self.lock:
+                session["exec_lock"].release()
+                if _reservation is not None and session["pending"] is _reservation:
+                    session["pending"] = None
+                if publish_terminal:
+                    self.emit(session, operation_id, "result", result=result)
 
     def collect(self, session_id):
         session = self.session(session_id)
@@ -223,6 +322,12 @@ class SandboxManager:
     def release(self, session_id):
         session = self.session(session_id)
         self.cancel(session_id)
+        with self.lock:
+            pending = session["pending"]
+        if pending is not None:
+            pending["thread"].join(timeout=25)
+            if pending["thread"].is_alive():
+                raise Fault("busy", "Operation cleanup still in progress; retry release", 503, True)
         # Do not release the folder lock while an operation could still start a container.
         if not session["exec_lock"].acquire(timeout=25):
             raise Fault("busy", "Cleanup still in progress; retry release", 503, True)

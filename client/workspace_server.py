@@ -26,6 +26,52 @@ class QuotaExceeded(OSError):
     pass
 
 
+def file_version(info):
+    return (info.st_ino, info.st_size, info.st_mtime_ns, info.st_mode, info.st_ctime_ns)
+
+
+def etag(version):
+    return '"' + "-".join(str(value) for value in version) + '"'
+
+
+def lock_export_tree(folder):
+    """Shared ancestor locks + exclusive selected-directory lock across processes.
+
+    Lock identities are device/inode pairs, not user-controlled path strings.
+    Kernel locks disappear on process exit; persistent files contain no paths or
+    credentials. Never unlink them: another process may still hold the inode.
+    """
+    # Fixed Linux location: differing TMPDIR settings must not split the registry.
+    registry = Path("/tmp") / ("project-a-workspace-locks-" + str(os.getuid()))
+    registry.mkdir(mode=0o700, exist_ok=True)
+    root = os.open(registry, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+    locks = []
+    try:
+        info = os.fstat(root)
+        if info.st_uid != os.getuid() or stat.S_IMODE(info.st_mode) != 0o700:
+            raise PermissionError("Workspace lock registry must be private and owned by this user")
+        for path in [*reversed(folder.parents), folder]:
+            info = path.stat()
+            fd = os.open(f"{info.st_dev}-{info.st_ino}", os.O_RDWR | os.O_CREAT | os.O_NOFOLLOW,
+                         0o600, dir_fd=root)
+            locks.append(fd)
+            entry = os.fstat(fd)
+            if not stat.S_ISREG(entry.st_mode) or entry.st_uid != os.getuid() or entry.st_nlink != 1:
+                raise PermissionError("Invalid workspace registry entry")
+            mode = fcntl.LOCK_EX if path == folder else fcntl.LOCK_SH
+            try:
+                fcntl.flock(fd, mode | fcntl.LOCK_NB)
+            except BlockingIOError:
+                raise BlockingIOError("This folder overlaps an existing workspace export") from None
+        return locks
+    except BaseException:
+        for fd in locks:
+            os.close(fd)
+        raise
+    finally:
+        os.close(root)
+
+
 def parts_for(url):
     parsed = urllib.parse.urlsplit(url)
     if parsed.query or parsed.fragment:
@@ -46,14 +92,20 @@ class WorkspaceServer:
             raise ValueError("Mode must be ro or rw")
         self.folder = Path(folder).resolve(strict=True)
         self.fd = os.open(self.folder, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+        self.export_locks = []
         try:
-            # No lock file in the user's directory. One exporter per exact folder.
+            self.export_locks = lock_export_tree(self.folder)
+            # Preserve compatibility with older clients' exact-folder lock.
             fcntl.flock(self.fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
         except BaseException:
+            for fd in self.export_locks:
+                os.close(fd)
             os.close(self.fd)
             raise
         self.mode, self.token = mode, token or secrets.token_urlsafe(32)
         if type(max_bytes) is not int or max_bytes <= 0 or type(max_entries) is not int or max_entries <= 0:
+            for fd in self.export_locks:
+                os.close(fd)
             os.close(self.fd)
             raise ValueError("Workspace quotas must be positive integers")
         self.max_bytes, self.max_entries = max_bytes, max_entries
@@ -118,6 +170,18 @@ class WorkspaceServer:
                         remaining -= len(chunk)
                         yield chunk
 
+            def preconditions(self, version):
+                current = etag(version) if version is not None else None
+                match = self.headers.get("If-Match")
+                absent = self.headers.get("If-None-Match")
+                if match is not None and (current is None or
+                        (match.strip() != "*" and current not in [x.strip() for x in match.split(",")])):
+                    return False
+                if absent is not None and current is not None and (
+                        absent.strip() == "*" or current in [x.strip() for x in absent.split(",")]):
+                    return False
+                return True
+
             def run(self):
                 try:
                     if not hmac.compare_digest(self.headers.get("Authorization", "").encode(), ("Bearer " + owner.token).encode()):
@@ -160,7 +224,7 @@ class WorkspaceServer:
                                     ET.SubElement(resource, "{DAV:}collection")
                                 ET.SubElement(prop, "{DAV:}getcontentlength").text = str(info.st_size if not directory else 0)
                                 ET.SubElement(prop, "{DAV:}getlastmodified").text = formatdate(info.st_mtime, usegmt=True)
-                                ET.SubElement(prop, "{DAV:}getetag").text = f'"{info.st_ino}-{info.st_size}-{info.st_mtime_ns}"'
+                                ET.SubElement(prop, "{DAV:}getetag").text = etag(file_version(info))
                                 ET.SubElement(ps, "{DAV:}status").text = "HTTP/1.1 200 OK"
                             self.reply(207, ET.tostring(root, encoding="utf-8", xml_declaration=True), {"Content-Type": "application/xml"})
                         elif self.command in ("GET", "HEAD"):
@@ -169,7 +233,7 @@ class WorkspaceServer:
                                 if not stat.S_ISREG(info.st_mode):
                                     raise PermissionError()
                                 start, end, status = 0, info.st_size - 1, 200
-                                headers = {"Accept-Ranges": "bytes"}
+                                headers = {"Accept-Ranges": "bytes", "ETag": etag(file_version(info))}
                                 if self.headers.get("Range"):
                                     import re
                                     match = re.fullmatch(r"bytes=(\d+)-(\d*)", self.headers["Range"])
@@ -205,6 +269,9 @@ class WorkspaceServer:
                             with owner.open(parts[:-1], directory=True) as parent:
                                 name = parts[-1]
                                 before = owner.fingerprint(parent, name)
+                                if not self.preconditions(before):
+                                    self.reply(412)
+                                    return
                                 if self.command == "PUT":
                                     # Peak allocation includes old file + staged replacement.
                                     # The single exporter lock serializes all remote mutations.
@@ -221,14 +288,12 @@ class WorkspaceServer:
                                                 target.write(chunk)
                                             target.flush()
                                             os.fsync(target.fileno())
-                                        if owner.fingerprint(parent, name) != before:
-                                            self.reply(409)
-                                            return
                                         # Account for trusted local edits to other files while
                                         # uploading; our hidden staging file is counted separately.
                                         current_bytes, current_entries = owner.usage()
                                         owner.require_quota(current_bytes + staged, current_entries + 1)
                                         os.chmod(temp, stat.S_IMODE(before[3]) if before else 0o644, dir_fd=parent)
+                                        owner.require_unchanged(parent, name, before)
                                         os.replace(temp, name, src_dir_fd=parent, dst_dir_fd=parent)
                                         self.reply(204 if before else 201)
                                     finally:
@@ -244,6 +309,7 @@ class WorkspaceServer:
                                 elif self.command == "DELETE":
                                     if before is None:
                                         raise FileNotFoundError()
+                                    owner.require_unchanged(parent, name, before)
                                     if stat.S_ISDIR(before[3]):
                                         os.rmdir(name, dir_fd=parent)  # Never recursively cross a protected entry.
                                     else:
@@ -265,6 +331,8 @@ class WorkspaceServer:
                                         if existing and self.headers.get("Overwrite", "T") == "F":
                                             self.reply(412)
                                             return
+                                        owner.require_unchanged(parent, name, before)
+                                        owner.require_unchanged(dest_parent, target_parts[-1], existing)
                                         os.replace(name, target_parts[-1], src_dir_fd=parent, dst_dir_fd=dest_parent)
                                     self.reply(204 if existing else 201)
                         else:
@@ -286,7 +354,13 @@ class WorkspaceServer:
 
             do_OPTIONS = do_PROPFIND = do_GET = do_HEAD = do_PUT = do_MKCOL = do_MOVE = do_DELETE = run
 
-        self.http = ThreadingHTTPServer(("127.0.0.1", 0), Handler)
+        try:
+            self.http = ThreadingHTTPServer(("127.0.0.1", 0), Handler)
+        except BaseException:
+            for fd in self.export_locks:
+                os.close(fd)
+            os.close(self.fd)
+            raise
         self.http.daemon_threads = False
         self.thread = threading.Thread(target=self.http.serve_forever, kwargs={"poll_interval": 0.05}, daemon=True)
         self.thread.start()
@@ -352,7 +426,13 @@ class WorkspaceServer:
             return None
         if not stat.S_ISDIR(info.st_mode) and (not stat.S_ISREG(info.st_mode) or info.st_nlink != 1):
             raise PermissionError()
-        return (info.st_ino, info.st_size, info.st_mtime_ns, info.st_mode)
+        return file_version(info)
+
+    def require_unchanged(self, parent, name, before):
+        # Optimistic conflict detection only: a trusted local editor does not take
+        # our lock and can still race the final stat/unlink/replace system calls.
+        if self.fingerprint(parent, name) != before:
+            raise FileExistsError("Workspace file changed during this operation")
 
     @property
     def port(self):
@@ -363,3 +443,6 @@ class WorkspaceServer:
         self.http.server_close()
         self.thread.join(timeout=2)
         os.close(self.fd)
+        for fd in self.export_locks:
+            os.close(fd)
+        self.export_locks = []

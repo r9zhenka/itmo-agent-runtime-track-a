@@ -5,3 +5,6 @@
 !baf/*.py
 !Dockerfile
 !sandbox.Dockerfile
+
+!baf/recordings/
+!baf/recordings/*.json

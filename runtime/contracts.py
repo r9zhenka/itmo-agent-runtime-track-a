@@ -32,6 +32,10 @@ SANDBOX = {
         "timeout_s": {"type": "number", "minimum": 0.1, "maximum": 120}}),
     **{op: message(op, {"session_id": ID}) for op in ("collect", "cancel", "release")},
 }
+SANDBOX["start"] = message("start", {key: value for key, value in SANDBOX["exec"]["properties"].items()
+                                      if key not in ("v", "op")})
+SANDBOX["events"] = message("events", {"session_id": ID, "after": {"type": "integer", "minimum": 0}})
+
 CLIENT = {
     "create": message("create", {"request_id": ID, "workspace": string(), "mode": MODE}),
     "message": message("message", {"session_id": ID, "request_id": ID, "text": string(16000)}),

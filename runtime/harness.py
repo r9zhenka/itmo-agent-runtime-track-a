@@ -17,11 +17,12 @@ Finish with a short account of the work performed. Never invent a tool result.""
 
 
 class Harness:
-    def __init__(self, sandbox, model, traces, max_steps=16, run_timeout=180):
+    def __init__(self, sandbox, model, traces, max_steps=16, run_timeout=180, session_limit=128, retained_sessions=128):
         self.sandbox, self.model = sandbox, model
         self.traces = Path(traces)
         self.traces.mkdir(parents=True, exist_ok=True)
         self.max_steps, self.run_timeout = max_steps, run_timeout
+        self.session_limit, self.retained_sessions = session_limit, retained_sessions
         self.sessions, self.requests = {}, {}
         self.lock = threading.RLock()
 
@@ -53,8 +54,12 @@ class Harness:
                 if signature != old:
                     raise Fault("validation", "Request ID reused with different arguments", 409)
                 return {"v": 0, "session_id": sid}
-            if len(self.sessions) >= 128:
-                raise Fault("busy", "Session capacity reached; restart the server", 429)
+            closed = [sid for sid, state in self.sessions.items() if state["closed"]]
+            for old_sid in closed[:max(0, len(closed) - self.retained_sessions)]:
+                del self.sessions[old_sid]
+                self.requests = {key: value for key, value in self.requests.items() if value[1] != old_sid}
+            if sum(not state["closed"] for state in self.sessions.values()) >= self.session_limit:
+                raise Fault("busy", "Active session capacity reached; release a session", 429)
             sid = uuid.uuid4().hex
             self.sandbox("provision", session_id=sid, workspace=workspace, mode=mode)
             self.sessions[sid] = {"sid": sid, "events": [], "condition": threading.Condition(self.lock),
@@ -73,13 +78,19 @@ class Harness:
             trace = {key: value for key, value in event.items()
                      if key not in ("text", "arguments", "stdout", "stderr", "result")}
             trace["timestamp"] = time.time()
-            with (self.traces / (session["sid"] + ".jsonl")).open("a", encoding="utf-8") as file:
-                file.write(json.dumps(trace) + "\n")
+            try:
+                with (self.traces / (session["sid"] + ".jsonl")).open("a", encoding="utf-8") as file:
+                    file.write(json.dumps(trace) + "\n")
+            except OSError:
+                # Trace storage failure must not strand an accepted run without a result.
+                # The live event explicitly reports degraded persistence without paths/content.
+                event["trace_persisted"] = False
+                event["trace_error"] = "Metadata trace storage unavailable"
             session["condition"].notify_all()
 
-    def finish(self, session, run, outcome, **payload):
+    def finish(self, session, run, outcome, *, cancel_owner=False, **payload):
         with self.lock:
-            if run["finished"]:
+            if run["finished"] or (run["stop"].is_set() and not cancel_owner):
                 return
             run["finished"] = True
             self.emit(session, run, "result", outcome=outcome,
@@ -107,14 +118,17 @@ class Harness:
             self.emit(session, run, "started")
             thread = threading.Thread(target=self.run, args=(session, run), daemon=True)
             run["thread"] = thread
-            thread.start()
+            try:
+                thread.start()
+            except RuntimeError:
+                self.finish(session, run, "error", error={"kind": "sandbox", "message": "Run worker could not start", "retryable": False})
             return {"v": 0, "run_id": run["id"], "session_id": session_id}
 
     def run(self, session, run):
         try:
             for step in range(self.max_steps):
                 if run["stop"].is_set():
-                    self.finish(session, run, "cancelled")
+                    # cancel() alone publishes the terminal result after confirming cleanup.
                     return
                 remaining = self.run_timeout - (time.monotonic() - run["started"])
                 if remaining <= 0:
@@ -155,9 +169,19 @@ class Harness:
                         if remaining < 0.1:
                             raise Fault("timeout", "Run deadline exceeded", 408)
                         self.emit(session, run, "tool_start", operation_id=opid, tool=name)
-                        result = self.sandbox("exec", session_id=session["sid"], operation_id=opid,
-                                              tool=name, arguments=arguments,
-                                              timeout_s=min(30, remaining))
+                        operation = dict(session_id=session["sid"], operation_id=opid,
+                                         tool=name, arguments=arguments, timeout_s=min(30, remaining))
+                        def progress(event):
+                            if event["type"] == "result":
+                                return  # The existing tool_result event carries the terminal payload.
+                            with self.lock:
+                                if not run["stop"].is_set() and not run["finished"]:
+                                    self.emit(session, run, "tool_progress", operation_id=opid, tool=name,
+                                              stage=event["type"], sandbox_seq=event["seq"])
+                        if hasattr(self.sandbox, "execute"):
+                            result = self.sandbox.execute(on_event=progress, **operation)
+                        else:
+                            result = self.sandbox("exec", **operation)
                     except (ValueError, KeyError, TypeError):
                         result = {"error": {"kind": "validation", "message": "Malformed tool arguments", "retryable": False}}
                     except Fault as exc:
@@ -176,9 +200,18 @@ class Harness:
                         raise Fault(result["error"]["kind"], result["error"]["message"], 502)
             self.finish(session, run, "error", error={"kind": "step_limit", "message": "Tool-step budget exhausted"})
         except Fault as exc:
-            self.finish(session, run, "error", error=exc.as_dict()["error"])
+            with self.lock:
+                if run["stop"].is_set():
+                    return  # Cancellation owns the terminal outcome, including cleanup failures.
+                if exc.kind == "model" and isinstance(exc.details, dict):
+                    known = exc.details.get("usage", {}).get("total_tokens", 0)
+                    if type(known) is int and known >= 0:
+                        run["tokens"] += known
+                self.finish(session, run, "error", error=exc.as_dict()["error"])
         except Exception:
-            self.finish(session, run, "error", error={"kind": "model", "message": "Invalid model response or internal failure"})
+            with self.lock:
+                if not run["stop"].is_set():
+                    self.finish(session, run, "error", error={"kind": "model", "message": "Invalid model response or internal failure"})
 
     def events(self, session_id, after):
         session = self.session(session_id)
@@ -207,11 +240,11 @@ class Harness:
             result = self.sandbox("cancel", session_id=session_id)
         except Fault as exc:
             if run:
-                self.finish(session, run, "error", error={"kind": exc.kind,
+                self.finish(session, run, "error", cancel_owner=True, error={"kind": exc.kind,
                     "message": "Cancellation could not confirm sandbox cleanup", "retryable": False})
             raise
         if run:
-            self.finish(session, run, "cancelled")
+            self.finish(session, run, "cancelled", cancel_owner=True)
         return result
 
     def release(self, session_id):

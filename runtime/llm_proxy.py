@@ -2,17 +2,21 @@ import json
 import os
 
 from baf.cases import cases, prompt
-from .common import Fault, request_json, serve
+from .common import Fault, serve
+from .model_recording import RecordingStore
+from .provider_transport import provider_fault, request_json, safe_usage
 
 
 class ModelProxy:
     def __init__(self, mode="replay", url="", key="", model="", extra=None,
-                 proxy_url="", proxy_socket="", timeout=90):
-        if mode not in ("replay", "live"):
-            raise ValueError("LLM_MODE must be replay or live")
-        if mode == "live" and (not url.startswith("https://") or not key or not model):
+                 proxy_url="", proxy_socket="", timeout=90, recording_dir=""):
+        if mode not in ("replay", "live", "live-record", "recorded", "recorded-replay"):
+            raise ValueError("Invalid LLM_MODE")
+        if mode in ("live", "live-record") and (not url.startswith("https://") or not key or not model):
             raise ValueError("Live mode requires an HTTPS LLM_URL, LLM_API_KEY and LLM_MODEL")
         self.mode, self.url, self.key, self.model = mode, url, key, model
+        self.recordings = (RecordingStore(recording_dir, writing=mode == "live-record")
+                           if mode in ("live-record", "recorded", "recorded-replay") else None)
         if proxy_url and not proxy_url.startswith(("http://", "https://")):
             raise ValueError("LLM_HTTP_PROXY must be an HTTP(S) proxy URL")
         if proxy_url and proxy_socket:
@@ -39,33 +43,72 @@ class ModelProxy:
     def dispatch(self, body):
         if body.get("op") != "complete" or not isinstance(body.get("messages"), list) or not isinstance(body.get("tools"), list):
             raise Fault("validation", "Expected complete with messages and tools")
+        if not all(isinstance(message, dict) for message in body["messages"]):
+            raise Fault("validation", "Expected structured conversation messages")
         if self.mode == "replay":
             return self.replay(body["messages"])
+        if self.mode in ("recorded", "recorded-replay"):
+            response, model = self.recordings.playback(body)
+            result = self.validated(response)
+            result.update(provider="recorded-replay", model=model,
+                          recorded_usage=result["usage"], usage={"total_tokens": 0})
+            return result
+        ticket = self.recordings.begin(body, self.model) if self.recordings else None
         try:
             payload = {**self.extra, "model": self.model, "messages": body["messages"], "stream": False}
             payload.setdefault("max_tokens", 2048)
-            # Some OpenAI-compatible providers reject tools=[] (HTTP 400).
             if body["tools"]:
                 payload["tools"] = body["tools"]
             response = request_json(self.url.rstrip("/") + "/chat/completions",
                 payload, self.key, timeout=self.timeout,
                 proxy_url=self.proxy_url, proxy_socket=self.proxy_socket)
+            result = self.validated(response)
+        except Fault as exc:
+            # A mocked/legacy transport Fault must not expose its original text.
+            details = getattr(exc, "details", None) or {}
+            category = details.get("category")
+            if category in ("http", "timeout", "transport", "invalid_response", "finish_reason"):
+                status = details.get("http_status")
+                if category == "http" and (type(status) is not int or not 100 <= status <= 599):
+                    status = 502
+                failure = provider_fault(category, http_status=status if category == "http" else None,
+                                         finish_reason=details.get("finish_reason"), usage=details.get("usage"))
+            else:
+                failure = provider_fault("transport")
+            if ticket:
+                self.recordings.finish(ticket, failure=failure.as_dict()["error"], secret=self.key)
+            raise failure from None
+        if ticket:
+            try:
+                self.recordings.finish(ticket, response=response, secret=self.key)
+            except (Fault, OSError, ValueError):
+                raise provider_fault("invalid_response", usage=result["usage"]) from None
+        return result
+
+    def validated(self, response):
+        usage = safe_usage(response.get("usage")) if isinstance(response, dict) else {}
+        try:
             source = response["choices"][0]
             if source.get("finish_reason") not in ("stop", "tool_calls"):
-                raise ValueError("Incomplete model response")
+                raise provider_fault("finish_reason", finish_reason=source.get("finish_reason") or "other", usage=usage)
             message = source["message"]
             if message.get("role") != "assistant":
-                raise ValueError("Invalid role")
+                raise ValueError("role")
             if message.get("content") is not None and (not isinstance(message["content"], str) or len(message["content"]) > 65536):
-                raise ValueError("Invalid or oversized assistant content")
-            for call in message.get("tool_calls", []):
-                if not isinstance(call["id"], str) or not isinstance(call["function"]["arguments"], str):
-                    raise ValueError("Invalid tool call")
-            return {"v": 0, "message": message, "usage": response.get("usage", {}),
+                raise ValueError("content")
+            calls = message.get("tool_calls", [])
+            if not isinstance(calls, list) or len(calls) > 8:
+                raise ValueError("calls")
+            if bool(calls) != (source["finish_reason"] == "tool_calls"):
+                raise ValueError("inconsistent finish reason")
+            for call in calls:
+                if (not isinstance(call["id"], str) or not isinstance(call["function"]["name"], str)
+                        or not isinstance(call["function"]["arguments"], str)):
+                    raise ValueError("call")
+            return {"v": 0, "message": message, "usage": usage,
                     "provider": "live", "model": self.model}
-        except (Fault, KeyError, ValueError, TypeError, IndexError):
-            # Provider errors can echo credentials or request text; never forward their body.
-            raise Fault("model", "Provider request failed or returned an invalid completion", 502) from None
+        except (KeyError, ValueError, TypeError, IndexError, AttributeError):
+            raise provider_fault("invalid_response", usage=usage) from None
 
     def replay(self, messages):
         users = [i for i, message in enumerate(messages) if message.get("role") == "user"]
@@ -92,4 +135,4 @@ if __name__ == "__main__":
                      os.getenv("LLM_API_KEY", ""), os.getenv("LLM_MODEL", ""),
                      json.loads(os.getenv("LLM_EXTRA_JSON") or "{}"),
                      os.getenv("LLM_HTTP_PROXY", ""), os.getenv("LLM_PROXY_SOCKET", ""),
-                     float(os.getenv("LLM_TIMEOUT", "90"))), os.environ["INTERNAL_TOKEN"])
+                     float(os.getenv("LLM_TIMEOUT", "90")), os.getenv("LLM_RECORDING_DIR", "")), os.environ["INTERNAL_TOKEN"])

@@ -74,6 +74,7 @@ services:
       LLM_EXTRA_JSON: ${LLM_EXTRA_JSON:-}
       LLM_HTTP_PROXY: ${LLM_HTTP_PROXY:-}
       LLM_TIMEOUT: ${LLM_TIMEOUT:-90}
+      LLM_RECORDING_DIR: ${LLM_RECORDING_DIR:-/app/baf/recordings}
     networks: [internal, model-egress]
 
   harness:
@@ -95,6 +96,7 @@ services:
     command: [python, -m, runtime.gateway]
     environment:
       CLIENT_TOKEN: ${CLIENT_TOKEN:?Run make init}
+      CLIENT_IDENTITIES_JSON: ${CLIENT_IDENTITIES_JSON:-}
       INTERNAL_TOKEN: ${INTERNAL_TOKEN:?Run make init}
     networks: [internal, frontend]
     ports: ["${GATEWAY_BIND:-127.0.0.1}:${GATEWAY_PORT:-18080}:8000"]

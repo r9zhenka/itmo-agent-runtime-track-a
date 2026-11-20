@@ -1,0 +1,198 @@
+{
+  "format": "project-a-provider-recording-v1",
+  "source": "actual-provider-responses",
+  "task": "B7.1",
+  "fixture_sha256": "b85916d34c0365d44f456efcf366f92b50caea519995e423112009f6a4214d1b",
+  "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+  "complete": true,
+  "created_at": "2026-11-20T10:54:24.645540+00:00",
+  "frames": [
+    {
+      "context_sha256": "cd2ea1da3f31570557c2c395f69400f0655e81ae05a5a0590504006343aebc41",
+      "provider_response": {
+        "id": "chatcmpl-bd716de754253736",
+        "created": 1795172068,
+        "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+        "object": "chat.completion",
+        "system_fingerprint": "vllm-0.32.0-tp8-150f5af4",
+        "choices": [
+          {
+            "finish_reason": "tool_calls",
+            "index": 0,
+            "message": {
+              "content": "I'll start by inspecting the workspace files.\n\n",
+              "role": "assistant",
+              "tool_calls": [
+                {
+                  "function": {
+                    "arguments": "{\"command\": \"ls -la /work\"}",
+                    "name": "RunCommand"
+                  },
+                  "id": "chatcmpl-tool-bb1c2a90061bad28",
+                  "type": "function"
+                },
+                {
+                  "function": {
+                    "arguments": "{\"path\": \"task.md\"}",
+                    "name": "ReadFile"
+                  },
+                  "id": "chatcmpl-tool-92fcfc1333f7b529",
+                  "type": "function"
+                }
+              ],
+              "provider_specific_fields": {
+                "reasoning": null,
+                "refusal": null
+              }
+            },
+            "provider_specific_fields": {
+              "routed_experts": null,
+              "stop_reason": null,
+              "token_ids": null
+            }
+          }
+        ],
+        "usage": {
+          "completion_tokens": 80,
+          "prompt_tokens": 608,
+          "total_tokens": 688,
+          "completion_tokens_details": {
+            "reasoning_tokens": 0
+          }
+        }
+      }
+    },
+    {
+      "context_sha256": "af9cd47d9ca95d75ebeca6d0c13103fc70d27fb1c3fa153716336a080371d3fe",
+      "provider_response": {
+        "id": "chatcmpl-9b3bf16fc028939c",
+        "created": 1795172079,
+        "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+        "object": "chat.completion",
+        "system_fingerprint": "vllm-0.32.0-tp8-150f5af4",
+        "choices": [
+          {
+            "finish_reason": "tool_calls",
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "tool_calls": [
+                {
+                  "function": {
+                    "arguments": "{\"path\": \"journey.json\"}",
+                    "name": "ReadFile"
+                  },
+                  "id": "chatcmpl-tool-88195edfdeaac973",
+                  "type": "function"
+                }
+              ],
+              "provider_specific_fields": {
+                "reasoning": null,
+                "refusal": null
+              },
+              "content": null
+            },
+            "provider_specific_fields": {
+              "routed_experts": null,
+              "stop_reason": null,
+              "token_ids": null
+            }
+          }
+        ],
+        "usage": {
+          "completion_tokens": 41,
+          "prompt_tokens": 1166,
+          "total_tokens": 1207,
+          "completion_tokens_details": {
+            "reasoning_tokens": 0
+          }
+        }
+      }
+    },
+    {
+      "context_sha256": "618a4cb08376a704ff2b20ebbe2acf413f04b6a976f6ddf4c595b6b1279538e4",
+      "provider_response": {
+        "id": "chatcmpl-879c6b11f9b3a5e7",
+        "created": 1795172090,
+        "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+        "object": "chat.completion",
+        "system_fingerprint": "vllm-0.32.0-tp8-150f5af4",
+        "choices": [
+          {
+            "finish_reason": "tool_calls",
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "tool_calls": [
+                {
+                  "function": {
+                    "arguments": "{\"command\": \"cd /work && python3 - <<'EOF'\\nimport json, datetime\\nj = json.load(open('journey.json'))\\nfmt = \\\"%Y-%m-%dT%H:%M\\\"\\narr = datetime.datetime.strptime(j['arrival'], fmt)\\ndep = datetime.datetime.strptime(j['departure'], fmt)\\nready = arr + datetime.timedelta(minutes=j['walk_minutes'])\\ncloses = dep - datetime.timedelta(minutes=j['boarding_closes_minutes_before'])\\nmargin = int((closes - ready).total_seconds() // 60)\\nans = {\\n  \\\"can_transfer\\\": ready <= closes,\\n  \\\"ready_at\\\": ready.strftime(fmt),\\n  \\\"boarding_closes_at\\\": closes.strftime(fmt),\\n  \\\"margin_minutes\\\": margin,\\n}\\njson.dump(ans, open('answer.json','w'), indent=2)\\nprint(json.dumps(ans, indent=2))\\nEOF\\ncat answer.json\"}",
+                    "name": "RunCommand"
+                  },
+                  "id": "chatcmpl-tool-a99778110bee21a6",
+                  "type": "function"
+                }
+              ],
+              "reasoning_content": "Ready = 14:12 + 15 = 14:27. Boarding closes = 14:35 - 10 = 14:25. Margin = -2. can_transfer false.\n\nLet me compute with a script to be safe and write answer.json.",
+              "provider_specific_fields": {
+                "reasoning": "Ready = 14:12 + 15 = 14:27. Boarding closes = 14:35 - 10 = 14:25. Margin = -2. can_transfer false.\n\nLet me compute with a script to be safe and write answer.json.",
+                "refusal": null
+              },
+              "content": null
+            },
+            "provider_specific_fields": {
+              "routed_experts": null,
+              "stop_reason": null,
+              "token_ids": null
+            }
+          }
+        ],
+        "usage": {
+          "completion_tokens": 295,
+          "prompt_tokens": 1390,
+          "total_tokens": 1685,
+          "completion_tokens_details": {
+            "reasoning_tokens": 56
+          }
+        }
+      }
+    },
+    {
+      "context_sha256": "08793b26360abace75b7b0ed603ecaf61d2f191ec81b5e44216e7532e645e925",
+      "provider_response": {
+        "id": "chatcmpl-a35b5a43d60fc9be",
+        "created": 1795172120,
+        "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+        "object": "chat.completion",
+        "system_fingerprint": "vllm-0.32.0-tp8-150f5af4",
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "message": {
+              "content": "Done. Computed from `journey.json`:\n\n- Arrival 2026-11-19T14:12 + 15 min walk → **ready_at 2026-11-19T14:27**\n- Departure 2026-11-19T14:35 − 10 min → **boarding_closes_at 2026-11-19T14:25**\n- Margin = 14:25 − 14:27 = **−2 minutes** → boarding is missed.\n\nWrote `/work/answer.json`:\n\n```json\n{\n  \"can_transfer\": false,\n  \"ready_at\": \"2026-11-19T14:27\",\n  \"boarding_closes_at\": \"2026-11-19T14:25\",\n  \"margin_minutes\": -2\n}\n```",
+              "role": "assistant",
+              "provider_specific_fields": {
+                "reasoning": null,
+                "refusal": null
+              }
+            },
+            "provider_specific_fields": {
+              "routed_experts": null,
+              "stop_reason": null,
+              "token_ids": null
+            }
+          }
+        ],
+        "usage": {
+          "completion_tokens": 175,
+          "prompt_tokens": 1924,
+          "total_tokens": 2099,
+          "completion_tokens_details": {
+            "reasoning_tokens": 0
+          }
+        }
+      }
+    }
+  ]
+}

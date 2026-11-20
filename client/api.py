@@ -6,7 +6,7 @@ import urllib.request
 import uuid
 from pathlib import Path
 
-from runtime.common import Fault, Remote, request_json
+from runtime.common import Fault, Remote, RejectRedirects, request_json
 
 
 def settings(path=".env"):
@@ -62,7 +62,7 @@ class Client:
         query = urllib.parse.urlencode({"session_id": session_id, "after": after})
         req = urllib.request.Request(self.server + "/v0/events?" + query,
             headers={"Authorization": "Bearer " + self.token, "Accept": "text/event-stream"})
-        opener = urllib.request.build_opener(urllib.request.ProxyHandler({}))
+        opener = urllib.request.build_opener(urllib.request.ProxyHandler({}), RejectRedirects())
         try:
             with opener.open(req, timeout=10) as response:
                 for raw in response:

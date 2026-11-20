@@ -88,3 +88,67 @@ class ProviderNetworkTests(unittest.TestCase):
         with patch("runtime.llm_proxy.request_json", return_value=reply) as request:
             proxy.dispatch({"op": "complete", "messages": [], "tools": []})
         self.assertEqual(request.call_args.args[1]["max_tokens"], 2048)
+
+
+class ProviderFailureTests(unittest.TestCase):
+    def dispatch(self, reply):
+        proxy = ModelProxy('live', 'https://provider.example/v1', 'SECRET-CANARY', 'model')
+        with patch('runtime.llm_proxy.request_json', return_value=reply):
+            return proxy.dispatch({'op': 'complete', 'messages': [], 'tools': []})
+
+    def test_finish_reason_keeps_known_usage_without_body(self):
+        for reason, expected in (('length', 'length'), ('content_filter', 'content_filter'),
+                                 ('SECRET-CANARY', 'other')):
+            reply = {'choices': [{'finish_reason': reason, 'message': {'role': 'assistant', 'content': 'SECRET-CANARY'}}],
+                     'usage': {'total_tokens': 57, 'prompt_tokens': 50, 'completion_tokens': 7, 'private': 'SECRET-CANARY'}}
+            with self.assertRaises(Fault) as caught:
+                self.dispatch(reply)
+            details = caught.exception.as_dict()['error']['details']
+            self.assertEqual(details['category'], 'finish_reason')
+            self.assertEqual(details['finish_reason'], expected)
+            self.assertEqual(details['usage']['total_tokens'], 57)
+            self.assertTrue(details['usage_complete'])
+            self.assertNotIn('SECRET-CANARY', json.dumps(caught.exception.as_dict()))
+
+    def test_malformed_response_usage_is_sanitized_and_retained(self):
+        with self.assertRaises(Fault) as caught:
+            self.dispatch({'choices': [], 'usage': {'total_tokens': 9, 'prompt_tokens': True,
+                                                   'completion_tokens': -1, 'private': 'SECRET-CANARY'}})
+        details = caught.exception.as_dict()['error']['details']
+        self.assertEqual(details['category'], 'invalid_response')
+        self.assertEqual(details['usage'], {'total_tokens': 9})
+
+    def test_transport_failures_expose_safe_category_only(self):
+        import io
+        import urllib.error
+        from runtime.provider_transport import request_json as provider_request
+        failures = [(TimeoutError('SECRET-CANARY'), 'timeout', None),
+                    (urllib.error.URLError(TimeoutError('SECRET-CANARY')), 'timeout', None),
+                    (urllib.error.URLError('SECRET-CANARY'), 'transport', None),
+                    (urllib.error.HTTPError('https://secret.example', 429, 'SECRET-CANARY', {},
+                                           io.BytesIO(b'SECRET-CANARY')), 'http', 429)]
+        for failure, category, status in failures:
+            with self.subTest(category=category):
+                with patch('runtime.provider_transport.urllib.request.build_opener') as opener:
+                    opener.return_value.open.side_effect = failure
+                    with self.assertRaises(Fault) as caught:
+                        provider_request('https://provider.example/v1', {}, 'SECRET-CANARY')
+                public = caught.exception.as_dict()
+                self.assertNotIn('SECRET-CANARY', json.dumps(public))
+                self.assertNotIn('secret.example', json.dumps(public))
+                details = public['error']['details']
+                self.assertEqual(details['category'], category)
+                self.assertFalse(details['usage_complete'])
+                if status is not None:
+                    self.assertEqual(details['http_status'], status)
+
+    def test_invalid_json_and_oversized_body_fail_without_echo(self):
+        from runtime.common import MAX_BODY
+        from runtime.provider_transport import request_json as provider_request
+        for raw in (b'SECRET-CANARY invalid json', b'x' * (MAX_BODY + 1), b'[]'):
+            with patch('runtime.provider_transport.urllib.request.build_opener') as opener:
+                opener.return_value.open.return_value.__enter__.return_value.read.return_value = raw
+                with self.assertRaises(Fault) as caught:
+                    provider_request('https://provider.example/v1', {}, 'SECRET-CANARY')
+            self.assertEqual(caught.exception.details['category'], 'invalid_response')
+            self.assertNotIn('SECRET-CANARY', json.dumps(caught.exception.as_dict()))

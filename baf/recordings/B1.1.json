@@ -1,0 +1,190 @@
+{
+  "format": "project-a-provider-recording-v1",
+  "source": "actual-provider-responses",
+  "task": "B1.1",
+  "fixture_sha256": "d9c4a3e923f64bb8f86ae1c1f60e49e615504506c0ff5b681311d6831951cc51",
+  "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+  "complete": true,
+  "created_at": "2026-11-20T10:52:28.757615+00:00",
+  "frames": [
+    {
+      "context_sha256": "e82907e97b2c344c8da3ab730fcdadb5fbb7240be08b6eea34fbb10a4debcfcc",
+      "provider_response": {
+        "id": "chatcmpl-9ee0aa5061d999b0",
+        "created": 1795171953,
+        "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+        "object": "chat.completion",
+        "system_fingerprint": "vllm-0.32.0-tp8-150f5af4",
+        "choices": [
+          {
+            "finish_reason": "tool_calls",
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "tool_calls": [
+                {
+                  "function": {
+                    "arguments": "{\"path\": \"config/app.yaml\"}",
+                    "name": "ReadFile"
+                  },
+                  "id": "chatcmpl-tool-a0759d150e3c6ab6",
+                  "type": "function"
+                }
+              ],
+              "provider_specific_fields": {
+                "reasoning": null,
+                "refusal": null
+              },
+              "content": null
+            },
+            "provider_specific_fields": {
+              "routed_experts": null,
+              "stop_reason": null,
+              "token_ids": null
+            }
+          }
+        ],
+        "usage": {
+          "completion_tokens": 41,
+          "prompt_tokens": 606,
+          "total_tokens": 647,
+          "completion_tokens_details": {
+            "reasoning_tokens": 0
+          }
+        }
+      }
+    },
+    {
+      "context_sha256": "721e5e2f92fa78156f32075dca481754a74fb2f1709f594185d6a4765dd96f9a",
+      "provider_response": {
+        "id": "chatcmpl-82961eefe5e3ddb5",
+        "created": 1795171960,
+        "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+        "object": "chat.completion",
+        "system_fingerprint": "vllm-0.32.0-tp8-150f5af4",
+        "choices": [
+          {
+            "finish_reason": "tool_calls",
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "tool_calls": [
+                {
+                  "function": {
+                    "arguments": "{\"path\": \"answer.txt\", \"content\": \"8137\\n\"}",
+                    "name": "WriteFile"
+                  },
+                  "id": "chatcmpl-tool-a624fc3991423e68",
+                  "type": "function"
+                }
+              ],
+              "reasoning_content": "Port 8137. Write to answer.txt only the port. Should I include just \"8137\"? The task says write only the service port. Ambiguous whether newline. I'll write \"8137\\n\".",
+              "provider_specific_fields": {
+                "reasoning": "Port 8137. Write to answer.txt only the port. Should I include just \"8137\"? The task says write only the service port. Ambiguous whether newline. I'll write \"8137\\n\".",
+                "refusal": null
+              },
+              "content": null
+            },
+            "provider_specific_fields": {
+              "routed_experts": null,
+              "stop_reason": null,
+              "token_ids": null
+            }
+          }
+        ],
+        "usage": {
+          "completion_tokens": 102,
+          "prompt_tokens": 777,
+          "total_tokens": 879,
+          "completion_tokens_details": {
+            "reasoning_tokens": 44
+          }
+        }
+      }
+    },
+    {
+      "context_sha256": "3b890871bb554e98da8016d8d5ccd6e488bf1f2162aafd8b3b21fdf0b3d6bcaa",
+      "provider_response": {
+        "id": "chatcmpl-a44a5c27d3789cce",
+        "created": 1795171970,
+        "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+        "object": "chat.completion",
+        "system_fingerprint": "vllm-0.32.0-tp8-150f5af4",
+        "choices": [
+          {
+            "finish_reason": "tool_calls",
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "tool_calls": [
+                {
+                  "function": {
+                    "arguments": "{\"command\": \"cat answer.txt\"}",
+                    "name": "RunCommand"
+                  },
+                  "id": "chatcmpl-tool-bb18d0ea88f0839f",
+                  "type": "function"
+                }
+              ],
+              "provider_specific_fields": {
+                "reasoning": null,
+                "refusal": null
+              },
+              "content": null
+            },
+            "provider_specific_fields": {
+              "routed_experts": null,
+              "stop_reason": null,
+              "token_ids": null
+            }
+          }
+        ],
+        "usage": {
+          "completion_tokens": 41,
+          "prompt_tokens": 996,
+          "total_tokens": 1037,
+          "completion_tokens_details": {
+            "reasoning_tokens": 0
+          }
+        }
+      }
+    },
+    {
+      "context_sha256": "1ca4fe0442792a047e44fbf355491c5985d184768e2b6a6ed88e9551b516f1c1",
+      "provider_response": {
+        "id": "chatcmpl-aba9d3f13a11724b",
+        "created": 1795171977,
+        "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+        "object": "chat.completion",
+        "system_fingerprint": "vllm-0.32.0-tp8-150f5af4",
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "message": {
+              "content": "Read `config/app.yaml` — it contains `service.name: demo` and `service.port: 8137`. Wrote only the port to `answer.txt`, verified contents are `8137`.",
+              "role": "assistant",
+              "provider_specific_fields": {
+                "reasoning": null,
+                "refusal": null
+              }
+            },
+            "provider_specific_fields": {
+              "routed_experts": null,
+              "stop_reason": null,
+              "token_ids": null
+            }
+          }
+        ],
+        "usage": {
+          "completion_tokens": 44,
+          "prompt_tokens": 1156,
+          "total_tokens": 1200,
+          "completion_tokens_details": {
+            "reasoning_tokens": 0
+          }
+        }
+      }
+    }
+  ]
+}

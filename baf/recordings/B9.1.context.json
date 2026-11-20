@@ -1,0 +1,32 @@
+{
+  "normalizer": "project-a-ls-long-v1",
+  "task": "B9.1",
+  "recording_sha256": "ebc7c2844c44b65bbc3e90452ea55a78dfb675225a336fc766de5c19d34b5dad",
+  "events_sha256": "e6421b578bb35a6bf9c0d1450352fb3ebd2624386939b5f15fbd8113fa2b5a00",
+  "contexts": [
+    {
+      "original_sha256": "c5ce308bf35945b2f42365e16e13fd5ed23fe3614a8335e916a0b6c6ea835569",
+      "portable_sha256": "c5ce308bf35945b2f42365e16e13fd5ed23fe3614a8335e916a0b6c6ea835569"
+    },
+    {
+      "original_sha256": "a7d60a8f65f2b55f51a61c5d54115cc01088ad7b1f536ce20c988bf014d16436",
+      "portable_sha256": "5c0b81a6b9d9ab69eb16b6bd6965e9adf25713356e619a346fed580df45e288f"
+    },
+    {
+      "original_sha256": "8cec63edfa0b1b35138461d9727d68fdd79079f81b7e48d0da3a879ddc7b1c17",
+      "portable_sha256": "846c44c462c96e4036a992248e8558f31c532d2a9b8806caaca92845984417f1"
+    },
+    {
+      "original_sha256": "e398e407de1f647ab52d958920be564a9a4438d88bce8135e065b16f2974d7fc",
+      "portable_sha256": "c12a2fbc3e918fe1c47250c9c512f54be5c2be7dfb8e486c523fd5be1866c861"
+    },
+    {
+      "original_sha256": "38c8a01e193f47214b90c859485d3f527545fff56ca23ddc441934cb9174edad",
+      "portable_sha256": "2e3fa293568ffc315810a7a22c2d82affff5ca0e9531512256a1e1a2ce69bd23"
+    },
+    {
+      "original_sha256": "0f9223fc0cbcb27ad7d343cbcb5874dc01515d9fd59449614fc259bd35d3d86d",
+      "portable_sha256": "6ba7e8c4f4487baa92bbb7dd72437632bc04c302e3554bf664eb83a511bf6ec5"
+    }
+  ]
+}

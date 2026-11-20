@@ -1,0 +1,301 @@
+{
+  "format": "project-a-provider-recording-v1",
+  "source": "actual-provider-responses",
+  "task": "B2.1",
+  "fixture_sha256": "ef3d2741031e87243e43c3cb0d20a10236c603a72091361d36b73ac90679eabb",
+  "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+  "complete": true,
+  "created_at": "2026-11-20T10:52:28.771501+00:00",
+  "frames": [
+    {
+      "context_sha256": "8c6790201659614537024e2ce7905f7ef521fd6f6dfb1905c3106a9ea04ce68e",
+      "provider_response": {
+        "id": "chatcmpl-883a2cb5acbd1169",
+        "created": 1795171953,
+        "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+        "object": "chat.completion",
+        "system_fingerprint": "vllm-0.32.0-tp8-150f5af4",
+        "choices": [
+          {
+            "finish_reason": "tool_calls",
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "tool_calls": [
+                {
+                  "function": {
+                    "arguments": "{\"command\": \"ls -la /work\"}",
+                    "name": "RunCommand"
+                  },
+                  "id": "chatcmpl-tool-846dc6b20b30eae4",
+                  "type": "function"
+                },
+                {
+                  "function": {
+                    "arguments": "{\"command\": \"cd /work && grep -rn \\\"def parse_date\\\\|parse_date =\\\" --include=* -l . 2>/dev/null | head -50\"}",
+                    "name": "RunCommand"
+                  },
+                  "id": "chatcmpl-tool-8675f80d9fab6ae2",
+                  "type": "function"
+                }
+              ],
+              "reasoning_content": "Let me inspect the workspace.",
+              "provider_specific_fields": {
+                "reasoning": "Let me inspect the workspace.",
+                "refusal": null
+              },
+              "content": null
+            },
+            "provider_specific_fields": {
+              "routed_experts": null,
+              "stop_reason": null,
+              "token_ids": null
+            }
+          }
+        ],
+        "usage": {
+          "completion_tokens": 107,
+          "prompt_tokens": 607,
+          "total_tokens": 714,
+          "completion_tokens_details": {
+            "reasoning_tokens": 6
+          }
+        }
+      }
+    },
+    {
+      "context_sha256": "4e31c0706309c349be1150fce21d87b856845997d13d077733f70a65e1365e7c",
+      "provider_response": {
+        "id": "chatcmpl-a3cac7b493da7f0e",
+        "created": 1795171964,
+        "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+        "object": "chat.completion",
+        "system_fingerprint": "vllm-0.32.0-tp8-150f5af4",
+        "choices": [
+          {
+            "finish_reason": "tool_calls",
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "tool_calls": [
+                {
+                  "function": {
+                    "arguments": "{\"command\": \"cd /work && find . -type f | sort && echo '---' && grep -rn \\\"parse_date\\\" . && echo '---' && cat README.md\"}",
+                    "name": "RunCommand"
+                  },
+                  "id": "chatcmpl-tool-800fcf849f5f060d",
+                  "type": "function"
+                }
+              ],
+              "reasoning_content": "Let me verify content, and check for other definitions maybe.",
+              "provider_specific_fields": {
+                "reasoning": "Let me verify content, and check for other definitions maybe.",
+                "refusal": null
+              },
+              "content": null
+            },
+            "provider_specific_fields": {
+              "routed_experts": null,
+              "stop_reason": null,
+              "token_ids": null
+            }
+          }
+        ],
+        "usage": {
+          "completion_tokens": 85,
+          "prompt_tokens": 1054,
+          "total_tokens": 1139,
+          "completion_tokens_details": {
+            "reasoning_tokens": 12
+          }
+        }
+      }
+    },
+    {
+      "context_sha256": "7ef7b3580cc754218899027742b9db69a0a18ae80e4e6d53ce3aa413367c8b90",
+      "provider_response": {
+        "id": "chatcmpl-bb131631a264667d",
+        "created": 1795171975,
+        "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+        "object": "chat.completion",
+        "system_fingerprint": "vllm-0.32.0-tp8-150f5af4",
+        "choices": [
+          {
+            "finish_reason": "tool_calls",
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "tool_calls": [
+                {
+                  "function": {
+                    "arguments": "{\"path\": \"src/dates.py\"}",
+                    "name": "ReadFile"
+                  },
+                  "id": "chatcmpl-tool-8aa5fa683ea8de7e",
+                  "type": "function"
+                },
+                {
+                  "function": {
+                    "arguments": "{\"path\": \"src/main.py\"}",
+                    "name": "ReadFile"
+                  },
+                  "id": "chatcmpl-tool-921fc96d2221c079",
+                  "type": "function"
+                }
+              ],
+              "provider_specific_fields": {
+                "reasoning": null,
+                "refusal": null
+              },
+              "content": null
+            },
+            "provider_specific_fields": {
+              "routed_experts": null,
+              "stop_reason": null,
+              "token_ids": null
+            }
+          }
+        ],
+        "usage": {
+          "completion_tokens": 72,
+          "prompt_tokens": 1326,
+          "total_tokens": 1398,
+          "completion_tokens_details": {
+            "reasoning_tokens": 0
+          }
+        }
+      }
+    },
+    {
+      "context_sha256": "ccc2e75f516c29c494b99816e316c416d507fb441b742a344859dfe1440f31ab",
+      "provider_response": {
+        "id": "chatcmpl-9ad60741b64d490d",
+        "created": 1795171988,
+        "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+        "object": "chat.completion",
+        "system_fingerprint": "vllm-0.32.0-tp8-150f5af4",
+        "choices": [
+          {
+            "finish_reason": "tool_calls",
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "tool_calls": [
+                {
+                  "function": {
+                    "arguments": "{\"path\": \"answer.txt\", \"content\": \"src/dates.py\\n\"}",
+                    "name": "WriteFile"
+                  },
+                  "id": "chatcmpl-tool-8b11c22da08b095c",
+                  "type": "function"
+                }
+              ],
+              "provider_specific_fields": {
+                "reasoning": null,
+                "refusal": null
+              },
+              "content": null
+            },
+            "provider_specific_fields": {
+              "routed_experts": null,
+              "stop_reason": null,
+              "token_ids": null
+            }
+          }
+        ],
+        "usage": {
+          "completion_tokens": 60,
+          "prompt_tokens": 1658,
+          "total_tokens": 1718,
+          "completion_tokens_details": {
+            "reasoning_tokens": 0
+          }
+        }
+      }
+    },
+    {
+      "context_sha256": "ff235d637fdb69855e430f16a3d6e0d24bd03666d57d62f163438ed40cc67157",
+      "provider_response": {
+        "id": "chatcmpl-a1b4569ba07e69db",
+        "created": 1795172000,
+        "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+        "object": "chat.completion",
+        "system_fingerprint": "vllm-0.32.0-tp8-150f5af4",
+        "choices": [
+          {
+            "finish_reason": "tool_calls",
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "tool_calls": [
+                {
+                  "function": {
+                    "arguments": "{\"command\": \"cd /work && cat answer.txt && test \\\"$(cat answer.txt)\\\" = \\\"src/dates.py\\\" && echo OK\"}",
+                    "name": "RunCommand"
+                  },
+                  "id": "chatcmpl-tool-bf6ac18c82770437",
+                  "type": "function"
+                }
+              ],
+              "provider_specific_fields": {
+                "reasoning": null,
+                "refusal": null
+              },
+              "content": null
+            },
+            "provider_specific_fields": {
+              "routed_experts": null,
+              "stop_reason": null,
+              "token_ids": null
+            }
+          }
+        ],
+        "usage": {
+          "completion_tokens": 63,
+          "prompt_tokens": 1841,
+          "total_tokens": 1904,
+          "completion_tokens_details": {
+            "reasoning_tokens": 0
+          }
+        }
+      }
+    },
+    {
+      "context_sha256": "9dd9d927a452be4c0ec5a95c48d809e8c58ef36d3f960ec9cbf685bc3129ea7f",
+      "provider_response": {
+        "id": "chatcmpl-a3ac02d5fec1e813",
+        "created": 1795172008,
+        "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+        "object": "chat.completion",
+        "system_fingerprint": "vllm-0.32.0-tp8-150f5af4",
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "message": {
+              "content": "`parse_date` is defined in `src/dates.py`; `src/main.py` only imports it. Wrote `src/dates.py` to `answer.txt` and verified.",
+              "role": "assistant",
+              "provider_specific_fields": {
+                "reasoning": null,
+                "refusal": null
+              }
+            },
+            "provider_specific_fields": {
+              "routed_experts": null,
+              "stop_reason": null,
+              "token_ids": null
+            }
+          }
+        ],
+        "usage": {
+          "completion_tokens": 41,
+          "prompt_tokens": 2032,
+          "total_tokens": 2073,
+          "completion_tokens_details": {
+            "reasoning_tokens": 0
+          }
+        }
+      }
+    }
+  ]
+}

@@ -15,7 +15,7 @@ from baf.json_output import invalid_constant, unique_object
 from scripts.measure_common import environment, save_report, summarize
 
 UNCERTAIN_ERRORS = {"model", "timeout", "transport", "unknown"}
-SUPPORTED_PROVIDERS = {"live", "synthetic-replay"}
+SUPPORTED_PROVIDERS = {"live", "synthetic-replay", "recorded-replay"}
 
 
 def load_records(paths):
@@ -91,7 +91,7 @@ def validate_records(records, tasks, repeats, pairs=None):
                 raise ValueError("Model/provider changed inside pair: " + pair)
             if provider == "live" and record.get("quality_evaluation") is not True:
                 raise ValueError("Live provenance contradicts the quality_evaluation marker")
-            if provider == "synthetic-replay" and record.get("quality_evaluation"):
+            if provider in ("synthetic-replay", "recorded-replay") and record.get("quality_evaluation"):
                 raise ValueError("Replay cannot be model-quality evidence")
         if "tokens" in record and (type(record["tokens"]) is not int or record["tokens"] < 0):
             raise ValueError("Reported token usage must be a nonnegative integer")

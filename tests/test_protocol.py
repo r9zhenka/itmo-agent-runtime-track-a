@@ -36,4 +36,4 @@ class ProtocolTests(unittest.TestCase):
             self.assertEqual(raised.exception.kind, "validation")
             with self.assertRaises(Fault) as raised:
                 list(app["client"].event_batch("missing"))
-            self.assertEqual(raised.exception.status, 404)
+            self.assertEqual(raised.exception.status, 403)  # Same response for unknown and foreign sessions.

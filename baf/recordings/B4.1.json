@@ -1,0 +1,286 @@
+{
+  "format": "project-a-provider-recording-v1",
+  "source": "actual-provider-responses",
+  "task": "B4.1",
+  "fixture_sha256": "b79836f44814d81c40e85a149d1736d709eb2f35fab7d335cdc325d09dbb9d28",
+  "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+  "complete": true,
+  "created_at": "2026-11-20T10:53:05.819146+00:00",
+  "frames": [
+    {
+      "context_sha256": "72d62c0ae766f18d8f29dc62fe7c6e7b008f78061327958c72ad2be4cb3d764f",
+      "provider_response": {
+        "id": "chatcmpl-ba33834a2e814b1f",
+        "created": 1795171989,
+        "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+        "object": "chat.completion",
+        "system_fingerprint": "vllm-0.32.0-tp8-150f5af4",
+        "choices": [
+          {
+            "finish_reason": "tool_calls",
+            "index": 0,
+            "message": {
+              "content": "I'll inspect the README first.\n\n",
+              "role": "assistant",
+              "tool_calls": [
+                {
+                  "function": {
+                    "arguments": "{\"command\": \"ls -la /work && echo \\\"---\\\" && cat -A /work/README.md | head -100\"}",
+                    "name": "RunCommand"
+                  },
+                  "id": "chatcmpl-tool-b7ae19bef7a7ce5b",
+                  "type": "function"
+                }
+              ],
+              "provider_specific_fields": {
+                "reasoning": null,
+                "refusal": null
+              }
+            },
+            "provider_specific_fields": {
+              "routed_experts": null,
+              "stop_reason": null,
+              "token_ids": null
+            }
+          }
+        ],
+        "usage": {
+          "completion_tokens": 68,
+          "prompt_tokens": 621,
+          "total_tokens": 689,
+          "completion_tokens_details": {
+            "reasoning_tokens": 0
+          }
+        }
+      }
+    },
+    {
+      "context_sha256": "6be933b8a73db256c8503dd4854789a94261814f58801cc1acfc138b6f44fbde",
+      "provider_response": {
+        "id": "chatcmpl-a7c6a17de96397e7",
+        "created": 1795172000,
+        "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+        "object": "chat.completion",
+        "system_fingerprint": "vllm-0.32.0-tp8-150f5af4",
+        "choices": [
+          {
+            "finish_reason": "tool_calls",
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "tool_calls": [
+                {
+                  "function": {
+                    "arguments": "{\"command\": \"cd /work && xxd README.md\"}",
+                    "name": "RunCommand"
+                  },
+                  "id": "chatcmpl-tool-b953176ba84186f5",
+                  "type": "function"
+                }
+              ],
+              "reasoning_content": "The README has \"pip install widget==1.2\" in Install section, and History mentions \"Version 1.2 was released in May.\" which must be preserved.\n\nLet me check bytes exactly, including trailing newline.",
+              "provider_specific_fields": {
+                "reasoning": "The README has \"pip install widget==1.2\" in Install section, and History mentions \"Version 1.2 was released in May.\" which must be preserved.\n\nLet me check bytes exactly, including trailing newline.",
+                "refusal": null
+              },
+              "content": null
+            },
+            "provider_specific_fields": {
+              "routed_experts": null,
+              "stop_reason": null,
+              "token_ids": null
+            }
+          }
+        ],
+        "usage": {
+          "completion_tokens": 94,
+          "prompt_tokens": 922,
+          "total_tokens": 1016,
+          "completion_tokens_details": {
+            "reasoning_tokens": 47
+          }
+        }
+      }
+    },
+    {
+      "context_sha256": "face805ab8bdafd4c163bc7a42b6403aa1ed06d2b9c871db19e98b3ddbd33762",
+      "provider_response": {
+        "id": "chatcmpl-98f4b6525a9757f9",
+        "created": 1795172010,
+        "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+        "object": "chat.completion",
+        "system_fingerprint": "vllm-0.32.0-tp8-150f5af4",
+        "choices": [
+          {
+            "finish_reason": "tool_calls",
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "tool_calls": [
+                {
+                  "function": {
+                    "arguments": "{\"command\": \"cd /work && od -c README.md && echo \\\"---size---\\\" && wc -c README.md && md5sum README.md\"}",
+                    "name": "RunCommand"
+                  },
+                  "id": "chatcmpl-tool-847e60d5f9a0e304",
+                  "type": "function"
+                }
+              ],
+              "provider_specific_fields": {
+                "reasoning": null,
+                "refusal": null
+              },
+              "content": null
+            },
+            "provider_specific_fields": {
+              "routed_experts": null,
+              "stop_reason": null,
+              "token_ids": null
+            }
+          }
+        ],
+        "usage": {
+          "completion_tokens": 70,
+          "prompt_tokens": 1165,
+          "total_tokens": 1235,
+          "completion_tokens_details": {
+            "reasoning_tokens": 0
+          }
+        }
+      }
+    },
+    {
+      "context_sha256": "05635eec3cb1bab191725bfd892db0ae290a0b188c6bb7bf0d347efdea2c3fbf",
+      "provider_response": {
+        "id": "chatcmpl-8864c4093710fa7f",
+        "created": 1795172024,
+        "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+        "object": "chat.completion",
+        "system_fingerprint": "vllm-0.32.0-tp8-150f5af4",
+        "choices": [
+          {
+            "finish_reason": "tool_calls",
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "tool_calls": [
+                {
+                  "function": {
+                    "arguments": "{\"command\": \"cd /work && python3 - <<'EOF'\\nfrom pathlib import Path\\np = Path('README.md')\\ndata = p.read_bytes()\\nold = b'pip install widget==1.2\\\\n'\\nnew = b'pip install widget==1.3\\\\n'\\nassert data.count(old) == 1, data.count(old)\\np.write_bytes(data.replace(old, new))\\nEOF\\necho \\\"exit=$?\\\"; od -c README.md; wc -c README.md\"}",
+                    "name": "RunCommand"
+                  },
+                  "id": "chatcmpl-tool-a6368ade93fd9823",
+                  "type": "function"
+                }
+              ],
+              "reasoning_content": "Only the Install section line should change. Use python for a precise byte-level replacement targeting the install line only.",
+              "provider_specific_fields": {
+                "reasoning": "Only the Install section line should change. Use python for a precise byte-level replacement targeting the install line only.",
+                "refusal": null
+              },
+              "content": null
+            },
+            "provider_specific_fields": {
+              "routed_experts": null,
+              "stop_reason": null,
+              "token_ids": null
+            }
+          }
+        ],
+        "usage": {
+          "completion_tokens": 160,
+          "prompt_tokens": 1588,
+          "total_tokens": 1748,
+          "completion_tokens_details": {
+            "reasoning_tokens": 22
+          }
+        }
+      }
+    },
+    {
+      "context_sha256": "f7647f7a8916cf536903a2dad6651afd3795585f70efc2de0ae45eccfcefaa13",
+      "provider_response": {
+        "id": "chatcmpl-b06138b84f6a077d",
+        "created": 1795172037,
+        "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+        "object": "chat.completion",
+        "system_fingerprint": "vllm-0.32.0-tp8-150f5af4",
+        "choices": [
+          {
+            "finish_reason": "tool_calls",
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "tool_calls": [
+                {
+                  "function": {
+                    "arguments": "{\"command\": \"cd /work && md5sum README.md && cat README.md && git status --short 2>/dev/null; echo \\\"git-exit=$?\\\"\"}",
+                    "name": "RunCommand"
+                  },
+                  "id": "chatcmpl-tool-a149d50e019540ae",
+                  "type": "function"
+                }
+              ],
+              "reasoning_content": "Verify diff against original (we don't have git). md5 changed. Verify only one byte differs conceptually — size same (91), only one character differs (2 -> 3). Confirm History line intact.",
+              "provider_specific_fields": {
+                "reasoning": "Verify diff against original (we don't have git). md5 changed. Verify only one byte differs conceptually — size same (91), only one character differs (2 -> 3). Confirm History line intact.",
+                "refusal": null
+              },
+              "content": null
+            },
+            "provider_specific_fields": {
+              "routed_experts": null,
+              "stop_reason": null,
+              "token_ids": null
+            }
+          }
+        ],
+        "usage": {
+          "completion_tokens": 113,
+          "prompt_tokens": 2073,
+          "total_tokens": 2186,
+          "completion_tokens_details": {
+            "reasoning_tokens": 42
+          }
+        }
+      }
+    },
+    {
+      "context_sha256": "db7829a5ef0cd373294be316cd3d8d83ed6369df1c19535cb60d928fdc5c6430",
+      "provider_response": {
+        "id": "chatcmpl-9eebc2fc23496fc9",
+        "created": 1795172050,
+        "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+        "object": "chat.completion",
+        "system_fingerprint": "vllm-0.32.0-tp8-150f5af4",
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "message": {
+              "content": "Done.\n\n**What I did:**\n1. Inspected `/work/README.md` (91 bytes, no git repo present).\n2. Dumped the exact bytes with `od -c` to establish a baseline.\n3. Performed a byte-level replacement of the single occurrence of `pip install widget==1.2\\n` → `pip install widget==1.3\\n`, asserting the match count was exactly 1 before writing (so it could not touch anything else).\n4. Re-verified the result with `od -c`, `wc -c`, and `cat`.\n\n**Result:**\n- Install section: `pip install widget==1.3` (changed)\n- History section: `Version 1.2 was released in May.` (unchanged — the `1.2` there was intentionally left alone)\n- File size still 91 bytes, trailing newline preserved, no other bytes altered (md5 changed from `5b1acf11…` to `a7e5d02a…`, consistent with a single-character change: `2`→`3`).",
+              "role": "assistant",
+              "provider_specific_fields": {
+                "reasoning": null,
+                "refusal": null
+              }
+            },
+            "provider_specific_fields": {
+              "routed_experts": null,
+              "stop_reason": null,
+              "token_ids": null
+            }
+          }
+        ],
+        "usage": {
+          "completion_tokens": 231,
+          "prompt_tokens": 2363,
+          "total_tokens": 2594,
+          "completion_tokens_details": {
+            "reasoning_tokens": 0
+          }
+        }
+      }
+    }
+  ]
+}

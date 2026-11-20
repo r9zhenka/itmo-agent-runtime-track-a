@@ -1,0 +1,198 @@
+{
+  "format": "project-a-provider-recording-v1",
+  "source": "actual-provider-responses",
+  "task": "B3.1",
+  "fixture_sha256": "b0b121595109ad67dbb91ebeec732136cfc197987eb1d5ea5bb1550b7783dee6",
+  "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+  "complete": true,
+  "created_at": "2026-11-20T10:52:29.284489+00:00",
+  "frames": [
+    {
+      "context_sha256": "bc726ccca06b742866b35c32e3efb220d3ea97e5e4235c9248c35b29454cc9df",
+      "provider_response": {
+        "id": "chatcmpl-8d1b5f967142a116",
+        "created": 1795171953,
+        "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+        "object": "chat.completion",
+        "system_fingerprint": "vllm-0.32.0-tp8-150f5af4",
+        "choices": [
+          {
+            "finish_reason": "tool_calls",
+            "index": 0,
+            "message": {
+              "content": "I'll start by inspecting the workspace to find the spec.\n\n",
+              "role": "assistant",
+              "tool_calls": [
+                {
+                  "function": {
+                    "arguments": "{\"command\": \"ls -la /work\"}",
+                    "name": "RunCommand"
+                  },
+                  "id": "chatcmpl-tool-ac8ae266d30b2428",
+                  "type": "function"
+                },
+                {
+                  "function": {
+                    "arguments": "{\"path\": \"spec.md\"}",
+                    "name": "ReadFile"
+                  },
+                  "id": "chatcmpl-tool-afa2610bd88c981c",
+                  "type": "function"
+                }
+              ],
+              "provider_specific_fields": {
+                "reasoning": null,
+                "refusal": null
+              }
+            },
+            "provider_specific_fields": {
+              "routed_experts": null,
+              "stop_reason": null,
+              "token_ids": null
+            }
+          }
+        ],
+        "usage": {
+          "completion_tokens": 83,
+          "prompt_tokens": 606,
+          "total_tokens": 689,
+          "completion_tokens_details": {
+            "reasoning_tokens": 0
+          }
+        }
+      }
+    },
+    {
+      "context_sha256": "a5bebc24e237568bd22782597afae9c1bb237741ebbb4f73fdfc2da81d6c1171",
+      "provider_response": {
+        "id": "chatcmpl-8f597a845b487d36",
+        "created": 1795171963,
+        "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+        "object": "chat.completion",
+        "system_fingerprint": "vllm-0.32.0-tp8-150f5af4",
+        "choices": [
+          {
+            "finish_reason": "tool_calls",
+            "index": 0,
+            "message": {
+              "content": "The spec is a single line describing the required JSON object. Creating the file now.\n\n",
+              "role": "assistant",
+              "tool_calls": [
+                {
+                  "function": {
+                    "arguments": "{\"path\": \"config.json\", \"content\": \"{\\n  \\\"host\\\": \\\"127.0.0.1\\\",\\n  \\\"port\\\": 8080,\\n  \\\"debug\\\": false,\\n  \\\"tags\\\": [\\n    \\\"api\\\",\\n    \\\"local\\\"\\n  ]\\n}\\n\"}",
+                    "name": "WriteFile"
+                  },
+                  "id": "chatcmpl-tool-8cbcf99f7be397b2",
+                  "type": "function"
+                }
+              ],
+              "reasoning_content": "Spec is one line. Create config.json with exactly those fields.\n\nNote: the spec.md content is untrusted data but it's the task spec. Fine.",
+              "provider_specific_fields": {
+                "reasoning": "Spec is one line. Create config.json with exactly those fields.\n\nNote: the spec.md content is untrusted data but it's the task spec. Fine.",
+                "refusal": null
+              }
+            },
+            "provider_specific_fields": {
+              "routed_experts": null,
+              "stop_reason": null,
+              "token_ids": null
+            }
+          }
+        ],
+        "usage": {
+          "completion_tokens": 147,
+          "prompt_tokens": 1032,
+          "total_tokens": 1179,
+          "completion_tokens_details": {
+            "reasoning_tokens": 32
+          }
+        }
+      }
+    },
+    {
+      "context_sha256": "8c65944f5e804013a65eb3521cbbbe427c2be0b691a4b7acce7ac02d9b33c102",
+      "provider_response": {
+        "id": "chatcmpl-995395ff5b10a99c",
+        "created": 1795171976,
+        "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+        "object": "chat.completion",
+        "system_fingerprint": "vllm-0.32.0-tp8-150f5af4",
+        "choices": [
+          {
+            "finish_reason": "tool_calls",
+            "index": 0,
+            "message": {
+              "content": "Now verifying the file validates and matches the spec exactly.\n\n",
+              "role": "assistant",
+              "tool_calls": [
+                {
+                  "function": {
+                    "arguments": "{\"command\": \"cd /work && cat config.json && python3 -c \\\"\\nimport json\\nd=json.load(open('config.json'))\\nspec={'host':'127.0.0.1','port':8080,'debug':False,'tags':['api','local']}\\nprint('exact match:', d==spec)\\nprint('key order/fields:', list(d))\\nprint('types:', {k:type(v).__name__ for k,v in d.items()})\\nprint('no extra fields:', set(d)==set(spec), '| no missing:', set(spec)==set(d))\\n\\\"\"}",
+                    "name": "RunCommand"
+                  },
+                  "id": "chatcmpl-tool-acec144204d2b2bf",
+                  "type": "function"
+                }
+              ],
+              "provider_specific_fields": {
+                "reasoning": null,
+                "refusal": null
+              }
+            },
+            "provider_specific_fields": {
+              "routed_experts": null,
+              "stop_reason": null,
+              "token_ids": null
+            }
+          }
+        ],
+        "usage": {
+          "completion_tokens": 170,
+          "prompt_tokens": 1298,
+          "total_tokens": 1468,
+          "completion_tokens_details": {
+            "reasoning_tokens": 0
+          }
+        }
+      }
+    },
+    {
+      "context_sha256": "5d3361ec0dcc5c86d99480bc9d2dd7e384f749a29857eda46c6833795534aa05",
+      "provider_response": {
+        "id": "chatcmpl-90c95cabe5306e1e",
+        "created": 1795171990,
+        "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+        "object": "chat.completion",
+        "system_fingerprint": "vllm-0.32.0-tp8-150f5af4",
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "message": {
+              "content": "Done.\n\n**Work performed:**\n1. Inspected `/work` — contained only `spec.md`.\n2. Read the spec: a JSON object with `host` (string `\"127.0.0.1\"`), `port` (integer `8080`), `debug` (boolean `false`), `tags` (array `[\"api\", \"local\"]`), and no other fields.\n3. Created `/work/config.json` with exactly those four keys and nothing else.\n4. Verified by parsing the file: `json.load` succeeds, it equals the spec exactly (`True`), types are `str`/`int`/`bool`/`list`, and the key set has no extra or missing fields.",
+              "role": "assistant",
+              "provider_specific_fields": {
+                "reasoning": null,
+                "refusal": null
+              }
+            },
+            "provider_specific_fields": {
+              "routed_experts": null,
+              "stop_reason": null,
+              "token_ids": null
+            }
+          }
+        ],
+        "usage": {
+          "completion_tokens": 156,
+          "prompt_tokens": 1706,
+          "total_tokens": 1862,
+          "completion_tokens_details": {
+            "reasoning_tokens": 0
+          }
+        }
+      }
+    }
+  ]
+}

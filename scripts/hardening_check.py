@@ -1,8 +1,8 @@
 """Bounded, real-Docker hardening probes in disposable workspaces.
 
 No LLM, external network or host stress workload. Resource exhaustion executes
-only in capped containers. Manager/harness crash probes use isolated test processes,
-never kill the user's Compose services, and inspect cleanup using the Docker API.
+only in capped containers. Independent Compose controller-crash acceptance is
+performed separately by scripts.check_watchdog_crash in an isolated check-all stack.
 """
 import argparse
 import copy
@@ -10,22 +10,15 @@ import http.client
 import json
 import os
 import shlex
-import subprocess
-import sys
 import tempfile
-import threading
-import time
 import uuid
 from pathlib import Path
 from urllib.parse import quote
 
 from client.api import settings
 from client.workspace_server import WorkspaceServer
-from runtime.common import Remote, make_server
 from runtime.docker_engine import Docker
-from runtime.harness import Harness
 from runtime.sandbox_manager import SandboxManager
-from runtime.sandbox_watchdog import reap_once
 
 
 def python_command(source):
@@ -89,74 +82,9 @@ class ProbeDocker(Docker):
         return super().create(config)
 
 
-def worker(kind, root, instance, sandbox_url):
-    command = "echo ready > crash-ready; (sleep 20; echo leaked > leaked.txt) & wait"
-    if kind == "manager":
-        manager = SandboxManager(Docker(), root, root, uid=os.getuid(), gid=os.getgid(),
-                                 instance=instance, allow_local_rw=True)
-        manager.provision("crash", "manager-crash", "rw")
-        manager.exec("crash", "crash-command", "RunCommand", {"command": command}, 4)
-    else:
-        def model(*_, **__):
-            return {"message": {"role": "assistant", "content": None, "tool_calls": [
-                {"id": "probe", "function": {"name": "RunCommand", "arguments": json.dumps({"command": command})}}]}}
-        harness = Harness(Remote(sandbox_url, "hardening-test"), model, root / "traces", run_timeout=4)
-        sid = harness.create("c", "harness-crash", "rw")["session_id"]
-        harness.message(sid, "m", "Run the fixed crash probe")
-        harness.session(sid)["current"]["thread"].join(timeout=15)
-
-
 def containers(engine, instance):
     filters = quote(json.dumps({"label": [f"project-a.instance={instance}"]}))
     return engine.request("GET", "/containers/json?all=true&filters=" + filters)
-
-
-def crash_probe(kind, root, base_instance):
-    instance = base_instance + "-" + kind
-    engine = Docker()
-    folder = root / (kind + "-crash")
-    folder.mkdir()
-    manager = http = thread = process = None
-    args = [sys.executable, "-m", "scripts.hardening_check", "--worker", kind,
-            "--root", str(root), "--instance", instance]
-    try:
-        if kind == "harness":
-            manager = SandboxManager(engine, root, root, uid=os.getuid(), gid=os.getgid(),
-                                     instance=instance, allow_local_rw=True)
-            http = make_server(manager, "hardening-test", "127.0.0.1", 0)
-            thread = threading.Thread(target=http.serve_forever, kwargs={"poll_interval": 0.05}, daemon=True)
-            thread.start()
-            args += ["--sandbox-url", "http://127.0.0.1:" + str(http.server_port)]
-        process = subprocess.Popen(args, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        ready = folder / "crash-ready"
-        deadline = time.monotonic() + 8
-        while not ready.exists() and process.poll() is None and time.monotonic() < deadline:
-            time.sleep(0.05)
-        if not ready.exists():
-            raise AssertionError(kind + " crash probe never started its sandbox command")
-        process.kill()  # Kill only our test manager/harness, never Compose services.
-        process.wait(timeout=5)
-        removed = []
-        deadline = time.monotonic() + 12
-        while time.monotonic() < deadline:
-            removed.extend(reap_once(engine, instance, root))
-            if not containers(engine, instance):
-                break
-            time.sleep(0.1)
-        clean = not containers(engine, instance)
-        return {"clean": clean, "leaked": (folder / "leaked.txt").exists(),
-                "watchdog_removals": len(removed), "process_killed": process.returncode == -9}
-    finally:
-        if process is not None and process.poll() is None:
-            process.kill()
-            process.wait(timeout=5)
-        if manager is not None:
-            manager.close()
-        if http is not None:
-            http.shutdown()
-            http.server_close()
-            thread.join(timeout=3)
-        engine.cleanup(instance)
 
 
 def quota_probe(root):
@@ -187,15 +115,8 @@ def quota_probe(root):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--worker", choices=("manager", "harness"))
-    parser.add_argument("--root", type=Path)
-    parser.add_argument("--instance")
-    parser.add_argument("--sandbox-url", default="")
     parser.add_argument("--output", type=Path, default=Path("results/hardening.json"))
     args = parser.parse_args()
-    if args.worker:
-        worker(args.worker, args.root, args.instance, args.sandbox_url)
-        return
     if os.getuid() == 0:
         raise SystemExit("Run as a non-root user with Docker access")
     workspaces = Path(settings().get("WORKSPACE_ROOT", "workspaces")).resolve()
@@ -253,11 +174,6 @@ def main():
                 require("network socket and server secrets unavailable", result["exit_code"] == 0
                         and result["stdout"].strip() == "isolated", result)
                 require("aggregate WebDAV bytes, entries and replacement staging bounded", quota_probe(root))
-                for kind in ("manager", "harness"):
-                    detail = crash_probe(kind, root, instance)
-                    require(kind + " crash leaves no execution containers", detail["clean"]
-                            and not detail["leaked"] and detail["process_killed"]
-                            and (kind != "manager" or detail["watchdog_removals"] > 0), detail)
             finally:
                 manager.close()
             require("all hardening containers removed", not containers(engine, instance))

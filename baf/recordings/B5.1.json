@@ -1,0 +1,246 @@
+{
+  "format": "project-a-provider-recording-v1",
+  "source": "actual-provider-responses",
+  "task": "B5.1",
+  "fixture_sha256": "1f12571184b17bd9e7c71e11fda9817230b536aada090ca8a99bba884bdeb2bc",
+  "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+  "complete": true,
+  "created_at": "2026-11-20T10:53:21.918456+00:00",
+  "frames": [
+    {
+      "context_sha256": "34a618fa7728968b6f8244feb3d465a703a9cfa9ea4afd35a2e767b5ea669730",
+      "provider_response": {
+        "id": "chatcmpl-bb54f67a52c10a65",
+        "created": 1795172006,
+        "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+        "object": "chat.completion",
+        "system_fingerprint": "vllm-0.32.0-tp8-150f5af4",
+        "choices": [
+          {
+            "finish_reason": "tool_calls",
+            "index": 0,
+            "message": {
+              "content": "I'll start by inspecting the workspace and the script.\n\n",
+              "role": "assistant",
+              "tool_calls": [
+                {
+                  "function": {
+                    "arguments": "{\"command\": \"ls -la /work\"}",
+                    "name": "RunCommand"
+                  },
+                  "id": "chatcmpl-tool-9708504395de8797",
+                  "type": "function"
+                },
+                {
+                  "function": {
+                    "arguments": "{\"path\": \"stats.py\"}",
+                    "name": "ReadFile"
+                  },
+                  "id": "chatcmpl-tool-b2505bf5db03dbb9",
+                  "type": "function"
+                }
+              ],
+              "provider_specific_fields": {
+                "reasoning": null,
+                "refusal": null
+              }
+            },
+            "provider_specific_fields": {
+              "routed_experts": null,
+              "stop_reason": null,
+              "token_ids": null
+            }
+          }
+        ],
+        "usage": {
+          "completion_tokens": 82,
+          "prompt_tokens": 608,
+          "total_tokens": 690,
+          "completion_tokens_details": {
+            "reasoning_tokens": 0
+          }
+        }
+      }
+    },
+    {
+      "context_sha256": "d588b2b8e6772eb7430fb46a2df9824bcb61aaad795b7b15679f81d9adb293a1",
+      "provider_response": {
+        "id": "chatcmpl-b9694830cb4adc21",
+        "created": 1795172015,
+        "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+        "object": "chat.completion",
+        "system_fingerprint": "vllm-0.32.0-tp8-150f5af4",
+        "choices": [
+          {
+            "finish_reason": "tool_calls",
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "tool_calls": [
+                {
+                  "function": {
+                    "arguments": "{\"command\": \"cd /work && cat -A data.csv; python stats.py data.csv\"}",
+                    "name": "RunCommand"
+                  },
+                  "id": "chatcmpl-tool-8a51a2c1764564aa",
+                  "type": "function"
+                }
+              ],
+              "reasoning_content": "Let's inspect data.csv and run.",
+              "provider_specific_fields": {
+                "reasoning": "Let's inspect data.csv and run.",
+                "refusal": null
+              },
+              "content": null
+            },
+            "provider_specific_fields": {
+              "routed_experts": null,
+              "stop_reason": null,
+              "token_ids": null
+            }
+          }
+        ],
+        "usage": {
+          "completion_tokens": 61,
+          "prompt_tokens": 1046,
+          "total_tokens": 1107,
+          "completion_tokens_details": {
+            "reasoning_tokens": 8
+          }
+        }
+      }
+    },
+    {
+      "context_sha256": "fbddbbcacb445c8961f20d8b342500acc35615afc5a2d1228c5d55d6e0f99ace",
+      "provider_response": {
+        "id": "chatcmpl-aa3b15b2b7da6aa9",
+        "created": 1795172030,
+        "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+        "object": "chat.completion",
+        "system_fingerprint": "vllm-0.32.0-tp8-150f5af4",
+        "choices": [
+          {
+            "finish_reason": "tool_calls",
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "tool_calls": [
+                {
+                  "function": {
+                    "arguments": "{\"path\": \"answer.txt\", \"content\": \"7.0\\n\"}",
+                    "name": "WriteFile"
+                  },
+                  "id": "chatcmpl-tool-a3c96f710eb47214",
+                  "type": "function"
+                }
+              ],
+              "reasoning_content": "The median of 11,2,7,3,20 = sorted 2,3,7,11,20 → 7.0. Write to answer.txt.",
+              "provider_specific_fields": {
+                "reasoning": "The median of 11,2,7,3,20 = sorted 2,3,7,11,20 → 7.0. Write to answer.txt.",
+                "refusal": null
+              },
+              "content": null
+            },
+            "provider_specific_fields": {
+              "routed_experts": null,
+              "stop_reason": null,
+              "token_ids": null
+            }
+          }
+        ],
+        "usage": {
+          "completion_tokens": 95,
+          "prompt_tokens": 1243,
+          "total_tokens": 1338,
+          "completion_tokens_details": {
+            "reasoning_tokens": 36
+          }
+        }
+      }
+    },
+    {
+      "context_sha256": "bf221532f04478441228152b2755cee0ed8e9e57586ffd61b75220e986bba41d",
+      "provider_response": {
+        "id": "chatcmpl-98278810553e4df7",
+        "created": 1795172040,
+        "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+        "object": "chat.completion",
+        "system_fingerprint": "vllm-0.32.0-tp8-150f5af4",
+        "choices": [
+          {
+            "finish_reason": "tool_calls",
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "tool_calls": [
+                {
+                  "function": {
+                    "arguments": "{\"command\": \"cd /work && cat answer.txt && python stats.py data.csv\"}",
+                    "name": "RunCommand"
+                  },
+                  "id": "chatcmpl-tool-a3ccd9b12c3cb59e",
+                  "type": "function"
+                }
+              ],
+              "provider_specific_fields": {
+                "reasoning": null,
+                "refusal": null
+              },
+              "content": null
+            },
+            "provider_specific_fields": {
+              "routed_experts": null,
+              "stop_reason": null,
+              "token_ids": null
+            }
+          }
+        ],
+        "usage": {
+          "completion_tokens": 51,
+          "prompt_tokens": 1457,
+          "total_tokens": 1508,
+          "completion_tokens_details": {
+            "reasoning_tokens": 0
+          }
+        }
+      }
+    },
+    {
+      "context_sha256": "1369c96ac64be353bb3534c7a5d0f5bd8ce4c1bc5b328c5bbf3e80c9704843f1",
+      "provider_response": {
+        "id": "chatcmpl-a8b99143556deccd",
+        "created": 1795172050,
+        "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+        "object": "chat.completion",
+        "system_fingerprint": "vllm-0.32.0-tp8-150f5af4",
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "message": {
+              "content": "Done.\n\n- Inspected `/work`: `stats.py` (reads a filename arg, prints `statistics.median` of all non-blank lines as floats) and `data.csv` containing `11, 2, 7, 3, 20`.\n- Ran `python stats.py data.csv` → output `7.0` (sorted: 2, 3, **7**, 11, 20).\n- Wrote `7.0` to `/work/answer.txt` and verified the file contents match the script output.",
+              "role": "assistant",
+              "provider_specific_fields": {
+                "reasoning": null,
+                "refusal": null
+              }
+            },
+            "provider_specific_fields": {
+              "routed_experts": null,
+              "stop_reason": null,
+              "token_ids": null
+            }
+          }
+        ],
+        "usage": {
+          "completion_tokens": 116,
+          "prompt_tokens": 1632,
+          "total_tokens": 1748,
+          "completion_tokens_details": {
+            "reasoning_tokens": 0
+          }
+        }
+      }
+    }
+  ]
+}

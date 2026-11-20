@@ -85,6 +85,20 @@ class BenchmarkSummaryTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "Replay"):
             summarize_campaign([replay], ["B1.1"], 1)
 
+    def test_recorded_replay_preserves_distinct_nonquality_provenance(self):
+        recorded = attempt(provider="recorded-replay")
+        recorded["model"]["model"] = "actual-captured-provider-model"
+        report = summarize_campaign([recorded], ["B1.1"], 1)
+        self.assertFalse(report["quality_evaluation"])
+        self.assertEqual(report["pairs"][0]["provider"], "recorded-replay")
+        self.assertEqual(report["reported_tokens_total"], 0)
+        for other in ("live", "synthetic-replay"):
+            with self.assertRaisesRegex(ValueError, "Mixed live/replay"):
+                summarize_campaign([recorded, attempt(repeat=2, pair="other", provider=other)], ["B1.1"], 2)
+        recorded["quality_evaluation"] = True
+        with self.assertRaisesRegex(ValueError, "Replay"):
+            summarize_campaign([recorded], ["B1.1"], 1)
+
     def test_duplicate_attempts_are_rejected_instead_of_cherry_picked(self):
         with self.assertRaisesRegex(ValueError, "Duplicate attempt"):
             summarize_campaign([attempt(passed=False), attempt()], ["B1.1"], 1)

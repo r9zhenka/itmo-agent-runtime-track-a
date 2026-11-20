@@ -1,0 +1,294 @@
+{
+  "format": "project-a-provider-recording-v1",
+  "source": "actual-provider-responses",
+  "task": "B6.1",
+  "fixture_sha256": "0c28c81a659ba65470440c97fda6292cf399b7c34bda10d89d5aef3b2e1856bf",
+  "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+  "complete": true,
+  "created_at": "2026-11-20T10:53:41.824202+00:00",
+  "frames": [
+    {
+      "context_sha256": "d74d1e9bb55ed95ca70866e54e67da8cf1dff2012f4337d601cab679985e4d22",
+      "provider_response": {
+        "id": "chatcmpl-b744a8fb3e90eed1",
+        "created": 1795172030,
+        "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+        "object": "chat.completion",
+        "system_fingerprint": "vllm-0.32.0-tp8-150f5af4",
+        "choices": [
+          {
+            "finish_reason": "tool_calls",
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "tool_calls": [
+                {
+                  "function": {
+                    "arguments": "{\"command\": \"ls -la /work && cat /work/task.md\"}",
+                    "name": "RunCommand"
+                  },
+                  "id": "chatcmpl-tool-8aad02af2c38657a",
+                  "type": "function"
+                },
+                {
+                  "function": {
+                    "arguments": "{\"path\": \"solution.py\"}",
+                    "name": "ReadFile"
+                  },
+                  "id": "chatcmpl-tool-8f72d5260acd9f06",
+                  "type": "function"
+                }
+              ],
+              "provider_specific_fields": {
+                "reasoning": null,
+                "refusal": null
+              },
+              "content": null
+            },
+            "provider_specific_fields": {
+              "routed_experts": null,
+              "stop_reason": null,
+              "token_ids": null
+            }
+          }
+        ],
+        "usage": {
+          "completion_tokens": 79,
+          "prompt_tokens": 608,
+          "total_tokens": 687,
+          "completion_tokens_details": {
+            "reasoning_tokens": 0
+          }
+        }
+      }
+    },
+    {
+      "context_sha256": "f3c3e4c6412b4c12c3cc6039cccd63e8b677b5534292a520a60f2d6154baa25e",
+      "provider_response": {
+        "id": "chatcmpl-b32c6421741fea35",
+        "created": 1795172040,
+        "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+        "object": "chat.completion",
+        "system_fingerprint": "vllm-0.32.0-tp8-150f5af4",
+        "choices": [
+          {
+            "finish_reason": "tool_calls",
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "tool_calls": [
+                {
+                  "function": {
+                    "arguments": "{\"path\": \"test_public.py\"}",
+                    "name": "ReadFile"
+                  },
+                  "id": "chatcmpl-tool-be482e7345f29b35",
+                  "type": "function"
+                }
+              ],
+              "provider_specific_fields": {
+                "reasoning": null,
+                "refusal": null
+              },
+              "content": null
+            },
+            "provider_specific_fields": {
+              "routed_experts": null,
+              "stop_reason": null,
+              "token_ids": null
+            }
+          }
+        ],
+        "usage": {
+          "completion_tokens": 42,
+          "prompt_tokens": 1190,
+          "total_tokens": 1232,
+          "completion_tokens_details": {
+            "reasoning_tokens": 0
+          }
+        }
+      }
+    },
+    {
+      "context_sha256": "82100b1690ee6b75fa626506bd578193d7b67774c72ffb5e0952f73f293292e1",
+      "provider_response": {
+        "id": "chatcmpl-8990c10461cef043",
+        "created": 1795172050,
+        "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+        "object": "chat.completion",
+        "system_fingerprint": "vllm-0.32.0-tp8-150f5af4",
+        "choices": [
+          {
+            "finish_reason": "tool_calls",
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "tool_calls": [
+                {
+                  "function": {
+                    "arguments": "{\"path\": \"solution.py\", \"content\": \"import unicodedata\\n\\n\\ndef slugify(text):\\n    \\\"\\\"\\\"Return a lowercase, hyphen-separated slug for *text*.\\n\\n    Unicode NFKC normalization is applied first, followed by case folding.\\n    Alphanumeric characters (including non-Latin ones) are kept as-is, while\\n    every maximal run of other characters becomes a single ASCII hyphen.\\n    Leading and trailing hyphens are removed.\\n    \\\"\\\"\\\"\\n    normalized = unicodedata.normalize(\\\"NFKC\\\", text).casefold()\\n\\n    result = []\\n    pending_separator = False\\n\\n    for char in normalized:\\n        if char.isalnum():\\n            if pending_separator and result:\\n                result.append(\\\"-\\\")\\n            result.append(char)\\n            pending_separator = False\\n        else:\\n            pending_separator = True\\n\\n    return \\\"\\\".join(result)\\n\"}",
+                    "name": "WriteFile"
+                  },
+                  "id": "chatcmpl-tool-b1589e713aafd201",
+                  "type": "function"
+                }
+              ],
+              "reasoning_content": "Implement. Note NFKC then casefold. Keep alnum chars. replace runs of non-alnum with '-'. strip '-'. Underscore is not alnum -> replace. Casefold may produce multiple chars, e.g., ß -> ss, both alnum. Use re.sub(r'[^...]')? Simplest iterate.\n\nCareful: NFKC then casefold. Could casefold produce chars not normalized? Requirement order is NFKC then casefold, so just follow.\n\nUse regex: re.sub(r'[^\\w]', ...) would keep underscore, so use manual or character class based on isalnum. Iterate.",
+              "provider_specific_fields": {
+                "reasoning": "Implement. Note NFKC then casefold. Keep alnum chars. replace runs of non-alnum with '-'. strip '-'. Underscore is not alnum -> replace. Casefold may produce multiple chars, e.g., ß -> ss, both alnum. Use re.sub(r'[^...]')? Simplest iterate.\n\nCareful: NFKC then casefold. Could casefold produce chars not normalized? Requirement order is NFKC then casefold, so just follow.\n\nUse regex: re.sub(r'[^\\w]', ...) would keep underscore, so use manual or character class based on isalnum. Iterate.",
+                "refusal": null
+              },
+              "content": null
+            },
+            "provider_specific_fields": {
+              "routed_experts": null,
+              "stop_reason": null,
+              "token_ids": null
+            }
+          }
+        ],
+        "usage": {
+          "completion_tokens": 359,
+          "prompt_tokens": 1427,
+          "total_tokens": 1786,
+          "completion_tokens_details": {
+            "reasoning_tokens": 133
+          }
+        }
+      }
+    },
+    {
+      "context_sha256": "78420d155cdd1d89fa4acc695827723721186869e8b5dc2698cef7dbfa4135a2",
+      "provider_response": {
+        "id": "chatcmpl-864b227474b99396",
+        "created": 1795172079,
+        "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+        "object": "chat.completion",
+        "system_fingerprint": "vllm-0.32.0-tp8-150f5af4",
+        "choices": [
+          {
+            "finish_reason": "tool_calls",
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "tool_calls": [
+                {
+                  "function": {
+                    "arguments": "{\"command\": \"cd /work && python -m unittest test_public -v\"}",
+                    "name": "RunCommand"
+                  },
+                  "id": "chatcmpl-tool-a6b306d0aad5e1a0",
+                  "type": "function"
+                }
+              ],
+              "reasoning_content": "Run tests. Also consider edge cases hidden: combining marks after NFKC may remain (e.g. some not composed), they're not alnum so separator. Following spec exactly. Note casefold may produce combining chars? e.g., İ casefolds to i + combining dot, isalnum false for combining dot, so becomes hyphen. That's per spec literal reading.\n\nRun.",
+              "provider_specific_fields": {
+                "reasoning": "Run tests. Also consider edge cases hidden: combining marks after NFKC may remain (e.g. some not composed), they're not alnum so separator. Following spec exactly. Note casefold may produce combining chars? e.g., İ casefolds to i + combining dot, isalnum false for combining dot, so becomes hyphen. That's per spec literal reading.\n\nRun.",
+                "refusal": null
+              },
+              "content": null
+            },
+            "provider_specific_fields": {
+              "routed_experts": null,
+              "stop_reason": null,
+              "token_ids": null
+            }
+          }
+        ],
+        "usage": {
+          "completion_tokens": 129,
+          "prompt_tokens": 1906,
+          "total_tokens": 2035,
+          "completion_tokens_details": {
+            "reasoning_tokens": 78
+          }
+        }
+      }
+    },
+    {
+      "context_sha256": "a62c1ce3f5470860be9677fd8474606464b34919e61f64eba24a20a2fb4d3415",
+      "provider_response": {
+        "id": "chatcmpl-b7ae568e7937cd23",
+        "created": 1795172097,
+        "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+        "object": "chat.completion",
+        "system_fingerprint": "vllm-0.32.0-tp8-150f5af4",
+        "choices": [
+          {
+            "finish_reason": "tool_calls",
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "tool_calls": [
+                {
+                  "function": {
+                    "arguments": "{\"command\": \"cd /work && python -c \\\"\\nfrom solution import slugify\\ncases = ['', '  ', '___', 'Hello, World!', 'Crème brûlée', 'Привет мир', 'Straße', '１２３ abc', '-a--b-', 'a_b\\\\tc\\\\nd']\\nfor c in cases:\\n    print(repr(c), '->', repr(slugify(c)))\\n\\\"\"}",
+                    "name": "RunCommand"
+                  },
+                  "id": "chatcmpl-tool-bebae0c001685983",
+                  "type": "function"
+                }
+              ],
+              "reasoning_content": "Maybe sanity check some edge cases.",
+              "provider_specific_fields": {
+                "reasoning": "Maybe sanity check some edge cases.",
+                "refusal": null
+              },
+              "content": null
+            },
+            "provider_specific_fields": {
+              "routed_experts": null,
+              "stop_reason": null,
+              "token_ids": null
+            }
+          }
+        ],
+        "usage": {
+          "completion_tokens": 132,
+          "prompt_tokens": 2215,
+          "total_tokens": 2347,
+          "completion_tokens_details": {
+            "reasoning_tokens": 7
+          }
+        }
+      }
+    },
+    {
+      "context_sha256": "acf109a57c35c3ce9873b63e7734b34849b9979439c8c2b8c1741d83e82d40b9",
+      "provider_response": {
+        "id": "chatcmpl-96792dc4ebda1bdf",
+        "created": 1795172110,
+        "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+        "object": "chat.completion",
+        "system_fingerprint": "vllm-0.32.0-tp8-150f5af4",
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "message": {
+              "content": "Implemented `slugify` in `solution.py`:\n\n- Applies Unicode `NFKC` normalization, then `casefold()`.\n- Keeps `str.isalnum()` characters (including non-Latin letters/digits).\n- Collapses each maximal run of other characters (whitespace, punctuation, underscores, etc.) into a single `-`.\n- Removes leading/trailing hyphens, naturally producing `''` for empty or separator-only input.\n- Uses only the standard library (`unicodedata`) and prints nothing.\n\nPublic tests pass:\n\n```text\ntest_example_0 ... ok\ntest_example_1 ... ok\nRan 2 tests ... OK\n```\n\nAdditional edge-case checks (empty/separator-only input, Unicode text, `ß` → `ss`, full-width digits, punctuation runs) also behaved as specified.",
+              "role": "assistant",
+              "provider_specific_fields": {
+                "reasoning": null,
+                "refusal": null
+              }
+            },
+            "provider_specific_fields": {
+              "routed_experts": null,
+              "stop_reason": null,
+              "token_ids": null
+            }
+          }
+        ],
+        "usage": {
+          "completion_tokens": 176,
+          "prompt_tokens": 2653,
+          "total_tokens": 2829,
+          "completion_tokens_details": {
+            "reasoning_tokens": 0
+          }
+        }
+      }
+    }
+  ]
+}

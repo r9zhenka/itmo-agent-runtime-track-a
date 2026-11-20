@@ -97,7 +97,7 @@ class MeasurementTests(unittest.TestCase):
     def test_unified_suite_contains_real_checks_without_download_commands(self):
         steps = dict(commands("python3", "/installed/rclone"))
         self.assertEqual(set(steps), {"offline-unit-cli-http", "docker-isolation", "isolated-code-grader",
-                                     "adversarial-hardening", "full-synthetic-baf", "real-webdav"})
+                                     "adversarial-hardening", "full-synthetic-baf", "real-webdav", "mount-helper-sigkill"})
         for command in steps.values():
             self.assertNotIn("curl", command)
             self.assertNotIn("pip", command)
