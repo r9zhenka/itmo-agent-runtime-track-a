@@ -3,8 +3,10 @@ import ast
 import csv
 import io
 import json
+import re
 
 from .artifacts import read_file
+from .observations import observed_passing_unittest, observed_stdout_line
 from .json_output import read_answer, require_equal, unique_object, invalid_constant
 
 
@@ -32,6 +34,63 @@ def command_observed(events, *, code=0, stdout=None, stderr_contains=None):
         if stdout is not None and result.get("stdout", "").strip() != stdout:
             continue
         if stderr_contains is not None and stderr_contains not in result.get("stderr", ""):
+            continue
+        return True
+    return False
+
+
+def observed_degraded_probe(events):
+    """Validate direct probe output or an explicitly labelled child capture.
+
+    Wrapper grammar: EXIT=3, --- STDOUT ---, two probe stdout lines,
+    --- STDERR ---, the exact warning; optionally --- LAST STDOUT LINE ---
+    and a duplicate JSON record. Spaces inside headers and CRLF are accepted.
+    This is textual observation, not proof against a forged full transcript.
+    """
+    expected = {"healthy": 2, "total": 3, "status": "degraded"}
+    warning = "one replica unavailable; no automatic retry"
+
+    def valid_json(raw):
+        try:
+            data = json.loads(raw, object_pairs_hook=unique_object,
+                              parse_constant=invalid_constant)
+            require_equal(data, expected)
+            return True
+        except (TypeError, ValueError):
+            return False
+
+    def valid_streams(stdout, stderr):
+        lines = stdout.strip().splitlines()
+        return (len(lines) == 2 and lines[0] == "Checking replicas..."
+                and valid_json(lines[1]) and stderr.strip() == warning)
+
+    def header(line, label):
+        return re.fullmatch(r"---[ \t]*" + label + r"[ \t]*---", line) is not None
+
+    for event in events:
+        if event.get("type") != "tool_result" or event.get("tool") != "RunCommand":
+            continue
+        result = event.get("result")
+        if not isinstance(result, dict) or result.get("truncated") is not False:
+            continue
+        stdout, stderr = result.get("stdout"), result.get("stderr")
+        if not isinstance(stdout, str) or not isinstance(stderr, str):
+            continue
+        code, error = result.get("exit_code"), result.get("error", "missing")
+        if type(code) is not int:
+            continue
+        if code == 3 and (error is None or isinstance(error, dict) and error.get("kind") == "command"):
+            if valid_streams(stdout, stderr):
+                return True
+        if code != 0 or error is not None:
+            continue
+        lines = stdout.strip().splitlines()
+        if (len(lines) not in (6, 8) or re.fullmatch(r"EXIT[ \t]*=[ \t]*3", lines[0]) is None
+                or not header(lines[1], "STDOUT") or not header(lines[4], "STDERR")):
+            continue
+        if not valid_streams("\n".join(lines[2:4]), lines[5]):
+            continue
+        if len(lines) == 8 and (not header(lines[6], "LAST STDOUT LINE") or not valid_json(lines[7])):
             continue
         return True
     return False
@@ -142,8 +201,8 @@ def duration_integration(workspace, events):
             covered.add((call.args[0].value, node.args[1].value))
     require({("1h2m3s", 3723), ("0s", 0), ("60m", None)} <= covered,
             "Add direct unittest assertions for all three specified public examples")
-    require(command_observed(events, stderr_contains="Ran 3 tests"), "Three public tests were not observed passing")
-    require(command_observed(events, stdout="3723"), "CLI result was not observed")
+    require(observed_passing_unittest(events, 3), "Three public tests were not observed passing")
+    require(observed_stdout_line(events, "3723"), "CLI result was not observed")
 
 
 def check(case, workspace, events, code_evaluator=None):
@@ -166,10 +225,10 @@ def check(case, workspace, events, code_evaluator=None):
             require(read_file(workspace, "service.ini") == expected, "Unexpected INI byte changes")
         elif identifier == "B5.4":
             preserve(case, workspace)
-            require(command_observed(events, code=3, stderr_contains="no automatic retry"), "Probe command result was not observed")
+            require(observed_degraded_probe(events), "Probe exit and streams were not observed")
             require_equal(read_answer(workspace), {"status": "degraded", "exit_code": 3, "healthy": 2, "total": 3, "retry": False})
         elif identifier == "B6.4":
-            require(command_observed(events, stderr_contains="Ran 2 tests"), "Public tests were not observed passing")
+            require(observed_passing_unittest(events, 2), "Public tests were not observed passing")
         elif identifier == "B7.4":
             require_equal(read_answer(workspace), maintenance_answer(fixture))
         elif identifier == "B8.4":
@@ -184,7 +243,7 @@ def check(case, workspace, events, code_evaluator=None):
             require(read_file(workspace, name).decode("utf-8") == expected, "Facts or requested style constraints differ")
         elif identifier == "C1":
             preserve(case, workspace, (case["source_file"],))
-            require(command_observed(events, stderr_contains="Ran 2 tests"), "Regression tests were not observed passing")
+            require(observed_passing_unittest(events, 2), "Regression tests were not observed passing")
         elif identifier == "C2":
             preserve(case, workspace)
             require_equal(read_answer(workspace), department_answer(fixture))

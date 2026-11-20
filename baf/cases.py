@@ -18,6 +18,7 @@ from .synthesis_cases import cases as synthesis_cases
 from .synthesis_checks import check as check_synthesis
 from .additional_cases import cases as additional_cases
 from .additional_checks import check as check_additional
+from .observations import observed_passing_unittest
 
 
 def command(code):
@@ -186,9 +187,7 @@ def check(case, workdir, events, code_evaluator=None):
         elif kind == "rename":
             for name, original in case["fixture"].items():
                 assert read(name) == original.replace("calc_total", "compute_total").encode()
-            assert any(e["type"] == "tool_result" and e.get("tool") == "RunCommand"
-                       and e["result"].get("exit_code") == 0
-                       and "Ran 2 tests" in e["result"].get("stderr", "") for e in events), "Tests were not observed passing in sandbox"
+            assert observed_passing_unittest(events, 2), "Tests were not observed passing in sandbox"
         elif kind == "median":
             assert float(text("answer.txt")) == 7
         elif kind == "build":

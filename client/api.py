@@ -78,7 +78,9 @@ class Client:
         except (OSError, ValueError, urllib.error.URLError):
             raise Fault("transport", "Event connection interrupted", 502, True) from None
 
-    def watch(self, session_id, run_id, after=0, timeout=210):
+    def watch(self, session_id, run_id, after=0, timeout=900):
+        # Cover the configured 600s run deadline plus an in-flight model RPC
+        # and cleanup; a slow valid run must not lose its result at 210s.
         deadline = time.monotonic() + timeout
         backoff = 0.1
         while time.monotonic() < deadline:

@@ -13,18 +13,33 @@ from client.api import Client, settings
 from client.remote import RemoteClient
 
 
+def record_cleanup_failure(result, exc):
+    result["cleanup_error"] = {"kind": getattr(exc, "kind", "transport"), "message": str(exc)}
+    if not result.get("error_kind"):
+        result["error_kind"] = "transport"
+        result["reason"] = "Session cleanup failed: " + str(exc)
+    result["pass"] = False
+
+
 def run_case(client, case, root, repeat=1, code_evaluator=None):
     name = "baf-" + case["id"].replace(".", "-") + "-" + uuid.uuid4().hex[:10]
     workspace = Path(root) / name
-    prepare(case, workspace)
-    sid, events = None, []
+    sid, run, final, events = None, None, None, []
+    result = {"task": case["id"], "repeat": repeat, "pass": False,
+              "reason": "Run did not complete", "error_kind": None, "workspace": str(workspace)}
     started = time.monotonic()
     try:
+        prepare(case, workspace)
         sid = client.create(str(workspace.resolve()) if isinstance(client, RemoteClient) else name)
+        result["session_id"] = sid
         run = client.send(sid, prompt(case))
-        events = list(client.watch(sid, run))
+        result.update({"run_id": run, "trace_id": run})
+        # Keep already received evidence if the iterator later raises. Constructing
+        # list(watch(...)) discards those events when the stream is interrupted.
+        for event in client.watch(sid, run):
+            events.append(event)
         final = next(e for e in reversed(events) if e["type"] == "result" and e["run_id"] == run)
-        generation_ms = round((time.monotonic() - started) * 1000, 3)
+        result["generation_ms"] = round((time.monotonic() - started) * 1000, 3)
         if case.get("check") == "python_function" or case.get("code_task"):
             # Stop all agent processes before taking a stable data-only snapshot.
             # Hidden inputs/results never enter the agent's conversation.
@@ -35,15 +50,28 @@ def run_case(client, case, root, repeat=1, code_evaluator=None):
         verdict["pass"] &= final["outcome"] == "success"
         if final["outcome"] != "success":
             verdict["reason"] = json.dumps(final.get("error", final["outcome"]))
-        models = [{"provider": e["provider"], "model": e["model"]} for e in events if e["type"] == "model"]
-        return {"task": case["id"], "repeat": repeat, **verdict,
-                "error_kind": (final.get("error") or {}).get("kind"),
-                "duration_ms": round((time.monotonic() - started) * 1000, 3), "generation_ms": generation_ms,
-                "tokens": final["tokens"], "model": models[0] if models else None,
-                "session_id": final["session_id"], "trace_id": run, "workspace": str(workspace)}
+        result.update({**verdict, "error_kind": (final.get("error") or {}).get("kind")})
+    except Exception as exc:
+        result.update({"pass": False, "reason": str(exc), "error_kind": getattr(exc, "kind", "unknown")})
     finally:
+        model_events = [e for e in events if e.get("type") == "model" and e.get("run_id") == run]
+        result.update({
+            "tokens": final["tokens"] if final is not None else sum(e.get("tokens", 0) for e in model_events),
+            "model": ({"provider": model_events[0]["provider"], "model": model_events[0]["model"]}
+                      if model_events else None),
+            "event_cursor": max((e.get("seq", 0) for e in events), default=0),
+            "usage_partial": (final is None or final.get("outcome") == "cancelled"
+                              or (final.get("error") or {}).get("kind") in
+                              ("model", "timeout", "transport", "unknown")),
+        })
+        result.setdefault("generation_ms", round((time.monotonic() - started) * 1000, 3))
         if sid:
-            client.release(sid)
+            try:
+                client.release(sid)
+            except Exception as exc:
+                record_cleanup_failure(result, exc)
+        result["duration_ms"] = round((time.monotonic() - started) * 1000, 3)
+    return result
 
 
 def main():
@@ -86,8 +114,7 @@ def main():
                 try:
                     client.close()
                 except Exception as exc:
-                    result.update({"pass": False, "reason": "Remote cleanup failed",
-                                   "error_kind": "transport"})
+                    record_cleanup_failure(result, exc)
         return result
     output = Path(args.output)
     output.parent.mkdir(parents=True, exist_ok=True)
@@ -113,7 +140,8 @@ def main():
                 result["timestamp"] = time.time()
                 tokens += result.get("tokens", 0)
                 # Failed requests can consume provider tokens without reporting usage.
-                uncertain = not result.get("model") or result.get("error_kind") in ("model", "timeout", "transport", "unknown")
+                uncertain = (result.get("usage_partial") or not result.get("model")
+                             or result.get("error_kind") in ("model", "timeout", "transport", "unknown"))
                 charged += max(result.get("tokens", 0), args.run_token_reserve if uncertain else 0)
                 result["campaign_tokens"] = tokens
                 result["campaign_budget_charged"] = charged

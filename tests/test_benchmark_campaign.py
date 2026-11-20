@@ -103,6 +103,15 @@ class CampaignTests(unittest.TestCase):
         self.assertFalse(rows[0]["quality_evaluation"])
         self.assertEqual(rows[0]["model"]["provider"], "synthetic-replay")
 
+    def test_explicit_partial_usage_reserves_budget_even_for_other_error_kinds(self):
+        def runner(client, case, root, repeat):
+            return {**self.result(case, repeat, tokens=10, success=False, error_kind="validation"),
+                    "usage_partial": True}
+        status, rows, clients, _ = self.invoke(runner, tasks=2, budget=150, reserve=100)
+        self.assertEqual(status, 2)
+        self.assertEqual(len(clients), 1)
+        self.assertEqual(rows[0]["campaign_budget_charged"], 100)
+
     def test_last_failed_run_returns_failure_not_budget_exhaustion(self):
         status, rows, _, _ = self.invoke(
             lambda client, case, root, repeat: self.result(case, repeat, tokens=10,

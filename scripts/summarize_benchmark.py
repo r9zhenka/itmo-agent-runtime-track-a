@@ -52,7 +52,7 @@ def provenance(record):
 
 
 def usage_uncertain(record):
-    return (provenance(record) is None or "tokens" not in record
+    return (record.get("usage_partial") is True or provenance(record) is None or "tokens" not in record
             or record.get("error_kind") in UNCERTAIN_ERRORS
             or (provenance(record) == "live" and record.get("tokens") == 0))
 
@@ -95,6 +95,8 @@ def validate_records(records, tasks, repeats, pairs=None):
                 raise ValueError("Replay cannot be model-quality evidence")
         if "tokens" in record and (type(record["tokens"]) is not int or record["tokens"] < 0):
             raise ValueError("Reported token usage must be a nonnegative integer")
+        if "usage_partial" in record and type(record["usage_partial"]) is not bool:
+            raise ValueError("usage_partial must be a boolean")
         for field in ("duration_ms", "generation_ms"):
             if field in record and (type(record[field]) not in (int, float)
                                     or not math.isfinite(record[field]) or record[field] < 0):

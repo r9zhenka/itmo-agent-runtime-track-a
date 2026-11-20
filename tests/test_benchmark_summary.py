@@ -15,6 +15,13 @@ def attempt(task="B1.1", repeat=1, passed=True, pair="custom+model-a", provider=
 
 
 class BenchmarkSummaryTests(unittest.TestCase):
+    def test_partial_usage_marker_preserves_unknown_charges_without_error_kind(self):
+        report = summarize_campaign([attempt(passed=False, usage_partial=True)], ["B1.1"], 1)
+        self.assertEqual(report["usage_unknown_runs"], 1)
+        self.assertEqual(report["reported_tokens_total"], 100)
+        with self.assertRaisesRegex(ValueError, "usage_partial"):
+            summarize_campaign([attempt(usage_partial="false")], ["B1.1"], 1)
+
     def test_complete_matrix_preserves_failures_repeat_rates_and_spread(self):
         rows = [attempt(task, repeat, passed=(task == "B1.1" or repeat == 2))
                 for task in ("B1.1", "B1.2") for repeat in (1, 2, 3)]
