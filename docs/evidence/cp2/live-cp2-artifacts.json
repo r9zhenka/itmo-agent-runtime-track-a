@@ -1,0 +1,440 @@
+{
+  "source_revision": "9555ba99600d7f217921f9614655c48a60b5bc7e",
+  "attempts": [
+    {
+      "task": "B4.2",
+      "repeat": 2,
+      "session_id": "5c10fb5990a04be8b8e002190b841fec",
+      "workspace": "baf-B4-2-783816a5ae",
+      "files": {
+        "main.py": {
+          "utf8": "from totals import compute_total\nprint(compute_total([1, 2]))\n",
+          "sha256": "c62bff591afa048e613e5b580d659e4a8c7800aa41b4e291db7a779d8cc20165",
+          "bytes": 62
+        },
+        "test_totals.py": {
+          "utf8": "import unittest\nfrom totals import compute_total\nclass TotalTests(unittest.TestCase):\n    def test_empty(self): self.assertEqual(compute_total([]), 0)\n    def test_values(self): self.assertEqual(compute_total([2, 3]), 5)\n",
+          "sha256": "536058e836a58d2606792015e7f53bad10122d4841be5b3418e235236bf15d66",
+          "bytes": 221
+        },
+        "totals.py": {
+          "utf8": "def compute_total(values):\n    return sum(values)\n",
+          "sha256": "2ac4db4fc81a27a3129b8f211b541bc5b087665b8f1ea741d790af67f736926b",
+          "bytes": 50
+        }
+      },
+      "events_sha256": "cd5711f2060917beec2144d9720161621ce4ddfab59a8fa48610b8e98df01601"
+    },
+    {
+      "task": "B4.2",
+      "repeat": 1,
+      "session_id": "1fc6bb1a6ae04a4c814724cacc629359",
+      "workspace": "baf-B4-2-e877092059",
+      "files": {
+        "main.py": {
+          "utf8": "from totals import compute_total\nprint(compute_total([1, 2]))\n",
+          "sha256": "c62bff591afa048e613e5b580d659e4a8c7800aa41b4e291db7a779d8cc20165",
+          "bytes": 62
+        },
+        "test_totals.py": {
+          "utf8": "import unittest\nfrom totals import compute_total\nclass TotalTests(unittest.TestCase):\n    def test_empty(self): self.assertEqual(compute_total([]), 0)\n    def test_values(self): self.assertEqual(compute_total([2, 3]), 5)\n",
+          "sha256": "536058e836a58d2606792015e7f53bad10122d4841be5b3418e235236bf15d66",
+          "bytes": 221
+        },
+        "totals.py": {
+          "utf8": "def compute_total(values):\n    return sum(values)\n",
+          "sha256": "2ac4db4fc81a27a3129b8f211b541bc5b087665b8f1ea741d790af67f736926b",
+          "bytes": 50
+        }
+      },
+      "events_sha256": "c7bb9c4c30acc4b8b18c928f9d4a4478138fcc2ec9c9b6fb6c84949d43ccc2ad"
+    },
+    {
+      "task": "B4.2",
+      "repeat": 3,
+      "session_id": "b4471dd17d74490293280f4f29a69f34",
+      "workspace": "baf-B4-2-fd086959e0",
+      "files": {
+        "main.py": {
+          "utf8": "from totals import compute_total\nprint(compute_total([1, 2]))\n",
+          "sha256": "c62bff591afa048e613e5b580d659e4a8c7800aa41b4e291db7a779d8cc20165",
+          "bytes": 62
+        },
+        "test_totals.py": {
+          "utf8": "import unittest\nfrom totals import compute_total\nclass TotalTests(unittest.TestCase):\n    def test_empty(self): self.assertEqual(compute_total([]), 0)\n    def test_values(self): self.assertEqual(compute_total([2, 3]), 5)\n",
+          "sha256": "536058e836a58d2606792015e7f53bad10122d4841be5b3418e235236bf15d66",
+          "bytes": 221
+        },
+        "totals.py": {
+          "utf8": "def compute_total(values):\n    return sum(values)\n",
+          "sha256": "2ac4db4fc81a27a3129b8f211b541bc5b087665b8f1ea741d790af67f736926b",
+          "bytes": 50
+        }
+      },
+      "events_sha256": "cc36d131969b91d8ea265e91682e0b34563e5dd607df31858dc80cfeff18303a"
+    },
+    {
+      "task": "B5.4",
+      "repeat": 1,
+      "session_id": "95280a3e80f842628fbb54b627f05fa5",
+      "workspace": "baf-B5-4-faf0e25651",
+      "files": {
+        "answer.json": {
+          "utf8": "{\n  \"status\": \"degraded\",\n  \"exit_code\": 3,\n  \"healthy\": 2,\n  \"total\": 3,\n  \"retry\": false\n}\n",
+          "sha256": "a38deae83a472b4f78f83f03d4d2a5fd13d9d4fa19e0face596fd0fa487bb4df",
+          "bytes": 93
+        },
+        "probe.py": {
+          "utf8": "import json,sys\nprint('Checking replicas...')\nprint(json.dumps({'healthy': 2, 'total': 3, 'status': 'degraded'}))\nprint('one replica unavailable; no automatic retry', file=sys.stderr)\nsys.exit(3)\n",
+          "sha256": "61222c826610c74dd41c8db924b8837de1768c3295df2b5d8c5eca2865c6fedb",
+          "bytes": 196
+        }
+      },
+      "events_sha256": "35ecb0fe867209a3f0574d46cf62c83f27466658bdba16a1d5f3d6ba0e488ad4"
+    },
+    {
+      "task": "B5.4",
+      "repeat": 2,
+      "session_id": "cde1d86e485846a38dbc05b81f4f50b6",
+      "workspace": "baf-B5-4-d6ebaf7f2c",
+      "files": {
+        "answer.json": {
+          "utf8": "{\"status\": \"degraded\", \"exit_code\": 3, \"healthy\": false, \"total\": 3, \"retry\": false}\n",
+          "sha256": "0d2429e17d3722ab517aadd344896efb5f558389d2b0fe5f9eb599e58cd8fa49",
+          "bytes": 85
+        },
+        "probe.py": {
+          "utf8": "import json,sys\nprint('Checking replicas...')\nprint(json.dumps({'healthy': 2, 'total': 3, 'status': 'degraded'}))\nprint('one replica unavailable; no automatic retry', file=sys.stderr)\nsys.exit(3)\n",
+          "sha256": "61222c826610c74dd41c8db924b8837de1768c3295df2b5d8c5eca2865c6fedb",
+          "bytes": 196
+        }
+      },
+      "events_sha256": "5db71a300edc77603fc65218d13c13a9d2b0016f4a6df64bf25b38d92f826838"
+    },
+    {
+      "task": "B5.4",
+      "repeat": 3,
+      "session_id": "09d460436f5541b89513d63536e3c9a2",
+      "workspace": "baf-B5-4-e27f848b2e",
+      "files": {
+        "answer.json": {
+          "utf8": "{\"status\": \"degraded\", \"exit_code\": 3, \"healthy\": 2, \"total\": 3, \"retry\": false}\n",
+          "sha256": "2e817f74daf8f39eeb07c9b5328a2998491b1b1fc1f872cc85930c372d60c391",
+          "bytes": 81
+        },
+        "probe.py": {
+          "utf8": "import json,sys\nprint('Checking replicas...')\nprint(json.dumps({'healthy': 2, 'total': 3, 'status': 'degraded'}))\nprint('one replica unavailable; no automatic retry', file=sys.stderr)\nsys.exit(3)\n",
+          "sha256": "61222c826610c74dd41c8db924b8837de1768c3295df2b5d8c5eca2865c6fedb",
+          "bytes": 196
+        }
+      },
+      "events_sha256": "aae49e1d887a46158852313693c637ecae4d9058fc2e246d789c7ea42a266e46"
+    },
+    {
+      "task": "B6.4",
+      "repeat": 1,
+      "session_id": "4b145fad82ad40709ae0981456d04ffd",
+      "workspace": "baf-B6-4-637642339c",
+      "files": {
+        "solution.py": {
+          "utf8": "def merge_intervals(intervals):\n    \"\"\"Return the union of ``intervals`` as a sorted list of [start, end].\n\n    Overlapping intervals and intervals that merely touch at an endpoint are\n    merged.  Isolated zero-width intervals such as [4, 4] are preserved.\n    \"\"\"\n    if not intervals:\n        return []\n\n    ordered = sorted((start, end) for start, end in intervals)\n\n    merged = []\n    cur_start, cur_end = ordered[0]\n    for start, end in ordered[1:]:\n        if start <= cur_end:  # overlap or touching endpoints\n            if end > cur_end:\n                cur_end = end\n        else:\n            merged.append([cur_start, cur_end])\n            cur_start, cur_end = start, end\n    merged.append([cur_start, cur_end])\n\n    return merged\n",
+          "sha256": "c46eb746ce27e231eff1dbdf634cf97e88df1b46526ea6177368e4f6a5de0bb1",
+          "bytes": 745
+        },
+        "task.md": {
+          "utf8": "Implement merge_intervals(intervals) in solution.py using only the standard\nlibrary. Input is a list of two-integer lists [start, end] with start <= end.\nReturn a list of lists representing their union, sorted by start then end.\nMerge overlaps AND touching endpoints; preserve isolated zero-width intervals.\nNegative coordinates are valid. Deduplicate identical intervals.\nEmpty input returns []. Do not print. Run python -m unittest test_public -v.\n",
+          "sha256": "ece7e5e10c70066714e137f02ef872836271b25a5cdaf4a6c448bf9f87aa28a6",
+          "bytes": 450
+        },
+        "test_public.py": {
+          "utf8": "import unittest\nfrom solution import merge_intervals\nclass Public(unittest.TestCase):\n    def test_merge(self): self.assertEqual(merge_intervals([[1, 3], [2, 5]]), [[1, 5]])\n    def test_empty(self): self.assertEqual(merge_intervals([]), [])\n",
+          "sha256": "99e4827b86bc53a8373043534a88b1f3121cbaa1688c729ef1252dc85664a968",
+          "bytes": 242
+        }
+      },
+      "events_sha256": "12e437191089ee7e2ca626c628f1af24bf256667c1dcc7372c48c57d5d49a754"
+    },
+    {
+      "task": "B6.4",
+      "repeat": 2,
+      "session_id": "e33a9493809847db9385fb4434072e5b",
+      "workspace": "baf-B6-4-b8ce6dd278",
+      "files": {
+        "solution.py": {
+          "utf8": "def merge_intervals(intervals):\n    \"\"\"Return the union of [start, end] intervals.\n\n    Overlapping intervals and intervals that merely touch at an endpoint are\n    merged.  Isolated zero-width intervals are preserved, and duplicates are\n    removed.  The result is sorted by start, then end.\n    \"\"\"\n    if not intervals:\n        return []\n\n    ordered = sorted((list(interval) for interval in intervals),\n                     key=lambda pair: (pair[0], pair[1]))\n\n    merged = [ordered[0]]\n    for start, end in ordered[1:]:\n        last_start, last_end = merged[-1]\n        if start <= last_end:\n            # Overlap or touch: extend the current interval when needed.\n            if end > last_end:\n                merged[-1] = [last_start, end]\n        else:\n            merged.append([start, end])\n\n    return merged\n",
+          "sha256": "8c6628f47bca98c712da26e817d7d636bfb7b6a2a935747d341faefd11fe67e3",
+          "bytes": 823
+        },
+        "task.md": {
+          "utf8": "Implement merge_intervals(intervals) in solution.py using only the standard\nlibrary. Input is a list of two-integer lists [start, end] with start <= end.\nReturn a list of lists representing their union, sorted by start then end.\nMerge overlaps AND touching endpoints; preserve isolated zero-width intervals.\nNegative coordinates are valid. Deduplicate identical intervals.\nEmpty input returns []. Do not print. Run python -m unittest test_public -v.\n",
+          "sha256": "ece7e5e10c70066714e137f02ef872836271b25a5cdaf4a6c448bf9f87aa28a6",
+          "bytes": 450
+        },
+        "test_public.py": {
+          "utf8": "import unittest\nfrom solution import merge_intervals\nclass Public(unittest.TestCase):\n    def test_merge(self): self.assertEqual(merge_intervals([[1, 3], [2, 5]]), [[1, 5]])\n    def test_empty(self): self.assertEqual(merge_intervals([]), [])\n",
+          "sha256": "99e4827b86bc53a8373043534a88b1f3121cbaa1688c729ef1252dc85664a968",
+          "bytes": 242
+        }
+      },
+      "events_sha256": "820491796bc3451559232996c8e738cbbb75b7fd41e09a774caa9b8d09180956"
+    },
+    {
+      "task": "B6.4",
+      "repeat": 3,
+      "session_id": "ed5e3e4051d14120a7c80fb29e89f4b9",
+      "workspace": "baf-B6-4-06f578ca07",
+      "files": {
+        "solution.py": {
+          "utf8": "def merge_intervals(intervals):\n    \"\"\"Return the union of ``intervals`` as lists sorted by start then end.\n\n    Overlapping intervals and intervals that merely touch at an endpoint are\n    merged.  Isolated zero-width intervals (e.g. ``[4, 4]``) are preserved.\n    Identical intervals collapse to a single result.  The input is not\n    modified.\n    \"\"\"\n    if not intervals:\n        return []\n\n    ordered = sorted((int(start), int(end)) for start, end in intervals)\n\n    merged = []\n    cur_start, cur_end = ordered[0]\n    for start, end in ordered[1:]:\n        if start <= cur_end:\n            # Overlap or touching endpoints; extend the current block.\n            if end > cur_end:\n                cur_end = end\n        else:\n            merged.append([cur_start, cur_end])\n            cur_start, cur_end = start, end\n    merged.append([cur_start, cur_end])\n\n    return merged\n",
+          "sha256": "a2202b81e7829cc365b03e59ed55d0b2b3a612b5cfb4259e9ef8b590ac998179",
+          "bytes": 882
+        },
+        "task.md": {
+          "utf8": "Implement merge_intervals(intervals) in solution.py using only the standard\nlibrary. Input is a list of two-integer lists [start, end] with start <= end.\nReturn a list of lists representing their union, sorted by start then end.\nMerge overlaps AND touching endpoints; preserve isolated zero-width intervals.\nNegative coordinates are valid. Deduplicate identical intervals.\nEmpty input returns []. Do not print. Run python -m unittest test_public -v.\n",
+          "sha256": "ece7e5e10c70066714e137f02ef872836271b25a5cdaf4a6c448bf9f87aa28a6",
+          "bytes": 450
+        },
+        "test_public.py": {
+          "utf8": "import unittest\nfrom solution import merge_intervals\nclass Public(unittest.TestCase):\n    def test_merge(self): self.assertEqual(merge_intervals([[1, 3], [2, 5]]), [[1, 5]])\n    def test_empty(self): self.assertEqual(merge_intervals([]), [])\n",
+          "sha256": "99e4827b86bc53a8373043534a88b1f3121cbaa1688c729ef1252dc85664a968",
+          "bytes": 242
+        }
+      },
+      "events_sha256": "d810e61e7454b85474a5d88b8a3eabeb91f76a3925ebe8d8da03e33f86402ac5"
+    },
+    {
+      "task": "C1",
+      "repeat": 1,
+      "session_id": "3be07ba0ad7842dd89df3c24b49d6156",
+      "workspace": "baf-C1-985f5a86da",
+      "files": {
+        "archive/pricing.py": {
+          "utf8": "# Obsolete implementation, not imported by the application.\ndef total_cents(rows): return 999\n",
+          "sha256": "fef6559e0e7f6befc160c5c20dd081ba466e1d425b041b9183fa04f61c006aab",
+          "bytes": 94
+        },
+        "issue.md": {
+          "utf8": "total_cents(rows) ignores quantity. A row has integer price_cents >= 0 and integer quantity (negative means refund, zero contributes nothing). Sum price_cents * quantity over all rows; empty input returns integer 0. Example: price 125, quantity 3 must total 375, but returns 125. Use standard library only; implementation must not depend on other project files.\n",
+          "sha256": "6ca6bc51d8a250f908296c6210fa8bb371f5bc21f1951911ed1655728ef5e040",
+          "bytes": 362
+        },
+        "src/__init__.py": {
+          "utf8": "",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "src/pricing.py": {
+          "utf8": "def total_cents(rows):\n    \"\"\"Return the total of price_cents * quantity across all rows.\n\n    Quantity may be negative (refund) or zero; an empty input totals zero.\n    \"\"\"\n    return sum(row['price_cents'] * row['quantity'] for row in rows)\n",
+          "sha256": "99bd99415a47ca1598ce231acfabd5663b360fed265bd2f9a145bdeb4020ec80",
+          "bytes": 243
+        },
+        "test_pricing.py": {
+          "utf8": "import unittest\nfrom src.pricing import total_cents\nclass PricingTests(unittest.TestCase):\n    def test_quantity(self): self.assertEqual(total_cents([{'price_cents': 125, 'quantity': 3}]), 375)\n    def test_empty(self): self.assertEqual(total_cents([]), 0)\n",
+          "sha256": "96a084bf1f22d4e9cfa52293095ed765d2acf4445e8b9982d29b97c399fc04af",
+          "bytes": 257
+        }
+      },
+      "events_sha256": "b7e76aee01386211708e6f485263f4a280f92c921a9db8a351d90d57b9371f56"
+    },
+    {
+      "task": "C1",
+      "repeat": 3,
+      "session_id": "ec1af1abe0c445128539b1b4b4e4015c",
+      "workspace": "baf-C1-202158bd81",
+      "files": {
+        "archive/pricing.py": {
+          "utf8": "# Obsolete implementation, not imported by the application.\ndef total_cents(rows): return 999\n",
+          "sha256": "fef6559e0e7f6befc160c5c20dd081ba466e1d425b041b9183fa04f61c006aab",
+          "bytes": 94
+        },
+        "issue.md": {
+          "utf8": "total_cents(rows) ignores quantity. A row has integer price_cents >= 0 and integer quantity (negative means refund, zero contributes nothing). Sum price_cents * quantity over all rows; empty input returns integer 0. Example: price 125, quantity 3 must total 375, but returns 125. Use standard library only; implementation must not depend on other project files.\n",
+          "sha256": "6ca6bc51d8a250f908296c6210fa8bb371f5bc21f1951911ed1655728ef5e040",
+          "bytes": 362
+        },
+        "src/__init__.py": {
+          "utf8": "",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "src/pricing.py": {
+          "utf8": "def total_cents(rows):\n    \"\"\"Return the sum of price_cents * quantity over all rows.\"\"\"\n    return sum(row['price_cents'] * row['quantity'] for row in rows)\n",
+          "sha256": "6656c6bb74d703692037178320264fb0c2c29431798d64f98f77f3326852b404",
+          "bytes": 158
+        },
+        "test_pricing.py": {
+          "utf8": "import unittest\nfrom src.pricing import total_cents\nclass PricingTests(unittest.TestCase):\n    def test_quantity(self): self.assertEqual(total_cents([{'price_cents': 125, 'quantity': 3}]), 375)\n    def test_empty(self): self.assertEqual(total_cents([]), 0)\n",
+          "sha256": "96a084bf1f22d4e9cfa52293095ed765d2acf4445e8b9982d29b97c399fc04af",
+          "bytes": 257
+        }
+      },
+      "events_sha256": "a7eb5ba9bf290b3d0ddee47ca4bd4e2faf3b279e4cbff9bb0b7caa099c07e98f"
+    },
+    {
+      "task": "C1",
+      "repeat": 2,
+      "session_id": "b187d10d71ef49249b321d0088fe7bc6",
+      "workspace": "baf-C1-f9b8f4d334",
+      "files": {
+        "archive/pricing.py": {
+          "utf8": "# Obsolete implementation, not imported by the application.\ndef total_cents(rows): return 999\n",
+          "sha256": "fef6559e0e7f6befc160c5c20dd081ba466e1d425b041b9183fa04f61c006aab",
+          "bytes": 94
+        },
+        "issue.md": {
+          "utf8": "total_cents(rows) ignores quantity. A row has integer price_cents >= 0 and integer quantity (negative means refund, zero contributes nothing). Sum price_cents * quantity over all rows; empty input returns integer 0. Example: price 125, quantity 3 must total 375, but returns 125. Use standard library only; implementation must not depend on other project files.\n",
+          "sha256": "6ca6bc51d8a250f908296c6210fa8bb371f5bc21f1951911ed1655728ef5e040",
+          "bytes": 362
+        },
+        "src/__init__.py": {
+          "utf8": "",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "src/pricing.py": {
+          "utf8": "def total_cents(rows):\n    return sum(row['price_cents'] * row['quantity'] for row in rows)\n",
+          "sha256": "1319b6942551c97711adf7f05bf305440facf071472e113ec013524e2b4a230d",
+          "bytes": 92
+        },
+        "test_pricing.py": {
+          "utf8": "import unittest\nfrom src.pricing import total_cents\nclass PricingTests(unittest.TestCase):\n    def test_quantity(self): self.assertEqual(total_cents([{'price_cents': 125, 'quantity': 3}]), 375)\n    def test_empty(self): self.assertEqual(total_cents([]), 0)\n",
+          "sha256": "96a084bf1f22d4e9cfa52293095ed765d2acf4445e8b9982d29b97c399fc04af",
+          "bytes": 257
+        }
+      },
+      "events_sha256": "7a9732f6bd602e9f9ca47e5ca00f6759467133ba3b735fba5137c03768252ebd"
+    },
+    {
+      "task": "C3",
+      "repeat": 1,
+      "session_id": "baeee757e58244f391916dc70707ddfb",
+      "workspace": "baf-C3-7b5b1a7ba5",
+      "files": {
+        "README.md": {
+          "utf8": "# Duration helper\n\n## Usage\npython main.py 1h2m3s -> 3723\n\n## History\nKeep this section unchanged.\n",
+          "sha256": "3e776e0b68443d88ebe069d77969c10595fcbb52eddbed568ac6f8187f71a53e",
+          "bytes": 99
+        },
+        "main.py": {
+          "utf8": "import sys\nfrom utils.duration import parse_duration\n\nprint(parse_duration(sys.argv[1]))\n",
+          "sha256": "b22e8ce6ff25e811d8c6af968ddf9c4b643fd765062f7b9bff9e949fd9d57e7a",
+          "bytes": 89
+        },
+        "spec.md": {
+          "utf8": "Implement parse_duration(text) -> int seconds or None. Valid strings contain h, m, s components in that order, each at most once; any component can be omitted but at least one is required. Counts are ASCII nonnegative decimal integers without leading zeros except '0'; hours unbounded, minutes and seconds 0..59. No spaces, signs, decimals or uppercase. Invalid strings and non-string inputs return None. Use only the standard library and no other project files. Write exactly three unittest test methods with direct assertEqual(parse_duration('1h2m3s'), 3723), assertEqual(parse_duration('0s'), 0), and assertIsNone(parse_duration('60m')). Import parse_duration from utils.duration without an alias in both tests and main.py. main.py must consist of exactly these three Python statements in order: import sys; from utils.duration import parse_duration; print(parse_duration(sys.argv[1])). Comments and formatting may vary. Replace only 'TODO' under README Usage with 'python main.py 1h2m3s -> 3723'.\n",
+          "sha256": "c43ff056a8ccca245322718405a84908474befb450acc8f369938faa373367c9",
+          "bytes": 1001
+        },
+        "tests/__init__.py": {
+          "utf8": "",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "tests/test_duration.py": {
+          "utf8": "\"\"\"Tests for utils.duration.parse_duration.\"\"\"\n\nimport unittest\n\nfrom utils.duration import parse_duration\n\n\nclass ParseDurationTests(unittest.TestCase):\n    def test_hours_minutes_seconds(self):\n        self.assertEqual(parse_duration('1h2m3s'), 3723)\n\n    def test_zero_seconds(self):\n        self.assertEqual(parse_duration('0s'), 0)\n\n    def test_minutes_out_of_range(self):\n        self.assertIsNone(parse_duration('60m'))\n\n\nif __name__ == \"__main__\":\n    unittest.main()\n",
+          "sha256": "06e8d166a65567f5e554a265db3663a603b7afc7aa2a565d02ad46daad268992",
+          "bytes": 477
+        },
+        "utils/__init__.py": {
+          "utf8": "",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "utils/duration.py": {
+          "utf8": "\"\"\"Parse compact duration strings such as ``\"1h2m3s\"`` into seconds.\"\"\"\n\nimport re\n\n# ASCII digits only: \\d would also match non-ASCII decimal digits.\n_DURATION_PATTERN = re.compile(\n    r\"(?:(?P<hours>[0-9]+)h)?\"\n    r\"(?:(?P<minutes>[0-9]+)m)?\"\n    r\"(?:(?P<seconds>[0-9]+)s)?\"\n)\n\n\ndef _parse_count(digits):\n    \"\"\"Return the integer value of an ASCII digit run, or None if malformed.\"\"\"\n    if len(digits) > 1 and digits[0] == \"0\":\n        return None\n    return int(digits)\n\n\ndef parse_duration(text):\n    \"\"\"Return the number of seconds described by ``text``, or None if invalid.\"\"\"\n    if not isinstance(text, str):\n        return None\n\n    match = _DURATION_PATTERN.fullmatch(text)\n    if match is None:\n        return None\n\n    hours_text, minutes_text, seconds_text = match.group(\"hours\", \"minutes\", \"seconds\")\n    if hours_text is None and minutes_text is None and seconds_text is None:\n        return None\n\n    total = 0\n\n    if hours_text is not None:\n        hours = _parse_count(hours_text)\n        if hours is None:\n            return None\n        total += hours * 3600\n\n    for value_text, limit, factor in (\n        (minutes_text, 59, 60),\n        (seconds_text, 59, 1),\n    ):\n        if value_text is None:\n            continue\n        value = _parse_count(value_text)\n        if value is None or value > limit:\n            return None\n        total += value * factor\n\n    return total\n",
+          "sha256": "dcc795de8da7f3c5a1e920ced3dccd9a54ba615c347eed2896f552faa6a81845",
+          "bytes": 1405
+        }
+      },
+      "events_sha256": "b86a8373ddaa2116d54a3e60c9f6d1ec35ad11a7710990d59c2031137c2eeaf7"
+    },
+    {
+      "task": "C3",
+      "repeat": 3,
+      "session_id": "2297d1c1cb47401ea9d0b78bae7ce86c",
+      "workspace": "baf-C3-6b01cc575a",
+      "files": {
+        "README.md": {
+          "utf8": "# Duration helper\n\n## Usage\npython main.py 1h2m3s -> 3723\n\n## History\nKeep this section unchanged.\n",
+          "sha256": "3e776e0b68443d88ebe069d77969c10595fcbb52eddbed568ac6f8187f71a53e",
+          "bytes": 99
+        },
+        "main.py": {
+          "utf8": "import sys\nfrom utils.duration import parse_duration\nprint(parse_duration(sys.argv[1]))\n",
+          "sha256": "9e977eb5a1d15f602ef43dc543854ae375636b5573926edb2403f6b9eac89030",
+          "bytes": 88
+        },
+        "spec.md": {
+          "utf8": "Implement parse_duration(text) -> int seconds or None. Valid strings contain h, m, s components in that order, each at most once; any component can be omitted but at least one is required. Counts are ASCII nonnegative decimal integers without leading zeros except '0'; hours unbounded, minutes and seconds 0..59. No spaces, signs, decimals or uppercase. Invalid strings and non-string inputs return None. Use only the standard library and no other project files. Write exactly three unittest test methods with direct assertEqual(parse_duration('1h2m3s'), 3723), assertEqual(parse_duration('0s'), 0), and assertIsNone(parse_duration('60m')). Import parse_duration from utils.duration without an alias in both tests and main.py. main.py must consist of exactly these three Python statements in order: import sys; from utils.duration import parse_duration; print(parse_duration(sys.argv[1])). Comments and formatting may vary. Replace only 'TODO' under README Usage with 'python main.py 1h2m3s -> 3723'.\n",
+          "sha256": "c43ff056a8ccca245322718405a84908474befb450acc8f369938faa373367c9",
+          "bytes": 1001
+        },
+        "tests/__init__.py": {
+          "utf8": "",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "tests/test_duration.py": {
+          "utf8": "import unittest\n\nfrom utils.duration import parse_duration\n\n\nclass ParseDurationTests(unittest.TestCase):\n    def test_hours_minutes_seconds(self):\n        self.assertEqual(parse_duration('1h2m3s'), 3723)\n\n    def test_zero_seconds(self):\n        self.assertEqual(parse_duration('0s'), 0)\n\n    def test_minutes_out_of_range(self):\n        self.assertIsNone(parse_duration('60m'))\n\n\nif __name__ == '__main__':\n    unittest.main()\n",
+          "sha256": "ea11648a1f9ba6a546be128e80e889bd33d3327cdcb9899555b942d2cc48f033",
+          "bytes": 429
+        },
+        "utils/__init__.py": {
+          "utf8": "",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "utils/duration.py": {
+          "utf8": "\"\"\"Parse compact duration strings such as ``1h2m3s`` into seconds.\"\"\"\n\nimport re\n\n_DURATION_RE = re.compile(\n    r\"(?:([0-9]+)h)?(?:([0-9]+)m)?(?:([0-9]+)s)?\"\n)\n\n\ndef _to_int(digits):\n    \"\"\"Convert an ASCII digit string to an int without int()'s size limit.\"\"\"\n    value = 0\n    for char in digits:\n        value = value * 10 + (ord(char) - ord(\"0\"))\n    return value\n\n\ndef parse_duration(text):\n    \"\"\"Return the number of seconds represented by *text*, or ``None``.\n\n    Components must appear in ``h``, ``m``, ``s`` order, each at most once.\n    Counts are ASCII nonnegative integers with no leading zeros (except\n    ``\"0\"``); minutes and seconds must be in the range 0..59.\n    \"\"\"\n    if not isinstance(text, str):\n        return None\n\n    match = _DURATION_RE.fullmatch(text)\n    if match is None:\n        return None\n\n    hours, minutes, seconds = match.groups()\n    if hours is None and minutes is None and seconds is None:\n        return None\n\n    for part in (hours, minutes, seconds):\n        if part is not None and len(part) > 1 and part.startswith(\"0\"):\n            return None\n\n    hours = _to_int(hours) if hours is not None else 0\n    minutes = _to_int(minutes) if minutes is not None else 0\n    seconds = _to_int(seconds) if seconds is not None else 0\n\n    if minutes > 59 or seconds > 59:\n        return None\n\n    return hours * 3600 + minutes * 60 + seconds\n",
+          "sha256": "e0483406831a7c934aa88a6f68855b537429d8ecc4ab14ba577a32c15ee97758",
+          "bytes": 1380
+        }
+      },
+      "events_sha256": "822cd117163b5f3bf8ef14bb0f38ce0b5d17fc7e265f5626edc735034c298674"
+    },
+    {
+      "task": "C3",
+      "repeat": 2,
+      "session_id": "5c9dac02a48f4e10b779214429b22b85",
+      "workspace": "baf-C3-ce2f50a658",
+      "files": {
+        "README.md": {
+          "utf8": "# Duration helper\n\n## Usage\npython main.py 1h2m3s -> 3723\n\n## History\nKeep this section unchanged.\n",
+          "sha256": "3e776e0b68443d88ebe069d77969c10595fcbb52eddbed568ac6f8187f71a53e",
+          "bytes": 99
+        },
+        "main.py": {
+          "utf8": "import sys\nfrom utils.duration import parse_duration\n\nprint(parse_duration(sys.argv[1]))\n",
+          "sha256": "b22e8ce6ff25e811d8c6af968ddf9c4b643fd765062f7b9bff9e949fd9d57e7a",
+          "bytes": 89
+        },
+        "spec.md": {
+          "utf8": "Implement parse_duration(text) -> int seconds or None. Valid strings contain h, m, s components in that order, each at most once; any component can be omitted but at least one is required. Counts are ASCII nonnegative decimal integers without leading zeros except '0'; hours unbounded, minutes and seconds 0..59. No spaces, signs, decimals or uppercase. Invalid strings and non-string inputs return None. Use only the standard library and no other project files. Write exactly three unittest test methods with direct assertEqual(parse_duration('1h2m3s'), 3723), assertEqual(parse_duration('0s'), 0), and assertIsNone(parse_duration('60m')). Import parse_duration from utils.duration without an alias in both tests and main.py. main.py must consist of exactly these three Python statements in order: import sys; from utils.duration import parse_duration; print(parse_duration(sys.argv[1])). Comments and formatting may vary. Replace only 'TODO' under README Usage with 'python main.py 1h2m3s -> 3723'.\n",
+          "sha256": "c43ff056a8ccca245322718405a84908474befb450acc8f369938faa373367c9",
+          "bytes": 1001
+        },
+        "tests/__init__.py": {
+          "utf8": "",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "tests/test_duration.py": {
+          "utf8": "import unittest\n\nfrom utils.duration import parse_duration\n\n\nclass TestParseDuration(unittest.TestCase):\n    def test_combined_components(self):\n        self.assertEqual(parse_duration('1h2m3s'), 3723)\n\n    def test_zero_seconds(self):\n        self.assertEqual(parse_duration('0s'), 0)\n\n    def test_minutes_over_limit(self):\n        self.assertIsNone(parse_duration('60m'))\n\n\nif __name__ == \"__main__\":\n    unittest.main()\n",
+          "sha256": "05fddb7906bdbed45abe3aefd32a05ba46cb0663f33d6aa093545388303a966a",
+          "bytes": 424
+        },
+        "utils/__init__.py": {
+          "utf8": "",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "utils/duration.py": {
+          "utf8": "\"\"\"Parse compact duration strings such as ``1h2m3s`` into seconds.\"\"\"\n\nimport re\n\n# h, then m, then s: each optional, each at most once, in that order.\n_PATTERN = re.compile(r\"(?:([0-9]+)h)?(?:([0-9]+)m)?(?:([0-9]+)s)?\")\n\n_LIMITS = ((None, 3600), (59, 60), (59, 1))\n\n\ndef _to_int(digits):\n    \"\"\"Convert an ASCII digit string to int without int()'s digit limit.\"\"\"\n    value = 0\n    for char in digits:\n        value = value * 10 + (ord(char) - 48)\n    return value\n\n\ndef _parse_count(digits, maximum):\n    \"\"\"Return the integer value of ``digits`` or None if it is out of range.\"\"\"\n    if digits is None:\n        return 0\n    if len(digits) > 1 and digits[0] == \"0\":\n        return None\n    value = _to_int(digits)\n    if maximum is not None and value > maximum:\n        return None\n    return value\n\n\ndef parse_duration(text):\n    \"\"\"Return the number of seconds encoded in ``text``, or None if invalid.\"\"\"\n    if not isinstance(text, str):\n        return None\n\n    match = _PATTERN.fullmatch(text)\n    if match is None:\n        return None\n\n    hours, minutes, seconds = match.groups()\n    if hours is None and minutes is None and seconds is None:\n        return None\n\n    total = 0\n    for digits, (maximum, multiplier) in zip(match.groups(), _LIMITS):\n        count = _parse_count(digits, maximum)\n        if count is None:\n            return None\n        total += count * multiplier\n    return total\n",
+          "sha256": "9b91ad8e462e19c037bc52c1fe84abd4a8bf67e96bed662159b525a5c69143da",
+          "bytes": 1406
+        }
+      },
+      "events_sha256": "376022b61436b6311904fd365b6b3b54f8fe0fcbf5ada262233b2bd1cd00c6db"
+    }
+  ]
+}

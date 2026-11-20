@@ -1,0 +1,630 @@
+{
+  "schema_version": 1,
+  "generated": {
+    "python": "3.14.10",
+    "system": "Linux",
+    "kernel": "7.3.3-100.fc43.x86_64",
+    "architecture": "x86_64",
+    "timestamp_utc": "2026-11-20T00:32:24.422619+00:00"
+  },
+  "provenance": "live",
+  "quality_evaluation": true,
+  "complete": true,
+  "status": "complete",
+  "expected": {
+    "tasks": [
+      "C3"
+    ],
+    "task_count": 1,
+    "repeats": 3,
+    "pair_labels": [
+      "custom+deepseek-v4.1-flash-1017-client900-followup"
+    ],
+    "runs_per_pair": 3
+  },
+  "pair_count": 1,
+  "observed_runs": 3,
+  "reported_tokens_total": 110594,
+  "usage_unknown_runs": 0,
+  "method": {
+    "p95": "nearest rank",
+    "spread": "population standard deviation of complete per-repeat group pass rates",
+    "missing": "Not counted as observed failures; shown separately and included in expected-denominator lower bounds",
+    "tokens": "Reported totals are lower bounds when failed calls or missing metadata leave usage unknown",
+    "comparability": "One model ID per pair; same expected tasks/repeats; environment equivalence must be documented separately"
+  },
+  "pairs": [
+    {
+      "pair_label": "custom+deepseek-v4.1-flash-1017-client900-followup",
+      "provider": "live",
+      "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+      "quality_evaluation": true,
+      "expected_runs": 3,
+      "observed_runs": 3,
+      "passed": 3,
+      "failed": 0,
+      "missing_runs": 0,
+      "complete": true,
+      "pass_rate_observed": 1.0,
+      "pass_rate_expected_lower_bound": 1.0,
+      "reported_tokens_total": 110594,
+      "usage_unknown_runs": 0,
+      "token_usage_complete": true,
+      "reported_tokens_per_run": {
+        "n": 3,
+        "median": 37771,
+        "p95": 41102,
+        "min": 31721,
+        "max": 41102,
+        "p95_method": "nearest rank"
+      },
+      "duration_ms": {
+        "n": 3,
+        "median": 198459.601,
+        "p95": 211751.322,
+        "min": 175799.655,
+        "max": 211751.322,
+        "p95_method": "nearest rank"
+      },
+      "generation_ms": {
+        "n": 3,
+        "median": 184196.732,
+        "p95": 197986.697,
+        "min": 162697.603,
+        "max": 197986.697,
+        "p95_method": "nearest rank"
+      },
+      "missing_duration_runs": 0,
+      "outcomes": {
+        "passed": 3,
+        "failed": 0,
+        "not_run": 0
+      },
+      "failure_kinds": {},
+      "repeat_results": [
+        {
+          "repeat": 1,
+          "expected_runs": 1,
+          "observed_runs": 1,
+          "passed": 1,
+          "failed": 0,
+          "missing_runs": 0,
+          "complete": true,
+          "pass_rate_observed": 1.0,
+          "pass_rate_expected_lower_bound": 1.0,
+          "reported_tokens_total": 37771,
+          "usage_unknown_runs": 0,
+          "token_usage_complete": true,
+          "reported_tokens_per_run": {
+            "n": 1,
+            "median": 37771,
+            "p95": 37771,
+            "min": 37771,
+            "max": 37771,
+            "p95_method": "nearest rank"
+          },
+          "duration_ms": {
+            "n": 1,
+            "median": 211751.322,
+            "p95": 211751.322,
+            "min": 211751.322,
+            "max": 211751.322,
+            "p95_method": "nearest rank"
+          },
+          "generation_ms": {
+            "n": 1,
+            "median": 197986.697,
+            "p95": 197986.697,
+            "min": 197986.697,
+            "max": 197986.697,
+            "p95_method": "nearest rank"
+          },
+          "missing_duration_runs": 0,
+          "outcomes": {
+            "passed": 1,
+            "failed": 0,
+            "not_run": 0
+          },
+          "failure_kinds": {}
+        },
+        {
+          "repeat": 2,
+          "expected_runs": 1,
+          "observed_runs": 1,
+          "passed": 1,
+          "failed": 0,
+          "missing_runs": 0,
+          "complete": true,
+          "pass_rate_observed": 1.0,
+          "pass_rate_expected_lower_bound": 1.0,
+          "reported_tokens_total": 31721,
+          "usage_unknown_runs": 0,
+          "token_usage_complete": true,
+          "reported_tokens_per_run": {
+            "n": 1,
+            "median": 31721,
+            "p95": 31721,
+            "min": 31721,
+            "max": 31721,
+            "p95_method": "nearest rank"
+          },
+          "duration_ms": {
+            "n": 1,
+            "median": 175799.655,
+            "p95": 175799.655,
+            "min": 175799.655,
+            "max": 175799.655,
+            "p95_method": "nearest rank"
+          },
+          "generation_ms": {
+            "n": 1,
+            "median": 162697.603,
+            "p95": 162697.603,
+            "min": 162697.603,
+            "max": 162697.603,
+            "p95_method": "nearest rank"
+          },
+          "missing_duration_runs": 0,
+          "outcomes": {
+            "passed": 1,
+            "failed": 0,
+            "not_run": 0
+          },
+          "failure_kinds": {}
+        },
+        {
+          "repeat": 3,
+          "expected_runs": 1,
+          "observed_runs": 1,
+          "passed": 1,
+          "failed": 0,
+          "missing_runs": 0,
+          "complete": true,
+          "pass_rate_observed": 1.0,
+          "pass_rate_expected_lower_bound": 1.0,
+          "reported_tokens_total": 41102,
+          "usage_unknown_runs": 0,
+          "token_usage_complete": true,
+          "reported_tokens_per_run": {
+            "n": 1,
+            "median": 41102,
+            "p95": 41102,
+            "min": 41102,
+            "max": 41102,
+            "p95_method": "nearest rank"
+          },
+          "duration_ms": {
+            "n": 1,
+            "median": 198459.601,
+            "p95": 198459.601,
+            "min": 198459.601,
+            "max": 198459.601,
+            "p95_method": "nearest rank"
+          },
+          "generation_ms": {
+            "n": 1,
+            "median": 184196.732,
+            "p95": 184196.732,
+            "min": 184196.732,
+            "max": 184196.732,
+            "p95_method": "nearest rank"
+          },
+          "missing_duration_runs": 0,
+          "outcomes": {
+            "passed": 1,
+            "failed": 0,
+            "not_run": 0
+          },
+          "failure_kinds": {}
+        }
+      ],
+      "complete_repeat_rate_spread": {
+        "n": 3,
+        "median": 1.0,
+        "p95": 1.0,
+        "min": 1.0,
+        "max": 1.0,
+        "p95_method": "nearest rank",
+        "mean": 1.0,
+        "population_stddev": 0.0,
+        "range": 0.0
+      },
+      "tasks": {
+        "C3": {
+          "expected_runs": 3,
+          "observed_runs": 3,
+          "passed": 3,
+          "failed": 0,
+          "missing_runs": 0,
+          "complete": true,
+          "pass_rate_observed": 1.0,
+          "pass_rate_expected_lower_bound": 1.0,
+          "reported_tokens_total": 110594,
+          "usage_unknown_runs": 0,
+          "token_usage_complete": true,
+          "reported_tokens_per_run": {
+            "n": 3,
+            "median": 37771,
+            "p95": 41102,
+            "min": 31721,
+            "max": 41102,
+            "p95_method": "nearest rank"
+          },
+          "duration_ms": {
+            "n": 3,
+            "median": 198459.601,
+            "p95": 211751.322,
+            "min": 175799.655,
+            "max": 211751.322,
+            "p95_method": "nearest rank"
+          },
+          "generation_ms": {
+            "n": 3,
+            "median": 184196.732,
+            "p95": 197986.697,
+            "min": 162697.603,
+            "max": 197986.697,
+            "p95_method": "nearest rank"
+          },
+          "missing_duration_runs": 0,
+          "outcomes": {
+            "passed": 3,
+            "failed": 0,
+            "not_run": 0
+          },
+          "failure_kinds": {},
+          "repeat_results": [
+            {
+              "repeat": 1,
+              "expected_runs": 1,
+              "observed_runs": 1,
+              "passed": 1,
+              "failed": 0,
+              "missing_runs": 0,
+              "complete": true,
+              "pass_rate_observed": 1.0,
+              "pass_rate_expected_lower_bound": 1.0,
+              "reported_tokens_total": 37771,
+              "usage_unknown_runs": 0,
+              "token_usage_complete": true,
+              "reported_tokens_per_run": {
+                "n": 1,
+                "median": 37771,
+                "p95": 37771,
+                "min": 37771,
+                "max": 37771,
+                "p95_method": "nearest rank"
+              },
+              "duration_ms": {
+                "n": 1,
+                "median": 211751.322,
+                "p95": 211751.322,
+                "min": 211751.322,
+                "max": 211751.322,
+                "p95_method": "nearest rank"
+              },
+              "generation_ms": {
+                "n": 1,
+                "median": 197986.697,
+                "p95": 197986.697,
+                "min": 197986.697,
+                "max": 197986.697,
+                "p95_method": "nearest rank"
+              },
+              "missing_duration_runs": 0,
+              "outcomes": {
+                "passed": 1,
+                "failed": 0,
+                "not_run": 0
+              },
+              "failure_kinds": {}
+            },
+            {
+              "repeat": 2,
+              "expected_runs": 1,
+              "observed_runs": 1,
+              "passed": 1,
+              "failed": 0,
+              "missing_runs": 0,
+              "complete": true,
+              "pass_rate_observed": 1.0,
+              "pass_rate_expected_lower_bound": 1.0,
+              "reported_tokens_total": 31721,
+              "usage_unknown_runs": 0,
+              "token_usage_complete": true,
+              "reported_tokens_per_run": {
+                "n": 1,
+                "median": 31721,
+                "p95": 31721,
+                "min": 31721,
+                "max": 31721,
+                "p95_method": "nearest rank"
+              },
+              "duration_ms": {
+                "n": 1,
+                "median": 175799.655,
+                "p95": 175799.655,
+                "min": 175799.655,
+                "max": 175799.655,
+                "p95_method": "nearest rank"
+              },
+              "generation_ms": {
+                "n": 1,
+                "median": 162697.603,
+                "p95": 162697.603,
+                "min": 162697.603,
+                "max": 162697.603,
+                "p95_method": "nearest rank"
+              },
+              "missing_duration_runs": 0,
+              "outcomes": {
+                "passed": 1,
+                "failed": 0,
+                "not_run": 0
+              },
+              "failure_kinds": {}
+            },
+            {
+              "repeat": 3,
+              "expected_runs": 1,
+              "observed_runs": 1,
+              "passed": 1,
+              "failed": 0,
+              "missing_runs": 0,
+              "complete": true,
+              "pass_rate_observed": 1.0,
+              "pass_rate_expected_lower_bound": 1.0,
+              "reported_tokens_total": 41102,
+              "usage_unknown_runs": 0,
+              "token_usage_complete": true,
+              "reported_tokens_per_run": {
+                "n": 1,
+                "median": 41102,
+                "p95": 41102,
+                "min": 41102,
+                "max": 41102,
+                "p95_method": "nearest rank"
+              },
+              "duration_ms": {
+                "n": 1,
+                "median": 198459.601,
+                "p95": 198459.601,
+                "min": 198459.601,
+                "max": 198459.601,
+                "p95_method": "nearest rank"
+              },
+              "generation_ms": {
+                "n": 1,
+                "median": 184196.732,
+                "p95": 184196.732,
+                "min": 184196.732,
+                "max": 184196.732,
+                "p95_method": "nearest rank"
+              },
+              "missing_duration_runs": 0,
+              "outcomes": {
+                "passed": 1,
+                "failed": 0,
+                "not_run": 0
+              },
+              "failure_kinds": {}
+            }
+          ],
+          "complete_repeat_rate_spread": {
+            "n": 3,
+            "median": 1.0,
+            "p95": 1.0,
+            "min": 1.0,
+            "max": 1.0,
+            "p95_method": "nearest rank",
+            "mean": 1.0,
+            "population_stddev": 0.0,
+            "range": 0.0
+          }
+        }
+      },
+      "baf": {
+        "C3": {
+          "tasks": [
+            "C3"
+          ],
+          "expected_runs": 3,
+          "observed_runs": 3,
+          "passed": 3,
+          "failed": 0,
+          "missing_runs": 0,
+          "complete": true,
+          "pass_rate_observed": 1.0,
+          "pass_rate_expected_lower_bound": 1.0,
+          "reported_tokens_total": 110594,
+          "usage_unknown_runs": 0,
+          "token_usage_complete": true,
+          "reported_tokens_per_run": {
+            "n": 3,
+            "median": 37771,
+            "p95": 41102,
+            "min": 31721,
+            "max": 41102,
+            "p95_method": "nearest rank"
+          },
+          "duration_ms": {
+            "n": 3,
+            "median": 198459.601,
+            "p95": 211751.322,
+            "min": 175799.655,
+            "max": 211751.322,
+            "p95_method": "nearest rank"
+          },
+          "generation_ms": {
+            "n": 3,
+            "median": 184196.732,
+            "p95": 197986.697,
+            "min": 162697.603,
+            "max": 197986.697,
+            "p95_method": "nearest rank"
+          },
+          "missing_duration_runs": 0,
+          "outcomes": {
+            "passed": 3,
+            "failed": 0,
+            "not_run": 0
+          },
+          "failure_kinds": {},
+          "repeat_results": [
+            {
+              "repeat": 1,
+              "expected_runs": 1,
+              "observed_runs": 1,
+              "passed": 1,
+              "failed": 0,
+              "missing_runs": 0,
+              "complete": true,
+              "pass_rate_observed": 1.0,
+              "pass_rate_expected_lower_bound": 1.0,
+              "reported_tokens_total": 37771,
+              "usage_unknown_runs": 0,
+              "token_usage_complete": true,
+              "reported_tokens_per_run": {
+                "n": 1,
+                "median": 37771,
+                "p95": 37771,
+                "min": 37771,
+                "max": 37771,
+                "p95_method": "nearest rank"
+              },
+              "duration_ms": {
+                "n": 1,
+                "median": 211751.322,
+                "p95": 211751.322,
+                "min": 211751.322,
+                "max": 211751.322,
+                "p95_method": "nearest rank"
+              },
+              "generation_ms": {
+                "n": 1,
+                "median": 197986.697,
+                "p95": 197986.697,
+                "min": 197986.697,
+                "max": 197986.697,
+                "p95_method": "nearest rank"
+              },
+              "missing_duration_runs": 0,
+              "outcomes": {
+                "passed": 1,
+                "failed": 0,
+                "not_run": 0
+              },
+              "failure_kinds": {}
+            },
+            {
+              "repeat": 2,
+              "expected_runs": 1,
+              "observed_runs": 1,
+              "passed": 1,
+              "failed": 0,
+              "missing_runs": 0,
+              "complete": true,
+              "pass_rate_observed": 1.0,
+              "pass_rate_expected_lower_bound": 1.0,
+              "reported_tokens_total": 31721,
+              "usage_unknown_runs": 0,
+              "token_usage_complete": true,
+              "reported_tokens_per_run": {
+                "n": 1,
+                "median": 31721,
+                "p95": 31721,
+                "min": 31721,
+                "max": 31721,
+                "p95_method": "nearest rank"
+              },
+              "duration_ms": {
+                "n": 1,
+                "median": 175799.655,
+                "p95": 175799.655,
+                "min": 175799.655,
+                "max": 175799.655,
+                "p95_method": "nearest rank"
+              },
+              "generation_ms": {
+                "n": 1,
+                "median": 162697.603,
+                "p95": 162697.603,
+                "min": 162697.603,
+                "max": 162697.603,
+                "p95_method": "nearest rank"
+              },
+              "missing_duration_runs": 0,
+              "outcomes": {
+                "passed": 1,
+                "failed": 0,
+                "not_run": 0
+              },
+              "failure_kinds": {}
+            },
+            {
+              "repeat": 3,
+              "expected_runs": 1,
+              "observed_runs": 1,
+              "passed": 1,
+              "failed": 0,
+              "missing_runs": 0,
+              "complete": true,
+              "pass_rate_observed": 1.0,
+              "pass_rate_expected_lower_bound": 1.0,
+              "reported_tokens_total": 41102,
+              "usage_unknown_runs": 0,
+              "token_usage_complete": true,
+              "reported_tokens_per_run": {
+                "n": 1,
+                "median": 41102,
+                "p95": 41102,
+                "min": 41102,
+                "max": 41102,
+                "p95_method": "nearest rank"
+              },
+              "duration_ms": {
+                "n": 1,
+                "median": 198459.601,
+                "p95": 198459.601,
+                "min": 198459.601,
+                "max": 198459.601,
+                "p95_method": "nearest rank"
+              },
+              "generation_ms": {
+                "n": 1,
+                "median": 184196.732,
+                "p95": 184196.732,
+                "min": 184196.732,
+                "max": 184196.732,
+                "p95_method": "nearest rank"
+              },
+              "missing_duration_runs": 0,
+              "outcomes": {
+                "passed": 1,
+                "failed": 0,
+                "not_run": 0
+              },
+              "failure_kinds": {}
+            }
+          ],
+          "complete_repeat_rate_spread": {
+            "n": 3,
+            "median": 1.0,
+            "p95": 1.0,
+            "min": 1.0,
+            "max": 1.0,
+            "p95_method": "nearest rank",
+            "mean": 1.0,
+            "population_stddev": 0.0,
+            "range": 0.0
+          }
+        }
+      },
+      "missing_attempts": [],
+      "failures": []
+    }
+  ],
+  "inputs": [
+    "results/live-c3-followup.jsonl"
+  ]
+}

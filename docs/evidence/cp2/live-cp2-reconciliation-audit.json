@@ -1,0 +1,60 @@
+{
+  "method": "Unique unmatched session among 117 campaign trace files, with 116 original session IDs; unique unmapped C3 workspace among three existing C3 fixture directories. Terminal cancellation remains a failed attempt. No client end-to-end duration is inferred from server timing.",
+  "candidates": {
+    "sid": "5c9dac02a48f4e10b779214429b22b85",
+    "workspace": "workspaces/baf-C3-ce2f50a658",
+    "cutoff": 1795131460.252909,
+    "trace_sessions": 117,
+    "known_sessions": 116
+  },
+  "c3_workspace_inventory": [
+    "workspaces/baf-C3-6b01cc575a",
+    "workspaces/baf-C3-7b5b1a7ba5",
+    "workspaces/baf-C3-ce2f50a658"
+  ],
+  "original": {
+    "task": "C3",
+    "repeat": 2,
+    "pass": false,
+    "reason": "Timed out waiting for run; reconnect using the last event ID",
+    "error_kind": "timeout",
+    "pair_label": "custom+deepseek-v4.1-flash-1017",
+    "timestamp": 1795133713.0670593,
+    "campaign_tokens": 1324445,
+    "campaign_budget_charged": 9321052,
+    "quality_evaluation": false
+  },
+  "reconciled": {
+    "task": "C3",
+    "repeat": 2,
+    "pass": false,
+    "reason": "Timed out waiting for run; reconnect using the last event ID",
+    "error_kind": "timeout",
+    "pair_label": "custom+deepseek-v4.1-flash-1017",
+    "timestamp": 1795133713.0670593,
+    "campaign_tokens": 1324445,
+    "campaign_budget_charged": 9321052,
+    "quality_evaluation": true,
+    "session_id": "5c9dac02a48f4e10b779214429b22b85",
+    "trace_id": "94e05e9b51e649acbf7712060ee647f0",
+    "workspace": "workspaces/baf-C3-ce2f50a658",
+    "model": {
+      "provider": "live",
+      "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017"
+    },
+    "tokens": 72490,
+    "metadata_recovered": true,
+    "recovered_server_duration_ms": 210432.511
+  },
+  "original_failure_preserved": true,
+  "original_sha256": "c02fde04616a5c67a5997888c1a0988a74121c0c28fba2d99239f4f7f9491712",
+  "trace_map_sha256": "bb1b8b05fe881b88f7b3e5d0783a33c6c230f6b482d028e4f5fedc5b47ceb787",
+  "reconciled_sha256": "715db53b912e5ad84b1deb60dce63e51584e7bb1c4bb0cd2b6342e4238359c7e",
+  "reported_tokens_original": 1324445,
+  "reported_tokens_reconciled": 1396935,
+  "client_watch_timeout_seconds": 210,
+  "server_run_timeout_seconds": 600,
+  "provider_usage_still_incomplete": true,
+  "recovered_session_observed_C3_spec": true,
+  "terminal_cancel_to_client_record_seconds": 0.16111540794372559
+}

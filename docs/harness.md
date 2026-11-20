@@ -12,11 +12,18 @@ assistant message, executes each requested tool sequentially, and appends each
 tool result with the corresponding `tool_call_id`.
 
 The loop stops on an assistant response without tool calls, cancellation, a
-critical sandbox/transport error, the 16-step limit, the 180-second run budget, or
+critical sandbox/transport error, the 16-step limit, the configured run budget, or
 a 180,000-character serialized context limit. The run deadline is checked between
 bounded RPCs; a blocked RPC can delay termination up to its transport timeout.
 It is not a real-time deadline. `Harness.finish` guards the final result under a
 lock, so cancellation and normal completion cannot emit two final results.
+The deployed default is `RUN_TIMEOUT=600` seconds; direct test constructors retain
+a 180-second default. Provider requests have `LLM_TIMEOUT=90` seconds (maximum
+120); the harness-to-proxy HTTP timeout is 125 seconds. The client watches a run
+for up to 900 seconds. The old 210-second client limit cancelled one C3 benchmark
+attempt prematurely; the correction and retained failure are documented in
+[evaluation corrections](evaluation-corrections.md). Benchmark errors now retain
+partial events, identifiers and known usage instead of discarding their evidence.
 
 ## Tool dispatch and errors
 

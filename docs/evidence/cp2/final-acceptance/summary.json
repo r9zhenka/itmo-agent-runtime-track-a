@@ -1,0 +1,55 @@
+{
+  "passed": true,
+  "environment": {
+    "python": "3.12.3",
+    "system": "Linux",
+    "kernel": "6.8.0-139-generic",
+    "architecture": "x86_64",
+    "timestamp_utc": "2026-11-20T00:24:54.378895+00:00"
+  },
+  "model": "synthetic-replay",
+  "network": "Loopback/SSH and Docker bridges only; all images and tools must be prepared beforehand",
+  "steps": [
+    {
+      "name": "start-isolated-replay-stack",
+      "passed": true,
+      "duration_seconds": 27.26
+    },
+    {
+      "name": "offline-unit-cli-http",
+      "passed": true,
+      "duration_seconds": 141.845
+    },
+    {
+      "name": "docker-isolation",
+      "passed": true,
+      "duration_seconds": 14.334
+    },
+    {
+      "name": "isolated-code-grader",
+      "passed": true,
+      "duration_seconds": 71.633
+    },
+    {
+      "name": "adversarial-hardening",
+      "passed": true,
+      "duration_seconds": 20.849
+    },
+    {
+      "name": "full-synthetic-baf",
+      "passed": true,
+      "duration_seconds": 222.053
+    },
+    {
+      "name": "real-webdav",
+      "passed": true,
+      "duration_seconds": 2.309
+    },
+    {
+      "name": "ssh-fuse-docker",
+      "passed": true,
+      "duration_seconds": 11.781
+    }
+  ],
+  "cleanup_passed": true
+}

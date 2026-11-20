@@ -1,0 +1,430 @@
+{
+  "backend": "docker",
+  "passed": true,
+  "checks": [
+    {
+      "name": "B6.1 correct",
+      "passed": true,
+      "verdict": {
+        "pass": true,
+        "reason": "ok",
+        "checker_backend": "docker",
+        "checks_passed": 9,
+        "checks_total": 9,
+        "checks_run": 9,
+        "checks": [
+          {
+            "name": "empty",
+            "pass": true,
+            "reason": "ok"
+          },
+          {
+            "name": "separators",
+            "pass": true,
+            "reason": "ok"
+          },
+          {
+            "name": "ascii",
+            "pass": true,
+            "reason": "ok"
+          },
+          {
+            "name": "collapse",
+            "pass": true,
+            "reason": "ok"
+          },
+          {
+            "name": "cyrillic",
+            "pass": true,
+            "reason": "ok"
+          },
+          {
+            "name": "compatibility",
+            "pass": true,
+            "reason": "ok"
+          },
+          {
+            "name": "casefold",
+            "pass": true,
+            "reason": "ok"
+          },
+          {
+            "name": "combining",
+            "pass": true,
+            "reason": "ok"
+          },
+          {
+            "name": "emoji",
+            "pass": true,
+            "reason": "ok"
+          }
+        ],
+        "check_ms": 8375.998
+      }
+    },
+    {
+      "name": "B6.2 correct",
+      "passed": true,
+      "verdict": {
+        "pass": true,
+        "reason": "ok",
+        "checker_backend": "docker",
+        "checks_passed": 7,
+        "checks_total": 7,
+        "checks_run": 7,
+        "checks": [
+          {
+            "name": "empty",
+            "pass": true,
+            "reason": "ok"
+          },
+          {
+            "name": "invalid",
+            "pass": true,
+            "reason": "ok"
+          },
+          {
+            "name": "unordered",
+            "pass": true,
+            "reason": "ok"
+          },
+          {
+            "name": "messages",
+            "pass": true,
+            "reason": "ok"
+          },
+          {
+            "name": "calendar",
+            "pass": true,
+            "reason": "ok"
+          },
+          {
+            "name": "strict_format",
+            "pass": true,
+            "reason": "ok"
+          },
+          {
+            "name": "year_boundary",
+            "pass": true,
+            "reason": "ok"
+          }
+        ],
+        "check_ms": 7414.166
+      }
+    },
+    {
+      "name": "B6.3 correct",
+      "passed": true,
+      "verdict": {
+        "pass": true,
+        "reason": "ok",
+        "checker_backend": "docker",
+        "checks_passed": 7,
+        "checks_total": 7,
+        "checks_run": 7,
+        "checks": [
+          {
+            "name": "empty",
+            "pass": true,
+            "reason": "ok"
+          },
+          {
+            "name": "invalid_entries",
+            "pass": true,
+            "reason": "ok"
+          },
+          {
+            "name": "unicode_dedup",
+            "pass": true,
+            "reason": "ok"
+          },
+          {
+            "name": "centuries",
+            "pass": true,
+            "reason": "ok"
+          },
+          {
+            "name": "strict_dates",
+            "pass": true,
+            "reason": "ok"
+          },
+          {
+            "name": "sort",
+            "pass": true,
+            "reason": "ok"
+          },
+          {
+            "name": "bounds",
+            "pass": true,
+            "reason": "ok"
+          }
+        ],
+        "check_ms": 6535.371
+      }
+    },
+    {
+      "name": "incorrect function rejected",
+      "passed": true,
+      "verdict": {
+        "pass": false,
+        "reason": "Hidden checks passed: 0/9",
+        "checker_backend": "docker",
+        "checks_passed": 0,
+        "checks_total": 9,
+        "checks_run": 9,
+        "checks": [
+          {
+            "name": "empty",
+            "pass": false,
+            "reason": "incorrect return value"
+          },
+          {
+            "name": "separators",
+            "pass": false,
+            "reason": "incorrect return value"
+          },
+          {
+            "name": "ascii",
+            "pass": false,
+            "reason": "incorrect return value"
+          },
+          {
+            "name": "collapse",
+            "pass": false,
+            "reason": "incorrect return value"
+          },
+          {
+            "name": "cyrillic",
+            "pass": false,
+            "reason": "incorrect return value"
+          },
+          {
+            "name": "compatibility",
+            "pass": false,
+            "reason": "incorrect return value"
+          },
+          {
+            "name": "casefold",
+            "pass": false,
+            "reason": "incorrect return value"
+          },
+          {
+            "name": "combining",
+            "pass": false,
+            "reason": "incorrect return value"
+          },
+          {
+            "name": "emoji",
+            "pass": false,
+            "reason": "incorrect return value"
+          }
+        ],
+        "check_ms": 7805.39
+      }
+    },
+    {
+      "name": "fake pass report rejected",
+      "passed": true,
+      "verdict": {
+        "pass": false,
+        "reason": "Hidden checks passed: 0/9",
+        "checker_backend": "docker",
+        "checks_passed": 0,
+        "checks_total": 9,
+        "checks_run": 9,
+        "checks": [
+          {
+            "name": "empty",
+            "pass": false,
+            "reason": "invalid result JSON"
+          },
+          {
+            "name": "separators",
+            "pass": false,
+            "reason": "invalid result JSON"
+          },
+          {
+            "name": "ascii",
+            "pass": false,
+            "reason": "invalid result JSON"
+          },
+          {
+            "name": "collapse",
+            "pass": false,
+            "reason": "invalid result JSON"
+          },
+          {
+            "name": "cyrillic",
+            "pass": false,
+            "reason": "invalid result JSON"
+          },
+          {
+            "name": "compatibility",
+            "pass": false,
+            "reason": "invalid result JSON"
+          },
+          {
+            "name": "casefold",
+            "pass": false,
+            "reason": "invalid result JSON"
+          },
+          {
+            "name": "combining",
+            "pass": false,
+            "reason": "invalid result JSON"
+          },
+          {
+            "name": "emoji",
+            "pass": false,
+            "reason": "invalid result JSON"
+          }
+        ],
+        "check_ms": 7927.056
+      }
+    },
+    {
+      "name": "readonly solution",
+      "passed": true,
+      "verdict": {
+        "pass": false,
+        "reason": "Hidden checks passed: 0/9",
+        "checker_backend": "docker",
+        "checks_passed": 0,
+        "checks_total": 9,
+        "checks_run": 9,
+        "checks": [
+          {
+            "name": "empty",
+            "pass": false,
+            "reason": "execution: command"
+          },
+          {
+            "name": "separators",
+            "pass": false,
+            "reason": "execution: command"
+          },
+          {
+            "name": "ascii",
+            "pass": false,
+            "reason": "execution: command"
+          },
+          {
+            "name": "collapse",
+            "pass": false,
+            "reason": "execution: command"
+          },
+          {
+            "name": "cyrillic",
+            "pass": false,
+            "reason": "execution: command"
+          },
+          {
+            "name": "compatibility",
+            "pass": false,
+            "reason": "execution: command"
+          },
+          {
+            "name": "casefold",
+            "pass": false,
+            "reason": "execution: command"
+          },
+          {
+            "name": "combining",
+            "pass": false,
+            "reason": "execution: command"
+          },
+          {
+            "name": "emoji",
+            "pass": false,
+            "reason": "execution: command"
+          }
+        ],
+        "check_ms": 8142.4
+      }
+    },
+    {
+      "name": "network and secret isolation",
+      "passed": true,
+      "verdict": {
+        "pass": true,
+        "reason": "ok",
+        "checker_backend": "docker",
+        "checks_passed": 9,
+        "checks_total": 9,
+        "checks_run": 9,
+        "checks": [
+          {
+            "name": "empty",
+            "pass": true,
+            "reason": "ok"
+          },
+          {
+            "name": "separators",
+            "pass": true,
+            "reason": "ok"
+          },
+          {
+            "name": "ascii",
+            "pass": true,
+            "reason": "ok"
+          },
+          {
+            "name": "collapse",
+            "pass": true,
+            "reason": "ok"
+          },
+          {
+            "name": "cyrillic",
+            "pass": true,
+            "reason": "ok"
+          },
+          {
+            "name": "compatibility",
+            "pass": true,
+            "reason": "ok"
+          },
+          {
+            "name": "casefold",
+            "pass": true,
+            "reason": "ok"
+          },
+          {
+            "name": "combining",
+            "pass": true,
+            "reason": "ok"
+          },
+          {
+            "name": "emoji",
+            "pass": true,
+            "reason": "ok"
+          }
+        ],
+        "check_ms": 7444.653
+      }
+    },
+    {
+      "name": "timeout cleanup",
+      "passed": true,
+      "verdict": {
+        "pass": false,
+        "reason": "Hidden checks passed: 0/9",
+        "checker_backend": "docker",
+        "checks_passed": 0,
+        "checks_total": 9,
+        "checks_run": 1,
+        "checks": [
+          {
+            "name": "empty",
+            "pass": false,
+            "reason": "execution: timeout"
+          }
+        ],
+        "check_ms": 1355.615
+      }
+    },
+    {
+      "name": "no checker containers remain",
+      "passed": true
+    }
+  ]
+}

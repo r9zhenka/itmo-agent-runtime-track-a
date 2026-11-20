@@ -1,0 +1,249 @@
+{
+  "source_revision": "9555ba99600d7f217921f9614655c48a60b5bc7e",
+  "checker_revision": "ea39ddc",
+  "affected_tasks": [
+    "B4.2",
+    "B5.4",
+    "B6.4",
+    "C1",
+    "C3"
+  ],
+  "records": 117,
+  "regraded": 15,
+  "untouched": 102,
+  "repeats": 3,
+  "model_calls": 0,
+  "original_passed": 109,
+  "corrected_passed": 114,
+  "changed_verdicts": [
+    {
+      "task": "B4.2",
+      "repeat": 1,
+      "session_id": "1fc6bb1a6ae04a4c814724cacc629359",
+      "original": {
+        "pass": false,
+        "reason": "Tests were not observed passing in sandbox"
+      },
+      "corrected": {
+        "pass": true,
+        "reason": "ok"
+      }
+    },
+    {
+      "task": "B4.2",
+      "repeat": 3,
+      "session_id": "b4471dd17d74490293280f4f29a69f34",
+      "original": {
+        "pass": false,
+        "reason": "Tests were not observed passing in sandbox"
+      },
+      "corrected": {
+        "pass": true,
+        "reason": "ok"
+      }
+    },
+    {
+      "task": "B5.4",
+      "repeat": 1,
+      "session_id": "95280a3e80f842628fbb54b627f05fa5",
+      "original": {
+        "pass": false,
+        "reason": "Probe command result was not observed"
+      },
+      "corrected": {
+        "pass": true,
+        "reason": "ok"
+      }
+    },
+    {
+      "task": "B5.4",
+      "repeat": 2,
+      "session_id": "cde1d86e485846a38dbc05b81f4f50b6",
+      "original": {
+        "pass": false,
+        "reason": "Probe command result was not observed"
+      },
+      "corrected": {
+        "pass": false,
+        "reason": "answer.json does not match the required result, evidence or schema"
+      }
+    },
+    {
+      "task": "B5.4",
+      "repeat": 3,
+      "session_id": "09d460436f5541b89513d63536e3c9a2",
+      "original": {
+        "pass": false,
+        "reason": "Probe command result was not observed"
+      },
+      "corrected": {
+        "pass": true,
+        "reason": "ok"
+      }
+    },
+    {
+      "task": "C3",
+      "repeat": 1,
+      "session_id": "baeee757e58244f391916dc70707ddfb",
+      "original": {
+        "pass": false,
+        "reason": "CLI result was not observed"
+      },
+      "corrected": {
+        "pass": true,
+        "reason": "ok"
+      }
+    }
+  ],
+  "changed_record_fields": {
+    "5c10fb5990a04be8b8e002190b841fec": [
+      "original_verdict",
+      "regrade_check_ms",
+      "regrade_checker_revision",
+      "regrade_runtime_failure_preserved",
+      "regrade_verdict"
+    ],
+    "1fc6bb1a6ae04a4c814724cacc629359": [
+      "original_verdict",
+      "pass",
+      "reason",
+      "regrade_check_ms",
+      "regrade_checker_revision",
+      "regrade_runtime_failure_preserved",
+      "regrade_verdict"
+    ],
+    "b4471dd17d74490293280f4f29a69f34": [
+      "original_verdict",
+      "pass",
+      "reason",
+      "regrade_check_ms",
+      "regrade_checker_revision",
+      "regrade_runtime_failure_preserved",
+      "regrade_verdict"
+    ],
+    "95280a3e80f842628fbb54b627f05fa5": [
+      "original_verdict",
+      "pass",
+      "reason",
+      "regrade_check_ms",
+      "regrade_checker_revision",
+      "regrade_runtime_failure_preserved",
+      "regrade_verdict"
+    ],
+    "cde1d86e485846a38dbc05b81f4f50b6": [
+      "original_verdict",
+      "reason",
+      "regrade_check_ms",
+      "regrade_checker_revision",
+      "regrade_runtime_failure_preserved",
+      "regrade_verdict"
+    ],
+    "09d460436f5541b89513d63536e3c9a2": [
+      "original_verdict",
+      "pass",
+      "reason",
+      "regrade_check_ms",
+      "regrade_checker_revision",
+      "regrade_runtime_failure_preserved",
+      "regrade_verdict"
+    ],
+    "4b145fad82ad40709ae0981456d04ffd": [
+      "original_verdict",
+      "regrade_check_ms",
+      "regrade_checker_revision",
+      "regrade_runtime_failure_preserved",
+      "regrade_verdict"
+    ],
+    "e33a9493809847db9385fb4434072e5b": [
+      "original_verdict",
+      "regrade_check_ms",
+      "regrade_checker_revision",
+      "regrade_runtime_failure_preserved",
+      "regrade_verdict"
+    ],
+    "ed5e3e4051d14120a7c80fb29e89f4b9": [
+      "original_verdict",
+      "regrade_check_ms",
+      "regrade_checker_revision",
+      "regrade_runtime_failure_preserved",
+      "regrade_verdict"
+    ],
+    "3be07ba0ad7842dd89df3c24b49d6156": [
+      "original_verdict",
+      "regrade_check_ms",
+      "regrade_checker_revision",
+      "regrade_runtime_failure_preserved",
+      "regrade_verdict"
+    ],
+    "ec1af1abe0c445128539b1b4b4e4015c": [
+      "original_verdict",
+      "regrade_check_ms",
+      "regrade_checker_revision",
+      "regrade_runtime_failure_preserved",
+      "regrade_verdict"
+    ],
+    "b187d10d71ef49249b321d0088fe7bc6": [
+      "original_verdict",
+      "regrade_check_ms",
+      "regrade_checker_revision",
+      "regrade_runtime_failure_preserved",
+      "regrade_verdict"
+    ],
+    "baeee757e58244f391916dc70707ddfb": [
+      "original_verdict",
+      "pass",
+      "reason",
+      "regrade_check_ms",
+      "regrade_checker_revision",
+      "regrade_runtime_failure_preserved",
+      "regrade_verdict"
+    ],
+    "2297d1c1cb47401ea9d0b78bae7ce86c": [
+      "original_verdict",
+      "regrade_check_ms",
+      "regrade_checker_revision",
+      "regrade_runtime_failure_preserved",
+      "regrade_verdict"
+    ],
+    "5c9dac02a48f4e10b779214429b22b85": [
+      "original_verdict",
+      "regrade_check_ms",
+      "regrade_checker_revision",
+      "regrade_runtime_failure_preserved",
+      "regrade_verdict"
+    ]
+  },
+  "changed_record_field_count": 86,
+  "semantics": "Only pass/reason change among original fields. Original duration/generation/tokens/model/IDs and legacy check fields are immutable; regrade_verdict and regrade_check_ms hold the new checker evidence. Runtime error attempts remain failed. UTF-8 snapshots are data only.",
+  "checker_source_sha256": {
+    "baf/__init__.py": "321eddc325cd1b1b100d9b92ffc49dd424e60d21726bcce70005fc956f65f43b",
+    "baf/additional_cases.py": "1a9082717efb141248cc0facc955622e3e0c9908e76f13832d9ac78266e7aa6f",
+    "baf/additional_checks.py": "04aac1ab52dec17b5a55921f822500defc5a7320ed924752389ba907b72885c1",
+    "baf/artifacts.py": "efc82bc92b38eaf1a959aa1baa6bcfe6ef08ae8bb7ec7cfbb170e1f98a246e17",
+    "baf/cases.py": "475b0977d8445ac11746f6c39bbe7eaaa8af8670b5b2db7c79c3cedd058992f9",
+    "baf/code_cases.py": "7efc811ccd3b5a0563db25e32e01a5221fd4f1dc7aaeedf22d4b7354463a7065",
+    "baf/code_checks.py": "3e51e2ee5f88a521d7010d9e8503b6233994f185fab2773c744a4bd5f3858ce9",
+    "baf/code_evaluator.py": "f6eeb916dc3dd67a05c70fa3a9ec1346b4718b69c45a5afd6b286b446f459dac",
+    "baf/json_output.py": "eaa370c817b0a37302b314e4723332758f4b23d831e23335829869b59825f0a1",
+    "baf/observations.py": "7fe811776dd3f92cc993775410673d3f0a8584ed7162b2ee634f12865af94b8b",
+    "baf/reasoning_cases.py": "229f70ae49682e58e784a6ba1e6a2b1da2e97997d5f385b99cdaf1b5310697e2",
+    "baf/reasoning_checks.py": "391fe2090a712dcca10181ccc420817065ccb29a2c8476df0368558293b79005",
+    "baf/synthesis_cases.py": "ef43ba426439e1d3874010151faed3c8704d20f379f4c50d7c5ef8f5e37ec5a3",
+    "baf/synthesis_checks.py": "e2cf4a227aa948fdd65147c8a912e3b7b4281f83935fa66473bdeb958d9cc626",
+    "runtime/code_worker.py": "53ef8751da17cc35e830962b9e6d8dbf64ac851bfa5b4c4319175e8f05d5ba82",
+    "runtime/common.py": "f1c1f51cabc13dd08715939f3527b6c7ea8ee05a06e42f334e45515839781c3a",
+    "runtime/contracts.py": "8c541f2a32423a679eccae82a835adeeec2e122aee8e5470da247a9cb58cc54c",
+    "runtime/docker_engine.py": "fc4890cd09e2c54070b9666c13b208293c800d7a50fe94ece105786d79f9e25a",
+    "runtime/mount_lease.py": "b7e10f37bc72915883268dd4b66c2406c1fc62790a442cd3d3ce6bf42dafe5c1",
+    "runtime/sandbox_manager.py": "42314e156e7e0e0ab4919d16415d76dfffb6caec6b59e6c84eac965368f95720",
+    "scripts/measure_common.py": "c602e1bc642a26162fa3756e8f39efb86d0855255aae6cfc23bda956b0f266b2",
+    "scripts/regrade_observations.py": "9f7ba3cb7fa66a4ffad6c7cc419ba7c0a298919d1561511466daa7000ec2090a",
+    "scripts/summarize_benchmark.py": "b30f42b12d8939246b2594b6408dc6fd4bce93eeec12e663f337e08c5da812db"
+  },
+  "checker_git_head": "ea39ddc8b54bfa0f04eecda5baf93025283de75b",
+  "checker_git_status": [],
+  "input_sha256": "715db53b912e5ad84b1deb60dce63e51584e7bb1c4bb0cd2b6342e4238359c7e",
+  "events_sha256": "6a2b851f3a58bfdd3af30fca8cde286483fb08fbc9b5bdd8932076b97de74b01",
+  "corrected_sha256": "60f684ba3912ab4a9b4308772c335fa1e9b4fcd472671964f156e7e4627f1056",
+  "snapshots_sha256": "eef29c31b064d80b5c69e5783075356332e9b676d7b410d239a56470de681661"
+}

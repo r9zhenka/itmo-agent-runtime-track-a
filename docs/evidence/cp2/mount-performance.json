@@ -1,0 +1,297 @@
+{
+  "passed": true,
+  "client_environment": {
+    "python": "3.14.10",
+    "system": "Linux",
+    "kernel": "7.3.3-100.fc43.x86_64",
+    "architecture": "x86_64",
+    "timestamp_utc": "2026-11-19T23:36:50.841612+00:00"
+  },
+  "repeats": 10,
+  "model_calls": 0,
+  "method": "Repeated warm-cache operations, no cache dropping; nearest-rank p95",
+  "local_baseline": {
+    "environment": {
+      "python": "3.14.10",
+      "system": "Linux",
+      "kernel": "7.3.3-100.fc43.x86_64",
+      "architecture": "x86_64",
+      "timestamp_utc": "2026-11-19T23:36:50.940024+00:00"
+    },
+    "fixture": {
+      "files": 32,
+      "small_bytes": 4096,
+      "large_bytes": 4194304,
+      "write_bytes": 1048576,
+      "fixture": "project-a-fs-measurement-v1"
+    },
+    "raw": [
+      {
+        "repeat": 1,
+        "stat_ms": 0.020393,
+        "tree_ms": 1.433332,
+        "small_read_batch_ms": 0.311418,
+        "large_read_ms": 2.157716,
+        "write_close_ms": 0.755811
+      },
+      {
+        "repeat": 2,
+        "stat_ms": 0.018438,
+        "tree_ms": 1.421111,
+        "small_read_batch_ms": 0.30178,
+        "large_read_ms": 1.39052,
+        "write_close_ms": 0.754624
+      },
+      {
+        "repeat": 3,
+        "stat_ms": 0.019625,
+        "tree_ms": 1.368521,
+        "small_read_batch_ms": 0.314072,
+        "large_read_ms": 2.183557,
+        "write_close_ms": 0.80456
+      },
+      {
+        "repeat": 4,
+        "stat_ms": 0.024235,
+        "tree_ms": 1.402533,
+        "small_read_batch_ms": 0.339424,
+        "large_read_ms": 2.244946,
+        "write_close_ms": 0.798345
+      },
+      {
+        "repeat": 5,
+        "stat_ms": 0.021441,
+        "tree_ms": 1.398622,
+        "small_read_batch_ms": 0.314281,
+        "large_read_ms": 2.150243,
+        "write_close_ms": 0.789753
+      },
+      {
+        "repeat": 6,
+        "stat_ms": 0.019346,
+        "tree_ms": 1.416361,
+        "small_read_batch_ms": 0.306668,
+        "large_read_ms": 2.246971,
+        "write_close_ms": 0.748478
+      },
+      {
+        "repeat": 7,
+        "stat_ms": 0.01739,
+        "tree_ms": 1.441923,
+        "small_read_batch_ms": 0.321685,
+        "large_read_ms": 2.171823,
+        "write_close_ms": 0.76084
+      },
+      {
+        "repeat": 8,
+        "stat_ms": 0.023466,
+        "tree_ms": 1.400647,
+        "small_read_batch_ms": 0.339703,
+        "large_read_ms": 2.248787,
+        "write_close_ms": 0.758117
+      },
+      {
+        "repeat": 9,
+        "stat_ms": 0.018648,
+        "tree_ms": 1.36405,
+        "small_read_batch_ms": 0.341728,
+        "large_read_ms": 2.123843,
+        "write_close_ms": 0.727456
+      },
+      {
+        "repeat": 10,
+        "stat_ms": 0.018228,
+        "tree_ms": 1.363772,
+        "small_read_batch_ms": 0.301571,
+        "large_read_ms": 2.197594,
+        "write_close_ms": 0.752319
+      }
+    ],
+    "summary": {
+      "stat_ms": {
+        "n": 10,
+        "median": 0.0194855,
+        "p95": 0.024235,
+        "min": 0.01739,
+        "max": 0.024235,
+        "p95_method": "nearest rank"
+      },
+      "tree_ms": {
+        "n": 10,
+        "median": 1.4015900000000001,
+        "p95": 1.441923,
+        "min": 1.363772,
+        "max": 1.441923,
+        "p95_method": "nearest rank"
+      },
+      "small_read_batch_ms": {
+        "n": 10,
+        "median": 0.31417649999999997,
+        "p95": 0.341728,
+        "min": 0.301571,
+        "max": 0.341728,
+        "p95_method": "nearest rank"
+      },
+      "large_read_ms": {
+        "n": 10,
+        "median": 2.17769,
+        "p95": 2.248787,
+        "min": 1.39052,
+        "max": 2.248787,
+        "p95_method": "nearest rank"
+      },
+      "write_close_ms": {
+        "n": 10,
+        "median": 0.756964,
+        "p95": 0.80456,
+        "min": 0.727456,
+        "max": 0.80456,
+        "p95_method": "nearest rank"
+      }
+    }
+  },
+  "mounted": {
+    "environment": {
+      "python": "3.12.3",
+      "system": "Linux",
+      "kernel": "6.8.0-139-generic",
+      "architecture": "x86_64",
+      "timestamp_utc": "2026-11-19T23:37:16.109972+00:00"
+    },
+    "fixture": {
+      "files": 32,
+      "small_bytes": 4096,
+      "large_bytes": 4194304,
+      "write_bytes": 1048576,
+      "fixture": "project-a-fs-measurement-v1"
+    },
+    "raw": [
+      {
+        "repeat": 1,
+        "stat_ms": 30.258305,
+        "tree_ms": 440.415298,
+        "small_read_batch_ms": 1744.734644,
+        "large_read_ms": 45.821946,
+        "write_close_ms": 25.621008
+      },
+      {
+        "repeat": 2,
+        "stat_ms": 39.832109,
+        "tree_ms": 483.195484,
+        "small_read_batch_ms": 1734.017053,
+        "large_read_ms": 62.439164,
+        "write_close_ms": 37.279934
+      },
+      {
+        "repeat": 3,
+        "stat_ms": 40.315754,
+        "tree_ms": 441.096207,
+        "small_read_batch_ms": 1755.757434,
+        "large_read_ms": 65.768758,
+        "write_close_ms": 35.934173
+      },
+      {
+        "repeat": 4,
+        "stat_ms": 37.449063,
+        "tree_ms": 430.01693,
+        "small_read_batch_ms": 1735.524753,
+        "large_read_ms": 62.159992,
+        "write_close_ms": 36.176781
+      },
+      {
+        "repeat": 5,
+        "stat_ms": 36.81484,
+        "tree_ms": 436.255817,
+        "small_read_batch_ms": 1735.039789,
+        "large_read_ms": 85.928183,
+        "write_close_ms": 38.925612
+      },
+      {
+        "repeat": 6,
+        "stat_ms": 37.590185,
+        "tree_ms": 438.432988,
+        "small_read_batch_ms": 1732.397885,
+        "large_read_ms": 54.11582,
+        "write_close_ms": 35.358888
+      },
+      {
+        "repeat": 7,
+        "stat_ms": 39.212261,
+        "tree_ms": 439.307048,
+        "small_read_batch_ms": 1735.249031,
+        "large_read_ms": 80.908823,
+        "write_close_ms": 37.159669
+      },
+      {
+        "repeat": 8,
+        "stat_ms": 37.070871,
+        "tree_ms": 430.29671,
+        "small_read_batch_ms": 1739.161347,
+        "large_read_ms": 58.142334,
+        "write_close_ms": 36.442668
+      },
+      {
+        "repeat": 9,
+        "stat_ms": 36.9818,
+        "tree_ms": 439.653164,
+        "small_read_batch_ms": 1730.735999,
+        "large_read_ms": 65.998151,
+        "write_close_ms": 35.884024
+      },
+      {
+        "repeat": 10,
+        "stat_ms": 36.33576,
+        "tree_ms": 434.617999,
+        "small_read_batch_ms": 1747.000287,
+        "large_read_ms": 74.581072,
+        "write_close_ms": 35.234891
+      }
+    ],
+    "summary": {
+      "stat_ms": {
+        "n": 10,
+        "median": 37.259967,
+        "p95": 40.315754,
+        "min": 30.258305,
+        "max": 40.315754,
+        "p95_method": "nearest rank"
+      },
+      "tree_ms": {
+        "n": 10,
+        "median": 438.870018,
+        "p95": 483.195484,
+        "min": 430.01693,
+        "max": 483.195484,
+        "p95_method": "nearest rank"
+      },
+      "small_read_batch_ms": {
+        "n": 10,
+        "median": 1735.386892,
+        "p95": 1755.757434,
+        "min": 1730.735999,
+        "max": 1755.757434,
+        "p95_method": "nearest rank"
+      },
+      "large_read_ms": {
+        "n": 10,
+        "median": 64.103961,
+        "p95": 85.928183,
+        "min": 45.821946,
+        "max": 85.928183,
+        "p95_method": "nearest rank"
+      },
+      "write_close_ms": {
+        "n": 10,
+        "median": 36.055476999999996,
+        "p95": 38.925612,
+        "min": 25.621008,
+        "max": 38.925612,
+        "p95_method": "nearest rank"
+      }
+    },
+    "backend": "server host filesystem calls through real rclone FUSE + SSH + client WebDAV",
+    "is_mount": true
+  },
+  "client_observed_write": true,
+  "cleanup_completed": true
+}

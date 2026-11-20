@@ -1,0 +1,8 @@
+{
+  "fedora_grader_image_id": "sha256:e56f775ec30576784b8ceb54bfb91844edb1b5205196c7e4ad43ce3249405dc2",
+  "ubuntu_execution_image_id": "sha256:e7205f90273da0acd2107ccbaddb6419554ee5b244bc8412e3e493b1bbfe0506",
+  "ubuntu_running_harness_image_id": "sha256:c9571631e785ba1642c2a39f7710ea3b50ade600ce18042584a43390d3b2fa9f",
+  "execution_tag": "project-a-sandbox:cp1",
+  "base_tag": "python:3.12.10-slim-bookworm",
+  "recorded_during_campaign": true
+}

@@ -1,41 +1,52 @@
 # 0005 — Mounting strategy
 
-Status: same-host bind accepted for CP1; remote mechanism proposed, not implemented.
+Status: WebDAV over reverse SSH + rclone/FUSE accepted for the remote prototype;
+real two-machine acceptance passed on Fedora → Ubuntu VM. Same-host bind remains supported.
 
 ## Context
 
-The final assignment explicitly requires mounting a client's local folder on a
-different server machine. Copying/synchronizing files does not meet that requirement.
-Checkpoint 1 needs an executable path without pretending remote mounting is done.
+A-2/A-3 require a true mount of a client's folder on a different server, with
+bidirectional visibility, RO/RW modes, disconnect behavior and no persistent
+server copy after release. CP1 only supplied a same-host bind mount. The earlier
+SSHFS proposal in this ADR was not implemented.
 
 ## Decision
 
-At CP1, require a folder under `WORKSPACE_ROOT` on the Docker host and bind-mount
-it at `/work` in every command container. Read-only mode makes the whole mount
-read-only. Read-write mode permits edits, with an additional read-only bind for
-an existing top-level `.git`. Harness code, traces and server credentials live
-outside the workspace.
+The Python client serves one folder over a restricted WebDAV subset on loopback.
+OpenSSH forwards it to server loopback and forwards the gateway back to the client.
+A host-side Python helper runs rclone 1.68.2 with FUSE outside Compose, mounts below
+`WORKSPACE_ROOT`, creates a session and maintains an expiring lease. Docker binds
+that host mount at `/work`. The manager need not receive FUSE privileges or see
+new submounts through its private metadata bind; the Docker daemon resolves the
+source on its own host. The mount helper runs as the trusted SSH user.
 
-For CP2, prototype client-served SFTP through a reverse SSH tunnel, with SSHFS on
-the server. The client would establish the outbound tunnel; the manager would
-mount the resulting filesystem into command containers. This proposal still needs
-prototyping, pinned implementations, permission design and disconnect tests.
+The rclone version and Linux archive hashes are pinned by the installer. Python
+runtime/tests still use only the standard library. Exporter path handling uses
+open directory descriptors and rejects symlinks, hard-linked files and `.git`.
+RO is checked on the client as well as in FUSE and Docker. No disk cache is used.
+A mount lease failure stops commands with a transport error. Cleanup is explicit
+and a failed unmount is reported.
 
-## Remote alternatives
+## Alternatives
 
-| Approach | Benefit | Cost / uncertainty |
+| Approach | Benefits | Costs / reason not selected |
 |---|---|---|
-| SSHFS + reverse SSH tunnel | Familiar filesystem operations; client can initiate outbound connection | FUSE privileges, UID mapping, blocking I/O and reconnect semantics |
-| WebDAV + rclone mount | HTTP-based transport, cross-platform serving | Cache consistency, rename semantics and credential lifecycle |
-| NFS over WireGuard | Native shared filesystem semantics | VPN configuration, export permissions and cross-platform client complexity |
-
-No latency or reliability advantage is claimed without measurements.
+| SSHFS + reverse tunnel (previous proposal) | More complete POSIX/SFTP behavior | A safely confined SFTP endpoint on the client would require additional SSH/chroot setup or another server dependency; `sftp-server -d` alone does not confine paths |
+| WebDAV + rclone/FUSE (selected) | Client-initiated tunnel, no client SSH daemon; exporter directly enforces folder and protected-path policy | We own a limited WebDAV server; uncached VFS lacks full POSIX write semantics; FUSE setup on server |
+| NFS over WireGuard | Native shared filesystem and mature kernel client | VPN/export administration, more privileged client setup and broader operational complexity |
+| Copy/sync | Easy deployment without FUSE | Does not satisfy the assignment's mount requirement |
 
 ## Consequences
 
-Current edits are visible through a real mount without copying. Docker bind mounts
-refer to paths on the daemon host; selecting a folder on a remote laptop does not
-work yet. No remote-disconnect guarantees are claimed. The original folder survives
-session release and `compose down -v`; the runtime does not make a server-side copy.
-Checkpoint 2 must explicitly specify cache behavior, data loss, EIO/timeouts and
-what the user sees on tunnel/mount failure.
+Read, whole-file write, rename and listing work through a real filesystem mount;
+networkless sandboxes only see filesystem operations. SSH authenticates and encrypts
+both channels. The SSH user is trusted and this is not a multi-user hosting design.
+Append/random writes, directory rename, Unix permission changes and Git access are
+outside this prototype's supported filesystem subset. There is no automatic
+resume of a lost mount and no automatic replay of failed writes. Concurrent local
+editing is only detected during upload, not protected by a distributed lock.
+
+Host SIGKILL/crash may leave stale mount resources requiring manual cleanup; leases
+prevent their reuse by the manager. No performance advantage is claimed. See
+[setup, lifecycle, tests and limitations](../remote-mount.md). Full two-machine
+results and latency measurements must be collected on equipped hosts.

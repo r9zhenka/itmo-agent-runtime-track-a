@@ -1,0 +1,289 @@
+{
+  "passed": true,
+  "environment": {
+    "python": "3.12.3",
+    "system": "Linux",
+    "kernel": "6.8.0-139-generic",
+    "architecture": "x86_64",
+    "timestamp_utc": "2026-11-19T23:36:04.822615+00:00"
+  },
+  "image": "project-a-sandbox:cp1",
+  "model_calls": 0,
+  "backend": "real Docker",
+  "raw": [
+    {
+      "repeat": 1,
+      "cold_start_ms": 257.494552,
+      "exec_lifecycle_ms": 336.861976,
+      "host_python_ms": 14.770165,
+      "exec_overhead_ms": 322.091811,
+      "idle_cgroup_bytes": 569344,
+      "python_cgroup_bytes": 4521984,
+      "python_minus_idle_bytes": 3952640,
+      "idle_memory": {
+        "usage_bytes": 569344,
+        "limit_bytes": 268435456,
+        "cache_bytes": 0
+      },
+      "python_memory": {
+        "usage_bytes": 4521984,
+        "limit_bytes": 268435456,
+        "cache_bytes": 0
+      }
+    },
+    {
+      "repeat": 2,
+      "cold_start_ms": 253.909968,
+      "exec_lifecycle_ms": 601.75428,
+      "host_python_ms": 30.26393,
+      "exec_overhead_ms": 571.49035,
+      "idle_cgroup_bytes": 581632,
+      "python_cgroup_bytes": 4517888,
+      "python_minus_idle_bytes": 3936256,
+      "idle_memory": {
+        "usage_bytes": 581632,
+        "limit_bytes": 268435456,
+        "cache_bytes": 0
+      },
+      "python_memory": {
+        "usage_bytes": 4517888,
+        "limit_bytes": 268435456,
+        "cache_bytes": 0
+      }
+    },
+    {
+      "repeat": 3,
+      "cold_start_ms": 377.298102,
+      "exec_lifecycle_ms": 563.782942,
+      "host_python_ms": 28.202612,
+      "exec_overhead_ms": 535.58033,
+      "idle_cgroup_bytes": 733184,
+      "python_cgroup_bytes": 4505600,
+      "python_minus_idle_bytes": 3772416,
+      "idle_memory": {
+        "usage_bytes": 733184,
+        "limit_bytes": 268435456,
+        "cache_bytes": 0
+      },
+      "python_memory": {
+        "usage_bytes": 4505600,
+        "limit_bytes": 268435456,
+        "cache_bytes": 0
+      }
+    },
+    {
+      "repeat": 4,
+      "cold_start_ms": 435.840066,
+      "exec_lifecycle_ms": 632.991129,
+      "host_python_ms": 42.096709,
+      "exec_overhead_ms": 590.89442,
+      "idle_cgroup_bytes": 581632,
+      "python_cgroup_bytes": 4517888,
+      "python_minus_idle_bytes": 3936256,
+      "idle_memory": {
+        "usage_bytes": 581632,
+        "limit_bytes": 268435456,
+        "cache_bytes": 0
+      },
+      "python_memory": {
+        "usage_bytes": 4517888,
+        "limit_bytes": 268435456,
+        "cache_bytes": 0
+      }
+    },
+    {
+      "repeat": 5,
+      "cold_start_ms": 434.857466,
+      "exec_lifecycle_ms": 741.111267,
+      "host_python_ms": 41.82089,
+      "exec_overhead_ms": 699.290377,
+      "idle_cgroup_bytes": 569344,
+      "python_cgroup_bytes": 4595712,
+      "python_minus_idle_bytes": 4026368,
+      "idle_memory": {
+        "usage_bytes": 569344,
+        "limit_bytes": 268435456,
+        "cache_bytes": 0
+      },
+      "python_memory": {
+        "usage_bytes": 4595712,
+        "limit_bytes": 268435456,
+        "cache_bytes": 0
+      }
+    },
+    {
+      "repeat": 6,
+      "cold_start_ms": 485.968216,
+      "exec_lifecycle_ms": 626.73728,
+      "host_python_ms": 28.858194,
+      "exec_overhead_ms": 597.879086,
+      "idle_cgroup_bytes": 577536,
+      "python_cgroup_bytes": 4521984,
+      "python_minus_idle_bytes": 3944448,
+      "idle_memory": {
+        "usage_bytes": 577536,
+        "limit_bytes": 268435456,
+        "cache_bytes": 0
+      },
+      "python_memory": {
+        "usage_bytes": 4521984,
+        "limit_bytes": 268435456,
+        "cache_bytes": 0
+      }
+    },
+    {
+      "repeat": 7,
+      "cold_start_ms": 516.086257,
+      "exec_lifecycle_ms": 603.507697,
+      "host_python_ms": 28.887022,
+      "exec_overhead_ms": 574.620675,
+      "idle_cgroup_bytes": 569344,
+      "python_cgroup_bytes": 4513792,
+      "python_minus_idle_bytes": 3944448,
+      "idle_memory": {
+        "usage_bytes": 569344,
+        "limit_bytes": 268435456,
+        "cache_bytes": 0
+      },
+      "python_memory": {
+        "usage_bytes": 4513792,
+        "limit_bytes": 268435456,
+        "cache_bytes": 0
+      }
+    },
+    {
+      "repeat": 8,
+      "cold_start_ms": 642.508873,
+      "exec_lifecycle_ms": 597.817839,
+      "host_python_ms": 27.788843,
+      "exec_overhead_ms": 570.028996,
+      "idle_cgroup_bytes": 569344,
+      "python_cgroup_bytes": 4517888,
+      "python_minus_idle_bytes": 3948544,
+      "idle_memory": {
+        "usage_bytes": 569344,
+        "limit_bytes": 268435456,
+        "cache_bytes": 0
+      },
+      "python_memory": {
+        "usage_bytes": 4517888,
+        "limit_bytes": 268435456,
+        "cache_bytes": 0
+      }
+    },
+    {
+      "repeat": 9,
+      "cold_start_ms": 426.646164,
+      "exec_lifecycle_ms": 580.051835,
+      "host_python_ms": 37.508098,
+      "exec_overhead_ms": 542.543737,
+      "idle_cgroup_bytes": 577536,
+      "python_cgroup_bytes": 4517888,
+      "python_minus_idle_bytes": 3940352,
+      "idle_memory": {
+        "usage_bytes": 577536,
+        "limit_bytes": 268435456,
+        "cache_bytes": 0
+      },
+      "python_memory": {
+        "usage_bytes": 4517888,
+        "limit_bytes": 268435456,
+        "cache_bytes": 0
+      }
+    },
+    {
+      "repeat": 10,
+      "cold_start_ms": 452.318472,
+      "exec_lifecycle_ms": 601.907726,
+      "host_python_ms": 28.795442,
+      "exec_overhead_ms": 573.112284,
+      "idle_cgroup_bytes": 581632,
+      "python_cgroup_bytes": 4517888,
+      "python_minus_idle_bytes": 3936256,
+      "idle_memory": {
+        "usage_bytes": 581632,
+        "limit_bytes": 268435456,
+        "cache_bytes": 0
+      },
+      "python_memory": {
+        "usage_bytes": 4517888,
+        "limit_bytes": 268435456,
+        "cache_bytes": 0
+      }
+    }
+  ],
+  "semantics": {
+    "cold_start_ms": "create+start to first ready log, cached image, 5ms poll interval; no image pull",
+    "exec_lifecycle_ms": "SandboxManager.exec end-to-end, including per-operation container create/start/logs/remove",
+    "exec_overhead_ms": "exec lifecycle minus same-host fresh Python process baseline",
+    "python_cgroup_bytes": "Docker cgroup current usage including charged file cache for idle Python container",
+    "idle_cgroup_bytes": "same configuration with sleep instead of Python; separate fresh container",
+    "python_minus_idle_bytes": "signed difference, not dockerd/shim/host total memory overhead"
+  },
+  "docker": {
+    "Version": "29.10.0",
+    "ApiVersion": "1.57",
+    "KernelVersion": "6.8.0-139-generic",
+    "Os": "linux",
+    "Arch": "amd64"
+  },
+  "summary": {
+    "cold_start_ms": {
+      "n": 10,
+      "median": 435.34876599999996,
+      "p95": 642.508873,
+      "min": 253.909968,
+      "max": 642.508873,
+      "p95_method": "nearest rank"
+    },
+    "exec_lifecycle_ms": {
+      "n": 10,
+      "median": 601.831003,
+      "p95": 741.111267,
+      "min": 336.861976,
+      "max": 741.111267,
+      "p95_method": "nearest rank"
+    },
+    "host_python_ms": {
+      "n": 10,
+      "median": 28.872608,
+      "p95": 42.096709,
+      "min": 14.770165,
+      "max": 42.096709,
+      "p95_method": "nearest rank"
+    },
+    "exec_overhead_ms": {
+      "n": 10,
+      "median": 572.301317,
+      "p95": 699.290377,
+      "min": 322.091811,
+      "max": 699.290377,
+      "p95_method": "nearest rank"
+    },
+    "idle_cgroup_bytes": {
+      "n": 10,
+      "median": 577536.0,
+      "p95": 733184,
+      "min": 569344,
+      "max": 733184,
+      "p95_method": "nearest rank"
+    },
+    "python_cgroup_bytes": {
+      "n": 10,
+      "median": 4517888.0,
+      "p95": 4595712,
+      "min": 4505600,
+      "max": 4595712,
+      "p95_method": "nearest rank"
+    },
+    "python_minus_idle_bytes": {
+      "n": 10,
+      "median": 3942400.0,
+      "p95": 4026368,
+      "min": 3772416,
+      "max": 4026368,
+      "p95_method": "nearest rank"
+    }
+  },
+  "cleanup_completed": true
+}

@@ -1,0 +1,41 @@
+{
+  "backend": "SSH + WebDAV + rclone FUSE + Docker",
+  "checks": [
+    {
+      "check": "replay provider used",
+      "passed": true
+    },
+    {
+      "check": "sandbox reads client files and writes back",
+      "passed": true
+    },
+    {
+      "check": "replay provider used",
+      "passed": true
+    },
+    {
+      "check": "client edits visible to next sandbox command",
+      "passed": true
+    },
+    {
+      "check": "clean remote release",
+      "passed": true
+    },
+    {
+      "check": "replay provider used",
+      "passed": true
+    },
+    {
+      "check": "read-only rejects sandbox writes",
+      "passed": true
+    },
+    {
+      "check": "disconnect removes mount, lease and containers",
+      "passed": true
+    },
+    {
+      "check": "client originals survive sessions",
+      "passed": true
+    }
+  ]
+}

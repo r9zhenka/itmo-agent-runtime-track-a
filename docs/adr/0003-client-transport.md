@@ -1,6 +1,6 @@
 # 0003 — HTTP JSON and SSE for the client
 
-Status: accepted for local Checkpoint 1.
+Status: accepted; SSH encapsulation added for remote folders.
 
 ## Decision
 
@@ -20,5 +20,7 @@ The desktop UI and CLI share `client/api.py`; neither contains a separate protoc
 The protocol works with standard HTTP tooling. A lost event connection never
 resubmits a message. Batches create repeated connections but bound memory and idle
 connections. Commands currently report stdout/stderr on completion, not per chunk.
-Loopback HTTP is the default. TLS and remote authentication are CP2 work; a bearer
-token over plain HTTP is not suitable for an untrusted remote network.
+Loopback HTTP is the default. Remote-folder clients reach the gateway through an
+authenticated OpenSSH local forward with strict host-key checking; HTTP and bearer
+tokens do not travel in plaintext across the remote network. Direct public HTTP
+exposure remains unsupported. See [mounting](0005-mounting.md).

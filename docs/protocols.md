@@ -74,3 +74,18 @@ Caches and event cursors are not durable across process restarts.
 
 If cancellation cannot contact the manager, the run gets a final error explaining
 that cleanup could not be confirmed. It must not be reported as a clean cancellation.
+
+## Remote folder lifecycle
+
+No new public RPC operation is required. The SSH helper mounts the folder on the
+Docker host, then calls the existing `create` with its generated `remote-<32 hex>`
+workspace name. This prefix and `.remote-control` are reserved. Before provision
+and during exec, the manager verifies the host helper's expiring lease and mode.
+An absent or expired lease is a non-retryable `transport` failure; a disconnected
+mount must be recreated as a new session. Same-host workspace requests are unchanged.
+
+The SSH stdin control stream starts with one JSON object containing the reverse
+forward port, RO/RW mode, export token and client token. Helper stdout contains JSON
+`ready` (session/workspace IDs), `error`, and `closed` messages. EOF or a `close` line
+requests release. Credentials are never included in stdout or lease files. File
+operations use the WebDAV subset documented in [remote mounting](remote-mount.md).

@@ -1,0 +1,118 @@
+{
+  "backend": "real Docker + HTTP WebDAV",
+  "passed": true,
+  "checks": [
+    {
+      "check": "CPU quota throttles real workload (0.25 CPU probe)",
+      "passed": true,
+      "detail": {
+        "cpu_seconds": 0.913145,
+        "wall_seconds": 3.598337121999066,
+        "throttled_periods": 36
+      }
+    },
+    {
+      "check": "RAM exhaustion is OOM-classified and container removed",
+      "passed": true,
+      "detail": {
+        "v": 0,
+        "type": "result",
+        "session_id": "s",
+        "operation_id": "memory",
+        "stdout": "",
+        "stderr": "Killed\n",
+        "exit_code": 137,
+        "error": {
+          "kind": "sandbox",
+          "message": "Memory limit exceeded",
+          "retryable": false
+        },
+        "truncated": false,
+        "duration_ms": 686.198
+      }
+    },
+    {
+      "check": "PID limit rejects bounded process storm",
+      "passed": true,
+      "detail": {
+        "children": 61,
+        "refused": true,
+        "limit_events": 2
+      }
+    },
+    {
+      "check": "file-size kernel limit bounds local development writes",
+      "passed": true,
+      "detail": {
+        "limit": 1048576,
+        "rejected": true
+      }
+    },
+    {
+      "check": "external symlink cannot expose host canary",
+      "passed": true,
+      "detail": {
+        "v": 0,
+        "type": "result",
+        "session_id": "s",
+        "operation_id": "escape",
+        "stdout": "",
+        "stderr": "Traceback (most recent call last):\n  File \"/opt/file_tool.py\", line 32, in <module>\n    execute(sys.argv[1], json.loads(sys.argv[2]))\n  File \"/opt/file_tool.py\", line 12, in execute\n    raise ValueError(\"Path must stay in /work and outside .git\")\nValueError: Path must stay in /work and outside .git\n",
+        "exit_code": 1,
+        "error": {
+          "kind": "command",
+          "message": "Nonzero exit code",
+          "retryable": false
+        },
+        "truncated": false,
+        "duration_ms": 641.365
+      }
+    },
+    {
+      "check": "network socket and server secrets unavailable",
+      "passed": true,
+      "detail": {
+        "v": 0,
+        "type": "result",
+        "session_id": "s",
+        "operation_id": "isolation",
+        "stdout": "isolated\n",
+        "stderr": "",
+        "exit_code": 0,
+        "error": null,
+        "truncated": false,
+        "duration_ms": 581.422
+      }
+    },
+    {
+      "check": "aggregate WebDAV bytes, entries and replacement staging bounded",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "manager crash leaves no execution containers",
+      "passed": true,
+      "detail": {
+        "clean": true,
+        "leaked": false,
+        "watchdog_removals": 1,
+        "process_killed": true
+      }
+    },
+    {
+      "check": "harness crash leaves no execution containers",
+      "passed": true,
+      "detail": {
+        "clean": true,
+        "leaked": false,
+        "watchdog_removals": 1,
+        "process_killed": true
+      }
+    },
+    {
+      "check": "all hardening containers removed",
+      "passed": true,
+      "detail": null
+    }
+  ]
+}
